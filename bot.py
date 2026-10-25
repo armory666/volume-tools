@@ -17,7 +17,7 @@ init_db()
 
 # --- PUT YOUR TELEGRAM ID HERE ---
 # Message @userinfobot on Telegram to get it.
-ADMIN_ID = 123456789  
+ADMIN_ID = 8984546896  
 
 PILLAR_EMOJI = {"discord":"🎮","stealer":"🦠","breach":"🔓","iptrace":"🌐",
                 "email":"📧","username":"👤","phone":"📱","misc":"•"}
