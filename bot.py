@@ -7,13 +7,17 @@ from telegram.ext import (
     MessageHandler, ContextTypes, filters,
 )
 from core.tier import (
-    init_db, get_or_create, grant_premium, tier_of, usage_today, TIERS,
+    init_db, get_or_create, grant_premium, tier_of, usage_today, TIERS, db,
 )
 from core.pivot import fan_out
 
 TOKEN = os.environ["TELEGRAM_BOT_TOKEN"]
 LAST = {}
 init_db()
+
+# --- PUT YOUR TELEGRAM ID HERE ---
+# Message @userinfobot on Telegram to get it.
+ADMIN_ID = 123456789  
 
 PILLAR_EMOJI = {"discord":"🎮","stealer":"🦠","breach":"🔓","iptrace":"🌐",
                 "email":"📧","username":"👤","phone":"📱","misc":"•"}
@@ -140,6 +144,35 @@ async def cmd_status(u, c):
         f"*paid until* `{user.get('paid_until') or '—'}`",
         parse_mode="Markdown")
 
+# --- ADMIN COMMANDS ---
+
+async def cmd_makeadmin(u, c):
+    if u.effective_chat.id != ADMIN_ID:
+        await u.message.reply_text("no.")
+        return
+    user = get_or_create(tg=u.effective_chat.id)
+    with db() as conn:
+        conn.execute("UPDATE users SET tier='admin' WHERE id=?", (user["id"],))
+    await u.message.reply_text("✅ you are now admin.")
+
+async def cmd_givepremium(u, c):
+    if u.effective_chat.id != ADMIN_ID:
+        return
+    if not c.args:
+        await u.message.reply_text("usage: /givepremium <telegram_id>")
+        return
+    try:
+        target_tg = int(c.args[0])
+    except ValueError:
+        await u.message.reply_text("invalid ID.")
+        return
+        
+    target_user = get_or_create(tg=target_tg)
+    paid_until = grant_premium(target_user["id"], days=30, provider="manual")
+    await u.message.reply_text(f"✅ gifted premium to {target_tg} until {paid_until}")
+
+# ---------------------
+
 async def cmd_upgrade(u, c):
     user = get_or_create(tg=u.effective_chat.id)
     if user["tier"] == "premium" and user["paid_until"]:
@@ -197,9 +230,13 @@ def build_app():
     app.add_handler(CommandHandler("export", cmd_export))
     app.add_handler(CommandHandler("status", cmd_status))
     app.add_handler(CommandHandler("upgrade", cmd_upgrade))
+    app.add_handler(CommandHandler("makeadmin", cmd_makeadmin))
+    app.add_handler(CommandHandler("givepremium", cmd_givepremium))
+    
     for k in ("email", "username", "user", "ip", "phone", "domain"):
         mapping = {"user": "username"}
         app.add_handler(CommandHandler(k, mk(mapping.get(k, k))))
+        
     app.add_handler(CallbackQueryHandler(on_exp, pattern="^exp_json$"))
     app.add_handler(CallbackQueryHandler(on_buy, pattern="^buy_"))
     app.add_handler(PreCheckoutQueryHandler(on_pre))
