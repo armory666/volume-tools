@@ -11,7 +11,7 @@ from core.tier import (
 )
 from core.pivot import fan_out
 
-TOKEN = os.environ["8890799273:AAGDmBhZ_z7xwW8oU2jxoocHqTzG-qE98II"]
+TOKEN = os.environ["TELEGRAM_BOT_TOKEN"]
 LAST = {}
 init_db()
 
