@@ -1,4 +1,5 @@
 import os, json, re, asyncio
+import datetime
 from telegram import (
     Update, InlineKeyboardButton, InlineKeyboardMarkup, LabeledPrice,
 )
@@ -17,7 +18,8 @@ init_db()
 
 # --- PUT YOUR TELEGRAM ID HERE ---
 # Message @userinfobot on Telegram to get it.
-ADMIN_ID = 8984546896  
+ADMIN_ID = 123456789  
+YOUR_USERNAME = "YourTelegramHandle" # without the @
 
 PILLAR_EMOJI = {"discord":"🎮","stealer":"🦠","breach":"🔓","iptrace":"🌐",
                 "email":"📧","username":"👤","phone":"📱","misc":"•"}
@@ -144,7 +146,7 @@ async def cmd_status(u, c):
         f"*paid until* `{user.get('paid_until') or '—'}`",
         parse_mode="Markdown")
 
-# --- ADMIN COMMANDS ---
+# --- ADMIN & TESTING COMMANDS ---
 
 async def cmd_makeadmin(u, c):
     if u.effective_chat.id != ADMIN_ID:
@@ -171,7 +173,32 @@ async def cmd_givepremium(u, c):
     paid_until = grant_premium(target_user["id"], days=30, provider="manual")
     await u.message.reply_text(f"✅ gifted premium to {target_tg} until {paid_until}")
 
-# ---------------------
+async def cmd_testreceipt(u, c):
+    if u.effective_chat.id != ADMIN_ID:
+        await u.message.reply_text("no.")
+        return
+    user = get_or_create(tg=u.effective_chat.id)
+    await send_receipt(
+        u, c, user, 
+        days=30, 
+        amount=100, 
+        charge_id="TEST_CHARGE_123456789", 
+        paid_until="2024-12-31"
+    )
+
+async def cmd_testlimit(u, c):
+    if u.effective_chat.id != ADMIN_ID:
+        await u.message.reply_text("no.")
+        return
+    kb = InlineKeyboardMarkup([[
+        InlineKeyboardButton("⭐ unlock premium", callback_data="buy_month")
+    ]])
+    await u.message.reply_text(
+        f"*free tier limit*\n\ndaily limit reached (5). upgrade for more.\n\n"
+        "_premium: 200/day, all sources_",
+        parse_mode="Markdown", reply_markup=kb)
+
+# --------------------------------
 
 async def cmd_upgrade(u, c):
     user = get_or_create(tg=u.effective_chat.id)
@@ -213,14 +240,47 @@ async def on_paid(u, c):
     sp = u.message.successful_payment
     user = get_or_create(tg=u.effective_chat.id)
     days = 365 if "365" in sp.invoice_payload else 30
+    
     paid_until = grant_premium(
         user["id"], days=days, provider="stars",
         provider_id=sp.telegram_payment_charge_id,
         amount=sp.total_amount)
-    await u.message.reply_text(
-        f"✅ *premium active* until `{paid_until}`\n\n"
-        f"_/pivot <seed> now runs the full fan-out._",
-        parse_mode="Markdown")
+    
+    await send_receipt(u, c, user, days, sp.total_amount, sp.telegram_payment_charge_id, paid_until)
+
+async def send_receipt(u, c, user, days, amount, charge_id, paid_until):
+    now = datetime.datetime.now(datetime.timezone.utc)
+    timestamp = now.strftime("%Y-%m-%d %H:%M UTC")
+    order_id = charge_id[-10:].upper()
+    plan_name = "1 Year Premium" if days == 365 else "1 Month Premium"
+
+    receipt = (
+        f"🧾 **VOLUME.TOOLS**\n"
+        f"**Payment Receipt**\n\n"
+        f"> **Status:** ✅ Paid\n"
+        f"> **Date:** `{timestamp}`\n"
+        f"> **Order ID:** `{order_id}`\n\n"
+        f"**Account Details**\n"
+        f"> **Telegram ID:** `{user['telegram_id']}`\n"
+        f"> **Username:** @{u.effective_chat.username or 'none'}\n\n"
+        f"**Subscription**\n"
+        f"> **Plan:** {plan_name}\n"
+        f"> **Amount:** {amount} Stars\n"
+        f"> **Expires:** `{paid_until}`\n\n"
+        f"_Please save this message. If the bot resets, forward this receipt to @{YOUR_USERNAME} for manual restoration._"
+    )
+
+    await u.message.reply_text(receipt, parse_mode="Markdown")
+
+    if u.effective_chat.id != ADMIN_ID:
+        try:
+            await c.bot.send_message(
+                chat_id=ADMIN_ID,
+                text=f"💰 **NEW SALE**\nUser: @{u.effective_chat.username or 'none'}\nID: `{u.effective_chat.id}`\nOrder: `{order_id}`\nAmount: {amount} Stars\nPlan: {plan_name}",
+                parse_mode="Markdown"
+            )
+        except Exception:
+            pass
 
 def build_app():
     app = Application.builder().token(TOKEN).build()
@@ -232,6 +292,8 @@ def build_app():
     app.add_handler(CommandHandler("upgrade", cmd_upgrade))
     app.add_handler(CommandHandler("makeadmin", cmd_makeadmin))
     app.add_handler(CommandHandler("givepremium", cmd_givepremium))
+    app.add_handler(CommandHandler("testreceipt", cmd_testreceipt))
+    app.add_handler(CommandHandler("testlimit", cmd_testlimit))
     
     for k in ("email", "username", "user", "ip", "phone", "domain"):
         mapping = {"user": "username"}
