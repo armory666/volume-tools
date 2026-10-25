@@ -1,7 +1,7 @@
 import os, json, re, asyncio
 import datetime
 from telegram import (
-    Update, InlineKeyboardButton, InlineKeyboardMarkup, LabeledPrice,
+    Update, InlineKeyboardButton, InlineKeyboardMarkup, LabeledPrice, BotCommand, BotCommandScopeChat
 )
 from telegram.ext import (
     Application, CommandHandler, CallbackQueryHandler, PreCheckoutQueryHandler,
@@ -19,7 +19,7 @@ init_db()
 # --- PUT YOUR TELEGRAM ID HERE ---
 # Message @userinfobot on Telegram to get it.
 ADMIN_ID = 8984546896  
-YOUR_USERNAME = "stomponheads" # without the @
+YOUR_USERNAME = "YourTelegramHandle" # without the @
 
 PILLAR_EMOJI = {"discord":"🎮","stealer":"🦠","breach":"🔓","iptrace":"🌐",
                 "email":"📧","username":"👤","phone":"📱","misc":"•"}
@@ -37,6 +37,27 @@ HELP = """*volume.tools* — osint pivot
 /status           tier + usage
 /help             this
 """
+
+USER_COMMANDS = [
+    ("start", "start the bot"),
+    ("pivot", "auto-detect and pivot"),
+    ("email", "email pivot"),
+    ("user", "username pivot"),
+    ("ip", "ip trace"),
+    ("phone", "phone pivot"),
+    ("domain", "domain pivot"),
+    ("export", "export last result as json"),
+    ("status", "show tier and usage"),
+    ("upgrade", "buy premium"),
+    ("help", "show help message")
+]
+
+ADMIN_COMMANDS = USER_COMMANDS + [
+    ("makeadmin", "set yourself as admin"),
+    ("givepremium", "gift premium to a user ID"),
+    ("testreceipt", "preview the payment receipt"),
+    ("testlimit", "preview the free tier limit")
+]
 
 def detect_kind(seed):
     if re.match(r"^\d{1,3}(\.\d{1,3}){3}$", seed): return "ip"
@@ -318,6 +339,24 @@ async def run_web():
 async def main():
     tg_app = build_app()
     await tg_app.initialize()
+    
+    # --- Sync Telegram Command Menus ---
+    try:
+        # 1. Set the default menu for everyone else
+        await tg_app.bot.set_my_commands(
+            [BotCommand(cmd, desc) for cmd, desc in USER_COMMANDS]
+        )
+        
+        # 2. Set the admin menu just for YOUR chat
+        await tg_app.bot.set_my_commands(
+            [BotCommand(cmd, desc) for cmd, desc in ADMIN_COMMANDS],
+            scope=BotCommandScopeChat(chat_id=ADMIN_ID)
+        )
+        print(f"✅ Admin menu synced for ID {ADMIN_ID}")
+    except Exception as e:
+        print(f"⚠️ Failed to sync command menus: {e}")
+    # -----------------------------------
+
     await tg_app.start()
     await tg_app.updater.start_polling()
     web_task = asyncio.create_task(run_web())
