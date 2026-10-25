@@ -21,7 +21,7 @@ LAST = {}
 init_db()
 
 # --- CONFIGURATION ---
-ADMIN_ID = 123456789  # PUT YOUR TELEGRAM ID HERE
+ADMIN_ID = 8984546896  # PUT YOUR TELEGRAM ID HERE
 YOUR_USERNAME = "YourTelegramHandle" # WITHOUT THE @
 
 PILLAR_EMOJI = {"discord":"🎮","stealer":"🦠","breach":"🔓","iptrace":"🌐",
