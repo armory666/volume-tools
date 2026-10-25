@@ -6,9 +6,10 @@ from .internetdb import InternetDB
 from .bgphe import BgpHe
 from .crtsh import Crtsh
 from .phonenumbers_lib import PhoneNumbers
+from .breach import BreachEngine # <-- ADD THIS
 
 REGISTRY = [
     Holehe, HudsonRock, Gravatar,
     IpApi, InternetDB, BgpHe, Crtsh,
-    PhoneNumbers,
+    PhoneNumbers, BreachEngine # <-- ADD THIS
 ]
