@@ -21,8 +21,8 @@ LAST = {}
 init_db()
 
 # --- CONFIGURATION ---
-ADMIN_ID = 8984546896  # PUT YOUR TELEGRAM ID HERE
-YOUR_USERNAME = "stomponheads" # WITHOUT THE @
+ADMIN_ID = 123456789  # PUT YOUR TELEGRAM ID HERE
+YOUR_USERNAME = "YourTelegramHandle" # WITHOUT THE @
 
 PILLAR_EMOJI = {"discord":"🎮","stealer":"🦠","breach":"🔓","iptrace":"🌐",
                 "email":"📧","username":"👤","phone":"📱","roblox":"🟥","misc":"•"}
@@ -63,6 +63,7 @@ ADMIN_COMMANDS = USER_COMMANDS + [
     ("stats", "show bot usage statistics"),
     ("top", "top 5 searched artifacts"),
     ("ping", "check bot latency"),
+    ("starbalance", "check bot stars balance"),
     ("broadcast", "send a message to all users"),
     ("givepremium", "gift premium to a user ID"),
     ("revoke", "remove premium from a user"),
@@ -497,6 +498,18 @@ async def cmd_testlimit(u, c):
         f"*free tier limit*\n\ndaily limit reached (5). upgrade for more.\n\n_premium: 200/day, all sources_",
         parse_mode="Markdown", reply_markup=kb)
 
+async def cmd_starbalance(u, c):
+    if u.effective_chat.id != ADMIN_ID: return
+    try:
+        balance = await c.bot.get_my_star_balance()
+        await u.message.reply_text(
+            f"⭐ **Stars Balance**\n\n"
+            f"Available: `{balance.amount} Stars`",
+            parse_mode="Markdown"
+        )
+    except Exception as e:
+        await u.message.reply_text(f"Error fetching balance: {e}")
+
 # --- PAYMENTS ---
 
 async def cmd_upgrade(u, c):
@@ -561,10 +574,9 @@ async def send_receipt(u, c, user, days, amount, charge_id, paid_until):
 
 async def on_startup(app: Application):
     banner = (
-        "🚀 **VOLUME.TOOLS v1.2.0**\n**System Online**\n\n"
-        "• Added Admin Telemetry (/stats)\n"
-        "• Added Deep Breach Engine (/breach)\n"
-        "• Added Inline Menu Panel\n\n_Waiting for incoming queries._"
+        "🚀 **VOLUME.TOOLS v1.3.0**\n**System Online**\n\n"
+        "• Added /starbalance telemetry\n"
+        "• Admin Suite Complete\n\n_Waiting for incoming queries._"
     )
     try: await app.bot.send_message(chat_id=ADMIN_ID, text=banner, parse_mode="Markdown")
     except Exception: pass
@@ -591,6 +603,7 @@ def build_app():
     app.add_handler(CommandHandler("sources", cmd_sources))
     app.add_handler(CommandHandler("testreceipt", cmd_testreceipt))
     app.add_handler(CommandHandler("testlimit", cmd_testlimit))
+    app.add_handler(CommandHandler("starbalance", cmd_starbalance))
     
     for k in ("email", "username", "user", "ip", "phone", "domain", "roblox"):
         mapping = {"user": "username"}
