@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>volume.tools</title>
+  <style>
+    body{font-family:ui-monospace,Menlo,monospace;background:#0a0a0a;color:#ddd;
+         padding:24px;margin:0}
+    h1{font-size:1.4em;font-weight:400;margin:0 0 16px}
+    h1 span{color:#2a2}
+    .row{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
+    select,input,button{font:inherit;background:#111;color:#ddd;
+      border:1px solid #222;padding:10px 12px}
+    input{flex:1;min-width:200px}
+    button{cursor:pointer;border-color:#2a2;color:#2a2}
+    button:hover{background:#2a2;color:#000}
+    #status{color:#666;font-size:.85em;margin:8px 0 16px}
+    .hit{border-left:2px solid #2a2;background:#111;padding:10px 14px;margin:6px 0}
+    .hit .pillar{color:#2a2;font-size:.75em;text-transform:uppercase}
+    .hit .kind{color:#666;font-size:.75em;margin-left:8px}
+    .hit .val{margin-top:4px;word-break:break-all}
+    .hit .meta{color:#666;font-size:.75em;margin-top:4px}
+    #tier{color:#2a2;font-size:.8em}
+  </style>
+</head>
+<body>
+  <h1>volume<span>.tools</span> <span id="tier"></span></h1>
+  <div class="row">
+    <select id="kind">
+      <option>email</option><option>username</option>
+      <option>ip</option><option>phone</option><option>domain</option>
+    </select>
+    <input id="seed" placeholder="seed artifact" autofocus>
+    <button id="go">pivot →</button>
+  </div>
+  <div id="status"></div>
+  <div id="out"></div>
+  <script>
+    fetch('/api/me').then(r=>r.json()).then(d=>{
+      document.getElementById('tier').textContent = '('+d.tier+')';
+    });
+    document.getElementById('go').onclick = async () => {
+      const seed = document.getElementById('seed').value.trim();
+      const kind = document.getElementById('kind').value;
+      if (!seed) return;
+      const s = document.getElementById('status');
+      s.textContent = `fanning out · ${kind} · ${seed}`;
+      document.getElementById('out').innerHTML = '';
+      try {
+        const r = await fetch('/api/pivot', {
+          method: 'POST', headers: {'content-type':'application/json'},
+          body: JSON.stringify({seed, kind})
+        });
+        if (r.status === 402) {
+          const d = await r.json();
+          s.textContent = 'free tier limit · ' + d.detail;
+          return;
+        }
+        const d = await r.json();
+        s.textContent = `${d.count} hits · tier ${d.tier}`;
+        document.getElementById('out').innerHTML = d.hits.map(h=>`
+          <div class="hit">
+            <span class="pillar">${h.pillar}</span>
+            <span class="kind">${h.kind}</span>
+            <div class="val">${h.value}</div>
+            <div class="meta">${JSON.stringify(h.meta)}</div>
+          </div>`).join('') || '<p style="color:#666">no hits</p>';
+      } catch(e) { s.textContent = 'error · ' + e.message; }
+    };
+  </script>
+</body>
+</html>
