@@ -1,7 +1,7 @@
 import os
 from fastapi import FastAPI, Depends, Header, HTTPException
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, RedirectResponse
 from pydantic import BaseModel
 from core.pivot import fan_out
 from core.tier import init_db, get_or_create, get_user, tier_of
@@ -49,7 +49,7 @@ def me(user=Depends(current_user)):
     return {"tier": tier_of(user), "paid_until": user.get("paid_until"),
             "telegram_id": user.get("telegram_id")}
 
-@app.get("/health")
+@app.get("/api/health")
 def health():
     import core.sources as s
     return {"ok": True, "tool": "volume.tools",
@@ -65,5 +65,12 @@ def home():
 def app_console():
     return FileResponse("web/index.html")
 
-# Static assets (CSS/JS/icons if you add them later)
+# /upgrade redirects straight to the telegram bot deep link.
+# Set TELEGRAM_BOT_USERNAME in Render env to override the default.
+@app.get("/upgrade")
+def upgrade():
+    bot = os.environ.get("TELEGRAM_BOT_USERNAME", "YourBotUsername")
+    return RedirectResponse(f"https://t.me/{bot}?start=upgrade")
+
+# static assets
 app.mount("/static", StaticFiles(directory="web"), name="static")
