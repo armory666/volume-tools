@@ -3,70 +3,128 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>volume.tools</title>
+  <title>volume.tools · Graph Console</title>
+  <script type="text/javascript" src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
   <style>
-    body{font-family:ui-monospace,Menlo,monospace;background:#0a0a0a;color:#ddd;
-         padding:24px;margin:0}
-    h1{font-size:1.4em;font-weight:400;margin:0 0 16px}
-    h1 span{color:#2a2}
-    .row{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
-    select,input,button{font:inherit;background:#111;color:#ddd;
-      border:1px solid #222;padding:10px 12px}
-    input{flex:1;min-width:200px}
-    button{cursor:pointer;border-color:#2a2;color:#2a2}
-    button:hover{background:#2a2;color:#000}
-    #status{color:#666;font-size:.85em;margin:8px 0 16px}
-    .hit{border-left:2px solid #2a2;background:#111;padding:10px 14px;margin:6px 0}
-    .hit .pillar{color:#2a2;font-size:.75em;text-transform:uppercase}
-    .hit .kind{color:#666;font-size:.75em;margin-left:8px}
-    .hit .val{margin-top:4px;word-break:break-all}
-    .hit .meta{color:#666;font-size:.75em;margin-top:4px}
-    #tier{color:#2a2;font-size:.8em}
+    :root { --bg:#0a0a0a; --fg:#e0e0e0; --accent:#00ff88; --border:#222; --panel:#111; }
+    body { margin:0; font-family:ui-monospace,Menlo,monospace; background:var(--bg); color:var(--fg); display:flex; height:100vh; overflow:hidden; }
+    
+    /* Sidebar */
+    #sidebar { width:380px; border-right:1px solid var(--border); padding:20px; display:flex; flex-direction:column; background:var(--panel); z-index:10; box-shadow: 2px 0 10px rgba(0,0,0,0.5); }
+    h1 { font-size:1.5em; font-weight:400; margin:0 0 20px; letter-spacing:-0.05em; color:#fff; }
+    h1 span { color:var(--accent); }
+    .input-group { display:flex; flex-direction:column; gap:10px; margin-bottom:20px; }
+    select, input, button { font:inherit; background:#000; color:var(--fg); border:1px solid var(--border); padding:12px; border-radius:4px; outline:none; }
+    input:focus, select:focus { border-color:var(--accent); }
+    button { cursor:pointer; background:var(--accent); color:#000; font-weight:bold; border:none; transition:0.2s; }
+    button:hover { opacity:0.8; }
+    button:disabled { background:#333; color:#666; cursor:not-allowed; }
+    
+    /* Results List */
+    #results { flex:1; overflow-y:auto; margin-top:10px; }
+    .hit { border-left:2px solid var(--accent); background:#161616; padding:12px; margin-bottom:8px; border-radius:0 4px 4px 0; font-size:0.85em; }
+    .hit .pillar { color:var(--accent); font-size:0.75em; text-transform:uppercase; font-weight:bold; }
+    .hit .val { margin:6px 0; word-break:break-all; color:#fff; }
+    .hit .meta { color:#888; font-size:0.8em; }
+    
+    /* Graph Area */
+    #graph-container { flex:1; position:relative; background:radial-gradient(circle at center, #111 0%, #0a0a0a 100%); }
+    #network { width:100%; height:100%; position:absolute; }
+    
+    /* Status */
+    #status { font-size:0.8em; color:#888; margin-bottom:10px; min-height:1.2em; }
   </style>
 </head>
 <body>
-  <h1>volume<span>.tools</span> <span id="tier"></span></h1>
-  <div class="row">
-    <select id="kind">
-      <option>email</option><option>username</option>
-      <option>ip</option><option>phone</option><option>domain</option>
-    </select>
-    <input id="seed" placeholder="seed artifact" autofocus>
-    <button id="go">pivot →</button>
+  <div id="sidebar">
+    <h1>volume<span>.tools</span></h1>
+    <div class="input-group">
+      <select id="kind">
+        <option value="email">Email</option>
+        <option value="username">Username</option>
+        <option value="ip">IP Address</option>
+        <option value="discord_id">Discord ID</option>
+      </select>
+      <input id="seed" placeholder="Enter target..." autofocus autocomplete="off" spellcheck="false">
+      <button id="go">Execute Pivot</button>
+    </div>
+    <div id="status">Ready.</div>
+    <div id="results"></div>
   </div>
-  <div id="status"></div>
-  <div id="out"></div>
+  
+  <div id="graph-container">
+    <div id="network"></div>
+  </div>
+
   <script>
-    fetch('/api/me').then(r=>r.json()).then(d=>{
-      document.getElementById('tier').textContent = '('+d.tier+')';
-    });
+    let network = null;
+    let nodes = new vis.DataSet([]);
+    let edges = new vis.DataSet([]);
+    let nodeIds = new Set();
+
+    const container = document.getElementById('network');
+    const data = { nodes: nodes, edges: edges };
+    const options = {
+      nodes: { shape: 'dot', size: 16, font: { color: '#fff', face: 'monospace' }, borderWidth: 2, color: { background: '#111', border: '#00ff88' } },
+      edges: { color: '#333', width: 1, arrows: 'to', smooth: { type: 'continuous' } },
+      physics: { forceAtlas2Based: { gravitationalConstant: -50, centralGravity: 0.01, springLength: 100 }, maxVelocity: 50, solver: 'forceAtlas2Based', timestep: 0.35, stabilization: { iterations: 150 } },
+      interaction: { hover: true, tooltipDelay: 200 }
+    };
+    
+    network = new vis.Network(container, data, options);
+
     document.getElementById('go').onclick = async () => {
       const seed = document.getElementById('seed').value.trim();
       const kind = document.getElementById('kind').value;
       if (!seed) return;
+      
       const s = document.getElementById('status');
-      s.textContent = `fanning out · ${kind} · ${seed}`;
-      document.getElementById('out').innerHTML = '';
+      const btn = document.getElementById('go');
+      s.innerHTML = `⏳ Fanning out across all sources...`;
+      btn.disabled = true;
+      document.getElementById('results').innerHTML = '';
+
+      // Add root node
+      const rootId = kind + ":" + seed;
+      if (!nodeIds.has(rootId)) {
+        nodes.add({ id: rootId, label: seed, group: kind, size: 25, color: { border: '#fff', background: '#00ff88' }, font: { color: '#000', bold: true } });
+        nodeIds.add(rootId);
+      }
+
       try {
         const r = await fetch('/api/pivot', {
           method: 'POST', headers: {'content-type':'application/json'},
           body: JSON.stringify({seed, kind})
         });
-        if (r.status === 402) {
-          const d = await r.json();
-          s.textContent = 'free tier limit · ' + d.detail;
-          return;
-        }
         const d = await r.json();
-        s.textContent = `${d.count} hits · tier ${d.tier}`;
-        document.getElementById('out').innerHTML = d.hits.map(h=>`
-          <div class="hit">
+        
+        s.innerHTML = `✅ Complete: ${d.count} hits.`;
+        
+        let html = '';
+        d.hits.forEach(h => {
+          // Add to list
+          html += `<div class="hit">
             <span class="pillar">${h.pillar}</span>
-            <span class="kind">${h.kind}</span>
             <div class="val">${h.value}</div>
             <div class="meta">${JSON.stringify(h.meta)}</div>
-          </div>`).join('') || '<p style="color:#666">no hits</p>';
-      } catch(e) { s.textContent = 'error · ' + e.message; }
+          </div>`;
+          
+          // Add to graph
+          const targetId = h.kind + ":" + h.value;
+          if (!nodeIds.has(targetId)) {
+            nodes.add({ id: targetId, label: String(h.value).substring(0, 20), group: h.pillar });
+            nodeIds.add(targetId);
+            edges.add({ from: rootId, to: targetId });
+          }
+        });
+        
+        document.getElementById('results').innerHTML = html;
+        
+      } catch(e) {
+        s.innerHTML = `❌ Error: ${e.message}`;
+      } finally {
+        btn.disabled = false;
+      }
     };
   </script>
 </body>
