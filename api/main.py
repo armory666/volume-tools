@@ -1,6 +1,7 @@
 import os
 from fastapi import FastAPI, Depends, Header, HTTPException
 from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 from pydantic import BaseModel
 from core.pivot import fan_out
 from core.tier import init_db, get_or_create, get_user, tier_of
@@ -54,4 +55,15 @@ def health():
     return {"ok": True, "tool": "volume.tools",
             "sources": [getattr(x, "name", x.__name__) for x in s.REGISTRY]}
 
-app.mount("/", StaticFiles(directory="web", html=True), name="web")
+# --- SPA ROUTING ---
+
+@app.get("/")
+def home():
+    return FileResponse("web/home.html")
+
+@app.get("/app")
+def app_console():
+    return FileResponse("web/index.html")
+
+# Static assets (CSS/JS/icons if you add them later)
+app.mount("/static", StaticFiles(directory="web"), name="static")
