@@ -1,131 +1,351 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>volume.tools · Graph Console</title>
-  <script type="text/javascript" src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
-  <style>
-    :root { --bg:#0a0a0a; --fg:#e0e0e0; --accent:#00ff88; --border:#222; --panel:#111; }
-    body { margin:0; font-family:ui-monospace,Menlo,monospace; background:var(--bg); color:var(--fg); display:flex; height:100vh; overflow:hidden; }
-    
-    /* Sidebar */
-    #sidebar { width:380px; border-right:1px solid var(--border); padding:20px; display:flex; flex-direction:column; background:var(--panel); z-index:10; box-shadow: 2px 0 10px rgba(0,0,0,0.5); }
-    h1 { font-size:1.5em; font-weight:400; margin:0 0 20px; letter-spacing:-0.05em; color:#fff; }
-    h1 span { color:var(--accent); }
-    .input-group { display:flex; flex-direction:column; gap:10px; margin-bottom:20px; }
-    select, input, button { font:inherit; background:#000; color:var(--fg); border:1px solid var(--border); padding:12px; border-radius:4px; outline:none; }
-    input:focus, select:focus { border-color:var(--accent); }
-    button { cursor:pointer; background:var(--accent); color:#000; font-weight:bold; border:none; transition:0.2s; }
-    button:hover { opacity:0.8; }
-    button:disabled { background:#333; color:#666; cursor:not-allowed; }
-    
-    /* Results List */
-    #results { flex:1; overflow-y:auto; margin-top:10px; }
-    .hit { border-left:2px solid var(--accent); background:#161616; padding:12px; margin-bottom:8px; border-radius:0 4px 4px 0; font-size:0.85em; }
-    .hit .pillar { color:var(--accent); font-size:0.75em; text-transform:uppercase; font-weight:bold; }
-    .hit .val { margin:6px 0; word-break:break-all; color:#fff; }
-    .hit .meta { color:#888; font-size:0.8em; }
-    
-    /* Graph Area */
-    #graph-container { flex:1; position:relative; background:radial-gradient(circle at center, #111 0%, #0a0a0a 100%); }
-    #network { width:100%; height:100%; position:absolute; }
-    
-    /* Status */
-    #status { font-size:0.8em; color:#888; margin-bottom:10px; min-height:1.2em; }
-  </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>volume.tools · console</title>
+<script src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
+<style>
+  :root{
+    --bg:#0a0d0b;
+    --bg-soft:#111511;
+    --card:#141916;
+    --card-2:#0e1310;
+    --border:#1e2521;
+    --border-2:#2a332d;
+    --fg:#e8ebe8;
+    --fg-2:#c1c8c3;
+    --dim:#7a847d;
+    --dim-2:#4a544d;
+    --accent:#6ee7a8;
+    --accent-2:#3a8a5e;
+    --accent-glow:rgba(110,231,168,.18);
+    --danger:#ff6b6b;
+    --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{
+    font-family:var(--sans);
+    background:var(--bg);
+    color:var(--fg);
+    overflow:hidden;
+    font-size:14px;
+  }
+  body::before{
+    content:"";
+    position:fixed;inset:0;pointer-events:none;z-index:0;
+    background:
+      radial-gradient(ellipse 80% 60% at 20% 0%, rgba(110,231,168,.05), transparent 60%),
+      radial-gradient(ellipse 60% 50% at 100% 100%, rgba(58,138,94,.06), transparent 60%);
+  }
+  .shell{
+    position:relative;z-index:1;
+    display:grid;grid-template-columns:400px 1fr;
+    height:100vh;
+  }
+
+  /* ---------- SIDEBAR ---------- */
+  .side{
+    background:linear-gradient(180deg,var(--bg-soft) 0%,var(--bg) 100%);
+    border-right:1px solid var(--border);
+    display:flex;flex-direction:column;min-height:0;
+  }
+  .top{
+    padding:22px 24px 0;
+    border-bottom:1px solid var(--border);
+  }
+  .brand{
+    display:flex;align-items:center;gap:10px;padding-bottom:18px;
+  }
+  .brand .logo{
+    width:28px;height:28px;border-radius:8px;
+    background:linear-gradient(135deg,var(--accent),var(--accent-2));
+    display:grid;place-items:center;font-weight:700;color:#062;font-size:14px;
+  }
+  .brand h1{font-size:16px;font-weight:600;letter-spacing:-.01em}
+  .brand h1 span{color:var(--accent);font-weight:400}
+  .brand .ver{
+    margin-left:auto;font-family:var(--mono);font-size:11px;
+    color:var(--dim);padding:3px 8px;
+    border:1px solid var(--border-2);border-radius:999px;
+  }
+
+  .status-bar{
+    display:flex;align-items:center;gap:8px;
+    padding:10px 12px;margin-bottom:16px;
+    background:var(--card-2);border:1px solid var(--border);
+    border-radius:10px;font-size:12px;color:var(--fg-2);
+  }
+  .status-bar .dot{
+    width:7px;height:7px;border-radius:50%;background:var(--accent);
+    box-shadow:0 0 0 3px var(--accent-glow);
+    animation:pulse 2s ease-in-out infinite;
+  }
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.45}}
+  .status-bar b{color:var(--fg);font-weight:500}
+  .status-bar .right{margin-left:auto;font-family:var(--mono);color:var(--dim);font-size:11px}
+
+  /* ---------- COMPOSER ---------- */
+  .composer{padding:20px 24px;border-bottom:1px solid var(--border)}
+  .field{display:flex;flex-direction:column;gap:6px;margin-bottom:12px}
+  .field label{
+    font-size:11px;color:var(--dim);text-transform:uppercase;letter-spacing:.08em;
+    font-weight:500;
+  }
+  select,input{
+    font-family:var(--sans);font-size:13px;
+    background:var(--card-2);
+    color:var(--fg);
+    border:1px solid var(--border-2);
+    padding:10px 12px;border-radius:8px;outline:none;
+    transition:border-color .15s ease, box-shadow .15s ease;
+    width:100%;
+  }
+  select:focus,input:focus{
+    border-color:var(--accent-2);
+    box-shadow:0 0 0 3px rgba(110,231,168,.1);
+  }
+  .btn{
+    font-family:var(--sans);font-size:13px;font-weight:500;
+    background:var(--accent);color:#062a17;
+    border:none;padding:11px 16px;border-radius:8px;
+    cursor:pointer;width:100%;
+    transition:filter .15s ease, transform .05s ease;
+  }
+  .btn:hover{filter:brightness(1.05)}
+  .btn:active{transform:translateY(1px)}
+  .btn:disabled{background:var(--dim-2);color:var(--dim);cursor:not-allowed}
+
+  .status{
+    padding:12px 24px;font-family:var(--mono);font-size:11px;color:var(--dim);
+    border-bottom:1px solid var(--border);
+    min-height:16px;
+  }
+  .status .ok{color:var(--accent)}
+  .status .err{color:var(--danger)}
+
+  /* ---------- HITS ---------- */
+  .hits{
+    flex:1;overflow-y:auto;padding:14px 18px 20px;
+  }
+  .hits::-webkit-scrollbar{width:6px}
+  .hits::-webkit-scrollbar-thumb{background:var(--border-2);border-radius:3px}
+  .hits::-webkit-scrollbar-track{background:transparent}
+
+  .hit{
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:10px;
+    padding:12px 14px;margin-bottom:8px;
+    transition:border-color .15s ease;
+    cursor:default;
+  }
+  .hit:hover{border-color:var(--border-2)}
+  .hit .top{
+    display:flex;align-items:center;gap:8px;margin-bottom:6px;
+  }
+  .hit .pillar{
+    font-family:var(--mono);font-size:10px;letter-spacing:.04em;
+    color:var(--accent);background:rgba(110,231,168,.08);
+    padding:2px 7px;border-radius:5px;text-transform:uppercase;
+  }
+  .hit .kind{font-size:11px;color:var(--dim);margin-left:auto;font-family:var(--mono)}
+  .hit .val{font-size:13px;color:var(--fg);word-break:break-all;line-height:1.5}
+  .hit .meta{
+    font-size:11px;color:var(--dim);margin-top:6px;
+    font-family:var(--mono);
+  }
+
+  /* ---------- GRAPH ---------- */
+  .graph{position:relative;background:var(--bg)}
+  .graph::before{
+    content:"";position:absolute;inset:0;pointer-events:none;
+    background-image:
+      radial-gradient(circle at 1px 1px, var(--border) 1px, transparent 0);
+    background-size:32px 32px;
+    opacity:.6;
+  }
+  #net{width:100%;height:100%;position:absolute}
+
+  .graph-meta{
+    position:absolute;top:20px;right:24px;
+    display:flex;gap:8px;z-index:2;
+  }
+  .pill{
+    font-family:var(--mono);font-size:11px;
+    background:rgba(20,25,22,.85);
+    border:1px solid var(--border-2);
+    padding:6px 11px;border-radius:999px;
+    color:var(--dim);
+    backdrop-filter:blur(8px);
+  }
+  .pill b{color:var(--fg);font-weight:500;margin-left:4px}
+
+  @media (max-width:860px){
+    .shell{grid-template-columns:1fr;grid-template-rows:65vh 35vh}
+    .side{border-right:none;border-bottom:1px solid var(--border)}
+  }
+</style>
 </head>
 <body>
-  <div id="sidebar">
-    <h1>volume<span>.tools</span></h1>
-    <div class="input-group">
-      <select id="kind">
-        <option value="email">Email</option>
-        <option value="username">Username</option>
-        <option value="ip">IP Address</option>
-        <option value="discord_id">Discord ID</option>
-      </select>
-      <input id="seed" placeholder="Enter target..." autofocus autocomplete="off" spellcheck="false">
-      <button id="go">Execute Pivot</button>
+
+<div class="shell">
+  <aside class="side">
+    <div class="top">
+      <div class="brand">
+        <div class="logo">v</div>
+        <h1>volume<span>.tools</span></h1>
+        <span class="ver">v1.9</span>
+      </div>
+      <div class="status-bar">
+        <span class="dot"></span>
+        <b>connected</b>
+        <span class="right">15 sources · live</span>
+      </div>
     </div>
-    <div id="status">Ready.</div>
-    <div id="results"></div>
-  </div>
-  
-  <div id="graph-container">
-    <div id="network"></div>
-  </div>
 
-  <script>
-    let network = null;
-    let nodes = new vis.DataSet([]);
-    let edges = new vis.DataSet([]);
-    let nodeIds = new Set();
+    <div class="composer">
+      <div class="field">
+        <label>target type</label>
+        <select id="kind">
+          <option value="email">email</option>
+          <option value="username">username</option>
+          <option value="ip">ip address</option>
+          <option value="discord_id">discord id</option>
+          <option value="domain">domain</option>
+          <option value="phone">phone</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>seed artifact</label>
+        <input id="seed" placeholder="enter target…" autofocus autocomplete="off" spellcheck="false">
+      </div>
+      <button class="btn" id="go">execute pivot</button>
+    </div>
 
-    const container = document.getElementById('network');
-    const data = { nodes: nodes, edges: edges };
-    const options = {
-      nodes: { shape: 'dot', size: 16, font: { color: '#fff', face: 'monospace' }, borderWidth: 2, color: { background: '#111', border: '#00ff88' } },
-      edges: { color: '#333', width: 1, arrows: 'to', smooth: { type: 'continuous' } },
-      physics: { forceAtlas2Based: { gravitationalConstant: -50, centralGravity: 0.01, springLength: 100 }, maxVelocity: 50, solver: 'forceAtlas2Based', timestep: 0.35, stabilization: { iterations: 150 } },
-      interaction: { hover: true, tooltipDelay: 200 }
-    };
-    
-    network = new vis.Network(container, data, options);
+    <div class="status" id="status">ready · feed me an artifact</div>
+    <div class="hits" id="hits"></div>
+  </aside>
 
-    document.getElementById('go').onclick = async () => {
-      const seed = document.getElementById('seed').value.trim();
-      const kind = document.getElementById('kind').value;
-      if (!seed) return;
-      
-      const s = document.getElementById('status');
-      const btn = document.getElementById('go');
-      s.innerHTML = `⏳ Fanning out across all sources...`;
-      btn.disabled = true;
-      document.getElementById('results').innerHTML = '';
+  <main class="graph">
+    <div id="net"></div>
+    <div class="graph-meta">
+      <span class="pill">nodes<b id="node-count">0</b></span>
+      <span class="pill">edges<b id="edge-count">0</b></span>
+    </div>
+  </main>
+</div>
 
-      // Add root node
-      const rootId = kind + ":" + seed;
-      if (!nodeIds.has(rootId)) {
-        nodes.add({ id: rootId, label: seed, group: kind, size: 25, color: { border: '#fff', background: '#00ff88' }, font: { color: '#000', bold: true } });
-        nodeIds.add(rootId);
-      }
+<script>
+(() => {
+  const nodesDS = new vis.DataSet([]);
+  const edgesDS = new vis.DataSet([]);
+  const seen = new Set();
 
-      try {
-        const r = await fetch('/api/pivot', {
-          method: 'POST', headers: {'content-type':'application/json'},
-          body: JSON.stringify({seed, kind})
-        });
-        const d = await r.json();
-        
-        s.innerHTML = `✅ Complete: ${d.count} hits.`;
-        
-        let html = '';
-        d.hits.forEach(h => {
-          // Add to list
-          html += `<div class="hit">
-            <span class="pillar">${h.pillar}</span>
-            <div class="val">${h.value}</div>
-            <div class="meta">${JSON.stringify(h.meta)}</div>
-          </div>`;
-          
-          // Add to graph
-          const targetId = h.kind + ":" + h.value;
-          if (!nodeIds.has(targetId)) {
-            nodes.add({ id: targetId, label: String(h.value).substring(0, 20), group: h.pillar });
-            nodeIds.add(targetId);
-            edges.add({ from: rootId, to: targetId });
-          }
-        });
-        
-        document.getElementById('results').innerHTML = html;
-        
-      } catch(e) {
-        s.innerHTML = `❌ Error: ${e.message}`;
-      } finally {
-        btn.disabled = false;
-      }
-    };
-  </script>
+  const net = new vis.Network(
+    document.getElementById('net'),
+    { nodes: nodesDS, edges: edgesDS },
+    {
+      nodes:{
+        shape:'dot', size:12, borderWidth:1.5,
+        font:{ color:'#c1c8c3', face:'ui-monospace,monospace', size:11 },
+        color:{ background:'#141916', border:'#6ee7a8' },
+        chosen:{ node:true, color:'#6ee7a8' }
+      },
+      edges:{
+        color:{ color:'#1e2521', highlight:'#6ee7a8' },
+        width:1,
+        smooth:{ type:'dynamic' }
+      },
+      physics:{
+        solver:'forceAtlas2Based',
+        forceAtlas2Based:{ gravitationalConstant:-40, centralGravity:.014, springLength:100, springConstant:.06, damping:.42 },
+        stabilization:{ iterations:180 }
+      },
+      interaction:{ hover:true, tooltipDelay:200 }
+    }
+  );
+
+  const up = () => {
+    document.getElementById('node-count').textContent = nodesDS.length;
+    document.getElementById('edge-count').textContent = edgesDS.length;
+  };
+
+  const addNode = (id, label, root=false) => {
+    if (seen.has(id)) return;
+    seen.add(id);
+    nodesDS.add({
+      id, label,
+      size: root ? 22 : 12,
+      color: root
+        ? { background:'#6ee7a8', border:'#e8ebe8' }
+        : { background:'#141916', border:'#6ee7a8' },
+      font: root
+        ? { color:'#062a17', bold:true, face:'ui-monospace,monospace' }
+        : { color:'#c1c8c3', face:'ui-monospace,monospace' }
+    });
+    up();
+  };
+
+  const addEdge = (from, to) => {
+    edgesDS.add({ from, to, id:`${from}->${to}` });
+    up();
+  };
+
+  const status = (html) => {
+    document.getElementById('status').innerHTML = html;
+  };
+
+  const renderHits = (hits) => {
+    document.getElementById('hits').innerHTML = hits.map(h => `
+      <div class="hit">
+        <div class="top">
+          <span class="pillar">${h.pillar}</span>
+          <span class="kind">${h.kind}</span>
+        </div>
+        <div class="val">${h.value}</div>
+        <div class="meta">via ${(h.meta.sources||[]).join(', ')}</div>
+      </div>
+    `).join('');
+  };
+
+  document.getElementById('go').onclick = async () => {
+    const seed = document.getElementById('seed').value.trim();
+    const kind = document.getElementById('kind').value;
+    if (!seed) return;
+
+    const btn = document.getElementById('go');
+    btn.disabled = true;
+    status(`fanning out · <span class="ok">${kind}</span> · ${seed}`);
+    document.getElementById('hits').innerHTML = '';
+
+    const rootId = kind + ':' + seed;
+    addNode(rootId, seed.length > 20 ? seed.slice(0,20)+'…' : seed, true);
+
+    try {
+      const res = await fetch('/api/pivot', {
+        method:'POST',
+        headers:{'content-type':'application/json'},
+        body: JSON.stringify({ seed, kind })
+      });
+      const d = await res.json();
+      status(`<span class="ok">✓ ${d.count} hits</span> · ${d.tier} tier`);
+      renderHits(d.hits);
+
+      d.hits.forEach(h => {
+        const id = h.kind + ':' + h.value;
+        addNode(id, String(h.value).slice(0,20), false);
+        addEdge(rootId, id);
+      });
+    } catch (e) {
+      status(`<span class="err">✕ ${e.message}</span>`);
+    } finally {
+      btn.disabled = false;
+    }
+  };
+})();
+</script>
 </body>
 </html>
