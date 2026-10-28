@@ -25,3 +25,12 @@ CREATE TABLE IF NOT EXISTS payments (
   tier_days    INTEGER NOT NULL,
   created_at   TEXT NOT NULL
 );
+
+CREATE TABLE IF NOT EXISTS keys (
+  key           TEXT PRIMARY KEY,
+  user_id       TEXT,
+  duration_days INTEGER NOT NULL,
+  created_at    TEXT NOT NULL,
+  redeemed_at   TEXT,
+  expires_at    TEXT
+);
