@@ -5,7 +5,7 @@ from core.tier import init_db, get_or_create, grant_premium, tier_of, usage_toda
 from core.pivot import fan_out
 from core.sources.breach import BreachEngine
 from core.sources.h8mail import H8Mail
-from core.discord_tools import check_discord_username, check_username_batch, check_vanity, validate_token, get_token_info
+from core.discord_tools import check_discord_username, check_username_batch, check_vanity, validate_token
 import core.sources as s
 
 TOKEN = os.environ["TELEGRAM_BOT_TOKEN"]
@@ -14,7 +14,7 @@ init_db()
 
 ADMIN_ID = 8984546896
 YOUR_USERNAME = "stomponheads"
-VERSION = "v2.1.0"
+VERSION = "v2.2.0"
 WEB_APP_URL = "https://volume-tools-2.onrender.com"
 
 PILLAR_EMOJI = {"discord":"🎮","stealer":"🦠","breach":"🔓","iptrace":"🌐","email":"📧","username":"👤","phone":"📱","roblox":"🟥","misc":"•"}
@@ -307,28 +307,36 @@ async def cmd_genadminkey(u, c):
     if u.effective_chat.id != ADMIN_ID: 
         await u.message.reply_text("❌ Unauthorized. Only the owner can generate admin keys.")
         return
-    days = int(c.args[0]) if c.args and c.args[0].isdigit() else 30
-    from core.tier import create_admin_key
-    k = create_admin_key(days)
-    await u.message.reply_text(
-        f"🔑 <b>Admin Key Generated</b>\n"
-        f"<code>{k}</code>\n\n"
-        f"<b>Duration:</b> {days} days\n"
-        f"<b>Usage:</b> <code>/redeemadmin {k}</code>",
-        parse_mode="HTML"
-    )
+    try:
+        days = int(c.args[0]) if c.args and c.args[0].isdigit() else 30
+        k = create_admin_key(days)
+        await u.message.reply_text(
+            f"🔑 <b>Admin Key Generated</b>\n"
+            f"<code>{k}</code>\n\n"
+            f"<b>Duration:</b> {days} days\n"
+            f"<b>Usage:</b> <code>/redeemadmin {k}</code>",
+            parse_mode="HTML"
+        )
+    except Exception as e:
+        await u.message.reply_text(f"⚠️ Error creating key: {str(e)}", parse_mode="HTML")
 
 async def cmd_redeemadmin(u, c):
     if not c.args: await u.message.reply_text("Usage: <code>/redeemadmin &lt;key&gt;</code>", parse_mode="HTML"); return
-    user = get_or_create(tg=u.effective_chat.id)
-    ok, msg = redeem_admin_key(user["id"], c.args[0].strip().upper())
-    if ok: await u.message.reply_text(f"✅ <b>Admin granted</b>\n\nExpires: <code>{msg}</code>", parse_mode="HTML")
-    else: await u.message.reply_text(f"❌ <b>Error</b>\n\n{msg}", parse_mode="HTML")
+    try:
+        user = get_or_create(tg=u.effective_chat.id)
+        ok, msg = redeem_admin_key(user["id"], c.args[0].strip().upper())
+        if ok: await u.message.reply_text(f"✅ <b>Admin granted</b>\n\nExpires: <code>{msg}</code>", parse_mode="HTML")
+        else: await u.message.reply_text(f"❌ <b>Error</b>\n\n{msg}", parse_mode="HTML")
+    except Exception as e:
+        await u.message.reply_text(f"⚠️ System error: {str(e)}", parse_mode="HTML")
 
 async def cmd_revokealladmins(u, c):
     if u.effective_chat.id != ADMIN_ID: return
-    revoke_admin_keys()
-    await u.message.reply_text("🔒 <b>All admin keys revoked.</b>", parse_mode="HTML")
+    try:
+        revoke_admin_keys()
+        await u.message.reply_text("🔒 <b>All admin keys revoked.</b>", parse_mode="HTML")
+    except Exception as e:
+        await u.message.reply_text(f"⚠️ Error: {str(e)}", parse_mode="HTML")
 
 async def cmd_makeadmin(u, c):
     if u.effective_chat.id != ADMIN_ID: return
