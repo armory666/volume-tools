@@ -1,35 +1,23 @@
-import os, json, re, asyncio, time, datetime
-import httpx
-from telegram import (
-    Update, InlineKeyboardButton, InlineKeyboardMarkup, LabeledPrice,
-    BotCommand, BotCommandScopeChat, WebAppInfo
-)
-from telegram.ext import (
-    Application, CommandHandler, CallbackQueryHandler, PreCheckoutQueryHandler,
-    MessageHandler, ContextTypes, filters,
-)
-from core.tier import (
-    init_db, get_or_create, grant_premium, tier_of, usage_today, TIERS, db,
-    create_key, redeem_key
-)
+import os, json, re, asyncio, time, datetime, httpx
+from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, LabeledPrice, BotCommand, BotCommandScopeChat, WebAppInfo
+from telegram.ext import Application, CommandHandler, CallbackQueryHandler, PreCheckoutQueryHandler, MessageHandler, ContextTypes, filters
+from core.tier import init_db, get_or_create, grant_premium, tier_of, usage_today, TIERS, db, create_key, redeem_key, create_admin_key, redeem_admin_key, revoke_admin_keys, tier_of_admin_safe
 from core.pivot import fan_out
 from core.sources.breach import BreachEngine
 from core.sources.h8mail import H8Mail
-from core.discord_tools import check_discord_username, check_username_batch
+from core.discord_tools import check_discord_username, check_username_batch, check_vanity, validate_token, get_token_info
 import core.sources as s
 
 TOKEN = os.environ["TELEGRAM_BOT_TOKEN"]
 LAST = {}
 init_db()
 
-# --- CONFIGURATION ---
 ADMIN_ID = 8984546896
 YOUR_USERNAME = "stomponheads"
-VERSION = "v1.8.0"
+VERSION = "v1.0"
 WEB_APP_URL = "https://volume-tools-2.onrender.com"
 
-PILLAR_EMOJI = {"discord":"🎮","stealer":"🦠","breach":"🔓","iptrace":"🌐",
-                "email":"📧","username":"👤","phone":"📱","roblox":"🟥","misc":"•"}
+PILLAR_EMOJI = {"discord":"🎮","stealer":"🦠","breach":"🔓","iptrace":"🌐","email":"📧","username":"👤","phone":"📱","roblox":"🟥","misc":"•"}
 
 HELP = """**VOLUME.TOOLS — INVESTIGATION CONSOLE**
 _Professional OSINT Pivot Engine_
@@ -62,28 +50,23 @@ _Professional OSINT Pivot Engine_
 """
 
 USER_COMMANDS = [
-    ("start", "start the console"), ("pivot", "auto-detect and pivot"),
-    ("email", "email pivot"), ("user", "username pivot"),
-    ("ip", "ip trace"), ("phone", "phone pivot"),
-    ("domain", "domain pivot"), ("breach", "deep breach & stealer logs"),
-    ("namecheck", "check discord username"), ("namebulk", "bulk username check"),
-    ("vanity", "check discord vanity"), ("check", "validate discord token"),
-    ("redeem", "redeem a premium key"), ("history", "last 10 pivots"),
-    ("status", "system status & usage"), ("upgrade", "unlock premium"),
-    ("help", "command directory")
+    ("start", "start the console"), ("pivot", "auto-detect and pivot"), ("email", "email pivot"), 
+    ("user", "username pivot"), ("ip", "ip trace"), ("phone", "phone pivot"), ("domain", "domain pivot"), 
+    ("breach", "deep breach & stealer logs"), ("namecheck", "check discord username"), 
+    ("namebulk", "bulk username check"), ("vanity", "check discord vanity"), ("check", "validate discord token"), 
+    ("redeem", "redeem a premium key"), ("history", "last 10 pivots"), ("status", "system status & usage"), 
+    ("upgrade", "unlock premium"), ("help", "command directory")
 ]
 
 ADMIN_COMMANDS = USER_COMMANDS + [
-    ("genkey", "generate a premium key"),
-    ("stats", "show bot usage statistics"), ("top", "top 5 searched artifacts"),
-    ("ping", "check bot latency"), ("starbalance", "check bot stars balance"),
-    ("broadcast", "send a message to all users"), ("givepremium", "gift premium to a user ID"),
-    ("revoke", "remove premium from a user"), ("testreceipt", "preview the payment receipt"),
-    ("testlimit", "preview the free tier limit"), ("sources", "list active osint sources"),
+    ("genkey", "generate a premium key"), ("genadminkey", "generate a temp admin key"), 
+    ("revokealladmins", "demote all admins except owner"), ("stats", "show bot usage statistics"), 
+    ("top", "top 5 searched artifacts"), ("ping", "check bot latency"), ("starbalance", "check bot stars balance"), 
+    ("broadcast", "send a message to all users"), ("givepremium", "gift premium to a user ID"), 
+    ("revoke", "remove premium from a user"), ("testreceipt", "preview the payment receipt"), 
+    ("testlimit", "preview the free tier limit"), ("sources", "list active osint sources"), 
     ("makeadmin", "set yourself as admin")
 ]
-
-# --- SETUP & UTILS ---
 
 def detect_kind(seed):
     seed = seed.strip()
@@ -97,63 +80,34 @@ def detect_kind(seed):
 
 def init_history_table():
     with db() as conn:
-        conn.execute("""
-            CREATE TABLE IF NOT EXISTS history (
-                id TEXT PRIMARY KEY, user_id TEXT NOT NULL, seed TEXT NOT NULL,
-                kind TEXT NOT NULL, count INTEGER, created_at TEXT NOT NULL
-            )
-        """)
+        conn.execute("CREATE TABLE IF NOT EXISTS history (id TEXT PRIMARY KEY, user_id TEXT NOT NULL, seed TEXT NOT NULL, kind TEXT NOT NULL, count INTEGER, created_at TEXT NOT NULL)")
 
 init_history_table()
 
 async def save_history(user_id, seed, kind, count):
     with db() as conn:
-        conn.execute("INSERT INTO history(id, user_id, seed, kind, count, created_at) VALUES(?,?,?,?,?,?)",
-            (str(__import__("uuid").uuid4()), user_id, seed, kind, count, datetime.datetime.utcnow().isoformat()))
+        conn.execute("INSERT INTO history(id, user_id, seed, kind, count, created_at) VALUES(?,?,?,?,?,?)", (str(__import__("uuid").uuid4()), user_id, seed, kind, count, datetime.datetime.utcnow().isoformat()))
         conn.execute("DELETE FROM history WHERE id NOT IN (SELECT id FROM history WHERE user_id=? ORDER BY created_at DESC LIMIT 10) AND user_id=?", (user_id, user_id))
-
-# --- RENDER HELPERS ---
 
 def build_result_page(data, page=0):
     hits = data.get("hits", [])
-    
-    if not hits:
-        return "❌ <b>No results found.</b>", None
-        
-    text = (
-        f"🔍 <b>{data['kind'].upper()} PIVOT</b>\n"
-        f"<code>{data['seed']}</code>\n"
-        f"━━━━━━━━━━━━━━━━━━━━\n"
-        f"<b>{data['count']}</b> total hits across {len(set(h['pillar'] for h in hits))} pillars.\n\n"
-    )
-    
+    if not hits: return "❌ <b>No results found.</b>", None
+    text = f"🔍 <b>{data['kind'].upper()} PIVOT</b>\n<code>{data['seed']}</code>\n━━━━━━━━━━━━━━━━━━━━\n<b>{data['count']}</b> total hits across {len(set(h['pillar'] for h in hits))} pillars.\n\n"
     start = page * 5
     end = start + 5
-    
     for h in hits[start:end]:
         e = PILLAR_EMOJI.get(h["pillar"], "•")
         conf = h.get("meta", {}).get("confidence", 10)
-        
-        if conf >= 30: badge = "🟢"
-        elif conf >= 20: badge = "🟡"
-        else: badge = "⚪"
-            
+        badge = "🟢" if conf >= 30 else ("🟡" if conf >= 20 else "⚪")
         srcs = ", ".join(h.get("meta", {}).get("sources", []))
-        
-        text += f"{e} <b>{h['pillar'].capitalize()}</b> {badge}\n"
-        text += f"  └ <code>{str(h['value'])[:100]}</code>\n"
-        text += f"  <i>via {srcs}</i>\n\n"
-        
-    text += f"━━━━━━━━━━━━━━━━━━━━\n"
-    text += f"<i>Page {page + 1} · Tier: {data.get('tier', 'free').upper()}</i>"
-    
+        text += f"{e} <b>{h['pillar'].capitalize()}</b> {badge}\n  └ <code>{str(h['value'])[:100]}</code>\n  <i>via {srcs}</i>\n\n"
+    text += f"━━━━━━━━━━━━━━━━━━━━\n<i>Page {page + 1} · Tier: {data.get('tier', 'free').upper()}</i>"
     kb = []
     nav = []
     if page > 0: nav.append(InlineKeyboardButton("◀ Prev", callback_data=f"page_{page-1}"))
     if end < len(hits): nav.append(InlineKeyboardButton("Next ▶", callback_data=f"page_{page+1}"))
     if nav: kb.append(nav)
     kb.append([InlineKeyboardButton("📥 Export JSON", callback_data="exp_json"), InlineKeyboardButton("📊 Summarize", callback_data="do_summary")])
-    
     return text, InlineKeyboardMarkup(kb)
 
 def main_menu():
@@ -167,18 +121,13 @@ def main_menu():
     ]
     return InlineKeyboardMarkup(kb)
 
-# --- PAGINATION HANDLERS ---
-
 async def on_page_click(u, c):
-    q = u.callback_query
-    await q.answer()
+    q = u.callback_query; await q.answer()
     page = int(q.data.split("_")[1])
     data = LAST.get(q.message.chat.id)
     if not data: return
     text, kb = build_result_page(data, page)
     await q.edit_message_text(text, parse_mode="HTML", reply_markup=kb)
-
-# --- PIVOT LOGIC ---
 
 async def roblox_lookup(seed):
     try:
@@ -194,7 +143,6 @@ async def roblox_lookup(seed):
 async def run(update, seed, kind):
     user = get_or_create(tg=update.effective_chat.id)
     msg = await update.message.reply_text(f"⏳ <b>Fanning out</b> · <code>{kind}</code> · <code>{seed}</code>", parse_mode="HTML")
-    
     if kind == "roblox":
         hits = await roblox_lookup(seed)
         if hits: data = {"tool": "volume.tools", "seed": seed, "kind": "roblox", "tier": tier_of(user), "count": len(hits), "hits": hits}
@@ -207,15 +155,9 @@ async def run(update, seed, kind):
             await msg.edit_text(f"🔒 <b>Limit Reached</b>\n\n{str(e)}\n\n<i>Upgrade for 200 daily queries.</i>", parse_mode="HTML", reply_markup=kb); return
         except Exception as e:
             await msg.edit_text(f"⚠️ <b>System Error</b> · <code>{str(e)[:100]}</code>", parse_mode="HTML"); return
-        
-        data = {
-            "tool": "volume.tools", "seed": seed, "kind": kind, "tier": tier_of(user), "count": len(raw),
-            "hits": [{"source": h.source, "kind": h.kind, "pillar": h.meta.get("pillar", "misc"), "value": h.value, "meta": {k: (sorted(v) if isinstance(v, set) else v) for k, v in h.meta.items()}} for h in raw],
-        }
-    
+        data = {"tool": "volume.tools", "seed": seed, "kind": kind, "tier": tier_of(user), "count": len(raw), "hits": [{"source": h.source, "kind": h.kind, "pillar": h.meta.get("pillar", "misc"), "value": h.value, "meta": {k: (sorted(v) if isinstance(v, set) else v) for k, v in h.meta.items()}} for h in raw]}
     LAST[update.effective_chat.id] = data
     await save_history(user["id"], seed, kind, data["count"])
-    
     text, kb = build_result_page(data, page=0)
     await msg.edit_text(text, parse_mode="HTML", reply_markup=kb)
 
@@ -234,14 +176,9 @@ async def on_summary_click(u, c):
     hits = d.get("hits", [])
     by = {}
     for h in hits: by.setdefault(h["pillar"], []).append(h)
-    
     text = f"📊 <b>Intelligence Summary</b>\n<code>{d['seed']}</code>\n━━━━━━━━━━━━━━━━━━━━\n"
-    for p, hs in sorted(by.items(), key=lambda x: -len(x[1])): 
-        text += f"• <b>{p.capitalize()}</b>: {len(hs)} hits\n"
-        
+    for p, hs in sorted(by.items(), key=lambda x: -len(x[1])): text += f"• <b>{p.capitalize()}</b>: {len(hs)} hits\n"
     await q.edit_message_text(text, parse_mode="HTML")
-
-# --- CORE COMMANDS ---
 
 async def cmd_start(u, c):
     if c.args and c.args[0] == "upgrade": await cmd_upgrade(u, c); return
@@ -288,7 +225,7 @@ async def cmd_history(u, c):
     await u.message.reply_text(text, parse_mode="HTML")
 
 async def cmd_status(u, c):
-    user = get_or_create(tg=u.effective_chat.id); t = tier_of(user); used = usage_today(user["id"]); lim = TIERS[t]["daily"]
+    user = get_or_create(tg=u.effective_chat.id); t = tier_of_admin_safe(user, ADMIN_ID); used = usage_today(user["id"]); lim = TIERS[t]["daily"]
     status = f"🟢 <b>SYSTEM ONLINE</b>\n\n<b>Account</b>\n<blockquote><b>ID:</b> <code>{user['telegram_id']}</code>\n<b>Tier:</b> <code>{t.upper()}</code>\n<b>Quota:</b> <code>{used}/{lim}</code>\n<b>Expires:</b> <code>{user.get('paid_until') or 'N/A'}</code></blockquote>\n<b>Global Status</b>\n<blockquote><b>Latency:</b> 🟢 Nominal\n<b>Sources:</b> 🟢 15 Active</blockquote>"
     await u.message.reply_text(status, parse_mode="HTML")
 
@@ -312,13 +249,10 @@ async def cmd_breach(u, c):
     if len(text) > 4000: text = text[:4000] + "\n\n<i>...truncated.</i>"
     await msg.edit_text(text, parse_mode="HTML")
 
-# --- DISCORD TOOLS ---
-
 async def cmd_namecheck(u, c):
     if not c.args: await u.message.reply_text("Usage: <code>/namecheck &lt;username&gt;</code>", parse_mode="HTML"); return
-    username = c.args[0]
-    msg = await u.message.reply_text(f"🔍 Checking <code>@{username}</code>...", parse_mode="HTML")
-    status, detail = await check_discord_username(username)
+    msg = await u.message.reply_text(f"🔍 Checking <code>@{c.args[0]}</code>...", parse_mode="HTML")
+    status, detail = await check_discord_username(c.args[0])
     if status == "AVAILABLE": await msg.edit_text(f"🟢 <b>Available</b>\n\n{detail}", parse_mode="HTML")
     elif status == "TAKEN": await msg.edit_text(f"🔴 <b>Taken</b>\n\n{detail}", parse_mode="HTML")
     elif status == "INVALID": await msg.edit_text(f"⚠️ <b>Invalid Format</b>\n\n{detail}", parse_mode="HTML")
@@ -326,7 +260,7 @@ async def cmd_namecheck(u, c):
 
 async def cmd_namebulk(u, c):
     if not c.args: await u.message.reply_text("Usage: <code>/namebulk &lt;user1,user2&gt;</code>", parse_mode="HTML"); return
-    raw = " ".join(c.args); usernames = [x.strip() for x in raw.split(",") if x.strip()]
+    usernames = [x.strip() for x in " ".join(c.args).split(",") if x.strip()]
     if len(usernames) > 10: await u.message.reply_text("Max 10 usernames per check.", parse_mode="HTML"); return
     msg = await u.message.reply_text(f"🔍 Checking {len(usernames)} usernames...", parse_mode="HTML")
     results = await check_username_batch(usernames)
@@ -337,7 +271,6 @@ async def cmd_namebulk(u, c):
     await msg.edit_text(text, parse_mode="HTML")
 
 async def cmd_vanity(u, c):
-    from core.discord_tools import check_vanity
     if not c.args: await u.message.reply_text("Usage: <code>/vanity &lt;code&gt;</code>", parse_mode="HTML"); return
     code = c.args[0]; msg = await u.message.reply_text(f"🔍 Checking vanity <code>{code}</code>...", parse_mode="HTML")
     status, detail = await check_vanity(code)
@@ -347,35 +280,46 @@ async def cmd_vanity(u, c):
     else: await msg.edit_text(f"⚠️ {detail}", parse_mode="HTML")
 
 async def cmd_check(u, c):
-    from core.discord_tools import validate_token
     if not c.args: await u.message.reply_text("Usage: <code>/check &lt;token&gt;</code>", parse_mode="HTML"); return
-    token = c.args[0]; msg = await u.message.reply_text("⏳ Validating token...", parse_mode="HTML")
-    is_valid, detail = await validate_token(token)
+    msg = await u.message.reply_text("⏳ Validating token...", parse_mode="HTML")
+    is_valid, detail = await validate_token(c.args[0])
     await msg.edit_text(f"{'✅' if is_valid else '❌'} <b>Token Check</b>\n\n{detail}", parse_mode="HTML")
-
-# --- KEY COMMANDS ---
 
 async def cmd_redeem(u, c):
     if not c.args: await u.message.reply_text("Usage: <code>/redeem &lt;key&gt;</code>", parse_mode="HTML"); return
-    user = get_or_create(tg=u.effective_chat.id); key = c.args[0].strip().upper()
-    success, msg = redeem_key(user["id"], key)
+    user = get_or_create(tg=u.effective_chat.id); success, msg = redeem_key(user["id"], c.args[0].strip().upper())
     if success: await u.message.reply_text(f"✅ <b>Key Redeemed</b>\n\n{msg}\n\nYou now have Premium access.", parse_mode="HTML")
     else: await u.message.reply_text(f"❌ <b>Error</b>\n\n{msg}", parse_mode="HTML")
 
 async def cmd_genkey(u, c):
     if u.effective_chat.id != ADMIN_ID: return
-    if len(c.args) < 2:
-        await u.message.reply_text("Usage: <code>/genkey &lt;amount&gt; &lt;duration&gt;</code>\nExample: <code>/genkey 5 30d</code>", parse_mode="HTML"); return
+    if len(c.args) < 2: await u.message.reply_text("Usage: <code>/genkey &lt;amount&gt; &lt;duration&gt;</code>\nExample: <code>/genkey 5 30d</code>", parse_mode="HTML"); return
     try: amount = int(c.args[0]); duration_str = c.args[1]
     except ValueError: await u.message.reply_text("Invalid amount. Example: <code>/genkey 5 30d</code>", parse_mode="HTML"); return
     if amount < 1 or amount > 10: await u.message.reply_text("Amount must be between 1 and 10.", parse_mode="HTML"); return
-    from core.tier import parse_duration, create_key
+    from core.tier import parse_duration
     days = parse_duration(duration_str)
     if not days: await u.message.reply_text("Invalid duration. Use d, w, m, or y. Example: <code>30d</code>", parse_mode="HTML"); return
     keys = [f"<code>{create_key(None, days)}</code>" for _ in range(amount)]
     await u.message.reply_text(f"🔑 <b>Generated {amount} Keys</b>\n<b>Duration:</b> {days} days\n━━━━━━━━━━━━━━━━━━━━\n" + "\n".join(keys) + "\n\n<i>Users redeem with /redeem &lt;key&gt;</i>", parse_mode="HTML")
 
-# --- ADMIN COMMANDS ---
+async def cmd_genadminkey(u, c):
+    if u.effective_chat.id != ADMIN_ID: return
+    days = int(c.args[0]) if c.args and c.args[0].isdigit() else 30
+    k = create_admin_key(days)
+    await u.message.reply_text(f"🔑 <b>Admin Key</b>\n<code>{k}</code>\n<b>Valid for:</b> {days} days\n\n<i>Redeem with /redeemadmin &lt;key&gt;</i>", parse_mode="HTML")
+
+async def cmd_redeemadmin(u, c):
+    if not c.args: await u.message.reply_text("Usage: <code>/redeemadmin &lt;key&gt;</code>", parse_mode="HTML"); return
+    user = get_or_create(tg=u.effective_chat.id)
+    ok, msg = redeem_admin_key(user["id"], c.args[0].strip().upper())
+    if ok: await u.message.reply_text(f"✅ <b>Admin granted</b>\n\nExpires: <code>{msg}</code>", parse_mode="HTML")
+    else: await u.message.reply_text(f"❌ <b>Error</b>\n\n{msg}", parse_mode="HTML")
+
+async def cmd_revokealladmins(u, c):
+    if u.effective_chat.id != ADMIN_ID: return
+    revoke_admin_keys()
+    await u.message.reply_text("🔒 <b>All admin keys revoked.</b>", parse_mode="HTML")
 
 async def cmd_makeadmin(u, c):
     if u.effective_chat.id != ADMIN_ID: return
@@ -384,23 +328,20 @@ async def cmd_makeadmin(u, c):
     await u.message.reply_text("✅ Admin access granted.")
 
 async def cmd_givepremium(u, c):
-    if u.effective_chat.id != ADMIN_ID: return
-    if not c.args: await u.message.reply_text("Usage: <code>/givepremium &lt;id&gt;</code>", parse_mode="HTML"); return
+    if u.effective_chat.id != ADMIN_ID or not c.args: return
     try: target_tg = int(c.args[0])
     except ValueError: return
     target_user = get_or_create(tg=target_tg); paid_until = grant_premium(target_user["id"], days=30, provider="manual")
     await u.message.reply_text(f"✅ Premium granted to <code>{target_tg}</code> until {paid_until}", parse_mode="HTML")
 
 async def cmd_revoke(u, c):
-    if u.effective_chat.id != ADMIN_ID: return
-    if not c.args: return
+    if u.effective_chat.id != ADMIN_ID or not c.args: return
     target = int(c.args[0])
     with db() as conn: conn.execute("UPDATE users SET tier='free', paid_until=NULL WHERE telegram_id=?", (target,))
     await u.message.reply_text(f"✅ Revoked premium for <code>{target}</code>", parse_mode="HTML")
 
 async def cmd_broadcast(u, c):
-    if u.effective_chat.id != ADMIN_ID: return
-    if not c.args: return
+    if u.effective_chat.id != ADMIN_ID or not c.args: return
     msg_text = " ".join(c.args)
     with db() as conn: users = conn.execute("SELECT DISTINCT telegram_id FROM users WHERE telegram_id IS NOT NULL").fetchall()
     count = 0; status_msg = await u.message.reply_text("Broadcasting...", parse_mode="HTML")
@@ -453,8 +394,6 @@ async def cmd_starbalance(u, c):
         await u.message.reply_text(f"⭐ <b>Stars Balance:</b> <code>{balance.amount}</code>", parse_mode="HTML")
     except Exception as e: await u.message.reply_text(f"Error: {e}")
 
-# --- PAYMENTS ---
-
 async def cmd_upgrade(u, c):
     user = get_or_create(tg=u.effective_chat.id)
     if user["tier"] == "premium" and user["paid_until"]: await u.message.reply_text(f"💎 <b>Already Premium</b>\nExpires: <code>{user['paid_until']}</code>", parse_mode="HTML"); return
@@ -476,4 +415,101 @@ async def on_paid(u, c):
     days = 365 if "365" in sp.invoice_payload else 30
     new_key = create_key(user["id"], days)
     paid_until = grant_premium(user["id"], days=days, provider="stars", provider_id=sp.telegram_payment_charge_id, amount=sp.total_amount)
-    await send_receipt(u, c, user, days, sp.total_amount, sp.telegram_payment_charge_id, paid_until, new
+    await send_receipt(u, c, user, days, sp.total_amount, sp.telegram_payment_charge_id, paid_until, new_key)
+
+async def send_receipt(u, c, user, days, amount, charge_id, paid_until, key=None):
+    now = datetime.datetime.now(datetime.timezone.utc)
+    timestamp = now.strftime("%Y-%m-%d %H:%M UTC")
+    order_id = charge_id[-10:].upper()
+    plan_name = "1 Year Premium" if days == 365 else "1 Month Premium"
+    key_section = ""
+    if key: key_section = f"\n<b>Your Access Key</b>\n<code>{key}</code>\n<i>Keep this safe. Redeem it anytime with /redeem {key}.</i>\n"
+    receipt = (
+        f"🧾 <b>VOLUME.TOOLS</b>\n<b>Payment Receipt</b>\n\n"
+        f"<blockquote><b>Status:</b> ✅ Paid\n<b>Date:</b> <code>{timestamp}</code>\n<b>Order ID:</b> <code>{order_id}</code></blockquote>\n\n"
+        f"<b>Account Details</b>\n<blockquote><b>Telegram ID:</b> <code>{user['telegram_id']}</code>\n<b>Username:</b> @{u.effective_chat.username or 'none'}</blockquote>\n\n"
+        f"<b>Subscription</b>\n<blockquote><b>Plan:</b> {plan_name}\n<b>Amount:</b> {amount} Stars\n<b>Expires:</b> <code>{paid_until}</code></blockquote>\n"
+        f"{key_section}\n<i>Please save this message. If the bot resets, your key is still valid.</i>"
+    )
+    await u.message.reply_text(receipt, parse_mode="HTML")
+    if u.effective_chat.id != ADMIN_ID:
+        try:
+            await c.bot.send_message(chat_id=ADMIN_ID, text=f"💰 <b>NEW SALE</b>\nUser: @{u.effective_chat.username or 'none'}\nID: <code>{u.effective_chat.id}</code>\nKey: <code>{key}</code>\nAmount: {amount} Stars\nPlan: {plan_name}", parse_mode="HTML")
+        except Exception: pass
+
+async def on_startup(app: Application):
+    banner = f"🚀 <b>VOLUME.TOOLS {VERSION}</b>\n<b>System Online</b>\n\n• Key System Active\n• Pagination UI Active\n• Web App Linked"
+    try: await app.bot.send_message(chat_id=ADMIN_ID, text=banner, parse_mode="HTML")
+    except Exception: pass
+
+def build_app():
+    app = Application.builder().token(TOKEN).post_init(on_startup).build()
+    app.add_handler(CommandHandler("start", cmd_start))
+    app.add_handler(CommandHandler("help", cmd_help))
+    app.add_handler(CommandHandler("pivot", cmd_pivot))
+    app.add_handler(CommandHandler("export", cmd_export))
+    app.add_handler(CommandHandler("history", cmd_history))
+    app.add_handler(CommandHandler("status", cmd_status))
+    app.add_handler(CommandHandler("upgrade", cmd_upgrade))
+    app.add_handler(CommandHandler("breach", cmd_breach))
+    app.add_handler(CommandHandler("redeem", cmd_redeem))
+    app.add_handler(CommandHandler("makeadmin", cmd_makeadmin))
+    app.add_handler(CommandHandler("givepremium", cmd_givepremium))
+    app.add_handler(CommandHandler("genkey", cmd_genkey))
+    app.add_handler(CommandHandler("revoke", cmd_revoke))
+    app.add_handler(CommandHandler("broadcast", cmd_broadcast))
+    app.add_handler(CommandHandler("ping", cmd_ping))
+    app.add_handler(CommandHandler("stats", cmd_stats))
+    app.add_handler(CommandHandler("top", cmd_top))
+    app.add_handler(CommandHandler("sources", cmd_sources))
+    app.add_handler(CommandHandler("testreceipt", cmd_testreceipt))
+    app.add_handler(CommandHandler("testlimit", cmd_testlimit))
+    app.add_handler(CommandHandler("starbalance", cmd_starbalance))
+    app.add_handler(CommandHandler("namecheck", cmd_namecheck))
+    app.add_handler(CommandHandler("namebulk", cmd_namebulk))
+    app.add_handler(CommandHandler("vanity", cmd_vanity))
+    app.add_handler(CommandHandler("check", cmd_check))
+    app.add_handler(CommandHandler("genadminkey", cmd_genadminkey))
+    app.add_handler(CommandHandler("redeemadmin", cmd_redeemadmin))
+    app.add_handler(CommandHandler("revokealladmins", cmd_revokealladmins))
+    for k in ("email", "username", "user", "ip", "phone", "domain", "roblox"):
+        app.add_handler(CommandHandler(k, mk({"user": "username"}.get(k, k))))
+    app.add_handler(CallbackQueryHandler(on_menu_click, pattern="^menu_"))
+    app.add_handler(CallbackQueryHandler(on_summary_click, pattern="^do_summary$"))
+    app.add_handler(CallbackQueryHandler(on_exp, pattern="^exp_json$"))
+    app.add_handler(CallbackQueryHandler(on_buy, pattern="^buy_"))
+    app.add_handler(CallbackQueryHandler(on_page_click, pattern="^page_"))
+    app.add_handler(PreCheckoutQueryHandler(on_pre))
+    app.add_handler(MessageHandler(filters.SUCCESSFUL_PAYMENT, on_paid))
+    app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, cmd_auto))
+    return app
+
+async def run_web():
+    import uvicorn
+    from api.main import app as fastapi_app
+    config = uvicorn.Config(fastapi_app, host="0.0.0.0", port=int(os.environ.get("PORT", 8000)), log_level="info")
+    server = uvicorn.Server(config)
+    await server.serve()
+
+async def main():
+    tg_app = build_app()
+    await tg_app.initialize()
+    try:
+        await tg_app.bot.set_my_commands([BotCommand(cmd, desc) for cmd, desc in USER_COMMANDS])
+        await tg_app.bot.set_my_commands([BotCommand(cmd, desc) for cmd, desc in ADMIN_COMMANDS], scope=BotCommandScopeChat(chat_id=ADMIN_ID))
+        print(f"✅ Admin menu synced for ID {ADMIN_ID}")
+    except Exception as e:
+        print(f"⚠️ Failed to sync command menus: {e}")
+    await tg_app.start()
+    await tg_app.updater.start_polling()
+    web_task = asyncio.create_task(run_web())
+    print("volume.tools up — bot polling, web on port", os.environ.get("PORT", 8000))
+    try:
+        await web_task
+    finally:
+        await tg_app.updater.stop()
+        await tg_app.stop()
+        await tg_app.shutdown()
+
+if __name__ == "__main__":
+    asyncio.run(main())
