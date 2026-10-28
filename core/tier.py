@@ -127,14 +127,10 @@ def create_key(user_id, days):
 def parse_duration(s):
     s = s.lower().strip()
     try:
-        if s.endswith("d"):
-            return int(s[:-1])
-        if s.endswith("w"):
-            return int(s[:-1]) * 7
-        if s.endswith("m"):
-            return int(s[:-1]) * 30
-        if s.endswith("y"):
-            return int(s[:-1]) * 365
+        if s.endswith("d"): return int(s[:-1])
+        if s.endswith("w"): return int(s[:-1]) * 7
+        if s.endswith("m"): return int(s[:-1]) * 30
+        if s.endswith("y"): return int(s[:-1]) * 365
         return int(s)
     except ValueError:
         return None
@@ -164,3 +160,58 @@ def redeem_key(user_id, key):
             (expires_str, user_id)
         )
     return True, expires_str
+
+# --- ADMIN KEY SYSTEM ---
+
+def generate_admin_key():
+    raw = secrets.token_hex(8).upper()
+    return f"ADM-{raw[:6]}-{raw[6:12]}-{raw[12:18]}"
+
+def create_admin_key(days=30):
+    k = generate_admin_key()
+    now = datetime.datetime.utcnow().isoformat()
+    expires = (datetime.datetime.utcnow() + datetime.timedelta(days=days)).isoformat()
+    with db() as c:
+        c.execute(
+            "INSERT INTO admin_keys (key, created_at, expires_at) VALUES (?,?,?)",
+            (k, now, expires)
+        )
+    return k
+
+def redeem_admin_key(user_id, key):
+    now_str = datetime.datetime.utcnow().isoformat()
+    with db() as c:
+        row = c.execute("SELECT * FROM admin_keys WHERE key=?", (key,)).fetchone()
+        if not row:                    return False, "Key not found."
+        if row["revoked"]:             return False, "Key has been revoked."
+        if row["expires_at"] < now_str:return False, "Key expired."
+        if row["redeemed_at"]:
+            if row["user_id"] != user_id: return False, "Key already used by another account."
+            return True, "Already active on this account."
+
+        c.execute(
+            "UPDATE admin_keys SET user_id=?, redeemed_at=? WHERE key=?",
+            (user_id, now_str, key)
+        )
+        c.execute(
+            "UPDATE users SET tier='admin', paid_until=? WHERE id=?",
+            (row["expires_at"], user_id)
+        )
+    return True, row["expires_at"]
+
+def revoke_admin_keys():
+    with db() as c:
+        c.execute("UPDATE admin_keys SET revoked=1")
+        c.execute("UPDATE users SET tier='free', paid_until=NULL WHERE tier='admin'")
+    return True
+
+def tier_of_admin_safe(user, hardcoded_admin_id):
+    if user["tier"] == "admin":
+        if user.get("telegram_id") == hardcoded_admin_id:
+            return "admin"
+        if user["paid_until"] and user["paid_until"] >= datetime.date.today().isoformat():
+            return "admin"
+        with db() as c:
+            c.execute("UPDATE users SET tier='free' WHERE id=?", (user["id"],))
+        return "free"
+    return tier_of(user)
