@@ -5,7 +5,7 @@ DB = os.environ.get("VOLUME_DB", "volume.db")
 
 FREE_SOURCES = {"holehe", "gravatar", "ipapi", "internetdb", "bgphe", "crtsh"}
 FREE_KINDS   = {"email", "username", "ip"}
-FREE_DAILY   = 5
+FREE_DAILY   = 15
 PREMIUM_DAILY = 200
 
 TIERS = {
@@ -124,6 +124,21 @@ def create_key(user_id, days):
         )
     return k
 
+def parse_duration(s):
+    s = s.lower().strip()
+    try:
+        if s.endswith("d"):
+            return int(s[:-1])
+        if s.endswith("w"):
+            return int(s[:-1]) * 7
+        if s.endswith("m"):
+            return int(s[:-1]) * 30
+        if s.endswith("y"):
+            return int(s[:-1]) * 365
+        return int(s)
+    except ValueError:
+        return None
+
 def redeem_key(user_id, key):
     now = datetime.datetime.utcnow()
     now_str = now.isoformat()
@@ -141,8 +156,8 @@ def redeem_key(user_id, key):
             
         expires_str = (now + datetime.timedelta(days=row["duration_days"])).isoformat()
         c.execute(
-            "UPDATE keys SET redeemed_at=?, expires_at=? WHERE key=?",
-            (now_str, expires_str, key)
+            "UPDATE keys SET user_id=?, redeemed_at=?, expires_at=? WHERE key=?",
+            (user_id, now_str, expires_str, key)
         )
         c.execute(
             "UPDATE users SET tier='premium', paid_until=? WHERE id=?",
