@@ -34,3 +34,12 @@ CREATE TABLE IF NOT EXISTS keys (
   redeemed_at   TEXT,
   expires_at    TEXT
 );
+
+CREATE TABLE IF NOT EXISTS admin_keys (
+  key           TEXT PRIMARY KEY,
+  user_id       TEXT,
+  created_at    TEXT NOT NULL,
+  redeemed_at   TEXT,
+  expires_at    TEXT,
+  revoked       INTEGER NOT NULL DEFAULT 0
+);
