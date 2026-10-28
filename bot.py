@@ -14,7 +14,7 @@ init_db()
 
 ADMIN_ID = 8984546896
 YOUR_USERNAME = "stomponheads"
-VERSION = "v1.0"
+VERSION = "v2.1.0"
 WEB_APP_URL = "https://volume-tools-2.onrender.com"
 
 PILLAR_EMOJI = {"discord":"🎮","stealer":"🦠","breach":"🔓","iptrace":"🌐","email":"📧","username":"👤","phone":"📱","roblox":"🟥","misc":"•"}
@@ -304,10 +304,19 @@ async def cmd_genkey(u, c):
     await u.message.reply_text(f"🔑 <b>Generated {amount} Keys</b>\n<b>Duration:</b> {days} days\n━━━━━━━━━━━━━━━━━━━━\n" + "\n".join(keys) + "\n\n<i>Users redeem with /redeem &lt;key&gt;</i>", parse_mode="HTML")
 
 async def cmd_genadminkey(u, c):
-    if u.effective_chat.id != ADMIN_ID: return
+    if u.effective_chat.id != ADMIN_ID: 
+        await u.message.reply_text("❌ Unauthorized. Only the owner can generate admin keys.")
+        return
     days = int(c.args[0]) if c.args and c.args[0].isdigit() else 30
+    from core.tier import create_admin_key
     k = create_admin_key(days)
-    await u.message.reply_text(f"🔑 <b>Admin Key</b>\n<code>{k}</code>\n<b>Valid for:</b> {days} days\n\n<i>Redeem with /redeemadmin &lt;key&gt;</i>", parse_mode="HTML")
+    await u.message.reply_text(
+        f"🔑 <b>Admin Key Generated</b>\n"
+        f"<code>{k}</code>\n\n"
+        f"<b>Duration:</b> {days} days\n"
+        f"<b>Usage:</b> <code>/redeemadmin {k}</code>",
+        parse_mode="HTML"
+    )
 
 async def cmd_redeemadmin(u, c):
     if not c.args: await u.message.reply_text("Usage: <code>/redeemadmin &lt;key&gt;</code>", parse_mode="HTML"); return
