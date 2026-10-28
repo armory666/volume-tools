@@ -1,4 +1,4 @@
-import sqlite3, datetime, os, uuid
+import sqlite3, datetime, os, uuid, secrets
 from contextlib import contextmanager
 
 DB = os.environ.get("VOLUME_DB", "volume.db")
@@ -106,3 +106,46 @@ def grant_premium(user_id, days=30, provider="stars", provider_id=None, amount=N
              provider_id or str(uuid.uuid4()), amount or 0, days,
              datetime.datetime.utcnow().isoformat()))
     return paid_until
+
+# --- KEY SYSTEM ---
+
+def generate_key():
+    raw = secrets.token_hex(6).upper()
+    return f"VOL-{raw[:4]}-{raw[4:8]}-{raw[8:12]}"
+
+def create_key(user_id, days):
+    k = generate_key()
+    now = datetime.datetime.utcnow().isoformat()
+    with db() as c:
+        c.execute(
+            "INSERT INTO keys (key, user_id, duration_days, created_at) "
+            "VALUES (?, ?, ?, ?)",
+            (k, user_id, days, now)
+        )
+    return k
+
+def redeem_key(user_id, key):
+    now = datetime.datetime.utcnow()
+    now_str = now.isoformat()
+    with db() as c:
+        row = c.execute("SELECT * FROM keys WHERE key=?", (key,)).fetchone()
+        if not row:
+            return False, "Key not found."
+            
+        if row["redeemed_at"]:
+            if row["user_id"] != user_id:
+                return False, "This key has already been redeemed by another user."
+            if row["expires_at"] and row["expires_at"] < now_str:
+                return False, "This key has expired."
+            return True, "Already active."
+            
+        expires_str = (now + datetime.timedelta(days=row["duration_days"])).isoformat()
+        c.execute(
+            "UPDATE keys SET redeemed_at=?, expires_at=? WHERE key=?",
+            (now_str, expires_str, key)
+        )
+        c.execute(
+            "UPDATE users SET tier='premium', paid_until=? WHERE id=?",
+            (expires_str, user_id)
+        )
+    return True, expires_str
