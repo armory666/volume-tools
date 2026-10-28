@@ -12,12 +12,27 @@ TOKEN = os.environ["TELEGRAM_BOT_TOKEN"]
 LAST = {}
 init_db()
 
-ADMIN_ID = 8984546896
+ADMIN_ID = 8984546896      # hardcoded admin ID (for menu scoping & hardcoded admin override)
+OWNER_ID = 8984546896      # key minting locked to this — never changes
 YOUR_USERNAME = "stomponheads"
-VERSION = "v2.2.0"
+VERSION = "v2.3.0"
 WEB_APP_URL = "https://volume-tools-2.onrender.com"
 
 PILLAR_EMOJI = {"discord":"🎮","stealer":"🦠","breach":"🔓","iptrace":"🌐","email":"📧","username":"👤","phone":"📱","roblox":"🟥","misc":"•"}
+
+def owner_only(func):
+    """Restricts a command to the hardcoded owner, regardless of admin tier."""
+    async def wrapper(u, c):
+        if u.effective_chat.id != OWNER_ID:
+            await u.message.reply_text(
+                "🔒 <b>Owner only.</b>\n\n"
+                "<i>Key minting is locked to the platform owner. "
+                "Admins cannot generate keys.</i>",
+                parse_mode="HTML"
+            )
+            return
+        return await func(u, c)
+    return wrapper
 
 HELP = """**VOLUME.TOOLS — INVESTIGATION CONSOLE**
 _Professional OSINT Pivot Engine_
@@ -291,8 +306,8 @@ async def cmd_redeem(u, c):
     if success: await u.message.reply_text(f"✅ <b>Key Redeemed</b>\n\n{msg}\n\nYou now have Premium access.", parse_mode="HTML")
     else: await u.message.reply_text(f"❌ <b>Error</b>\n\n{msg}", parse_mode="HTML")
 
+@owner_only
 async def cmd_genkey(u, c):
-    if u.effective_chat.id != ADMIN_ID: return
     if len(c.args) < 2: await u.message.reply_text("Usage: <code>/genkey &lt;amount&gt; &lt;duration&gt;</code>\nExample: <code>/genkey 5 30d</code>", parse_mode="HTML"); return
     try: amount = int(c.args[0]); duration_str = c.args[1]
     except ValueError: await u.message.reply_text("Invalid amount. Example: <code>/genkey 5 30d</code>", parse_mode="HTML"); return
@@ -300,25 +315,20 @@ async def cmd_genkey(u, c):
     from core.tier import parse_duration
     days = parse_duration(duration_str)
     if not days: await u.message.reply_text("Invalid duration. Use d, w, m, or y. Example: <code>30d</code>", parse_mode="HTML"); return
-    keys = [f"<code>{create_key(None, days)}</code>" for _ in range(amount)]
-    await u.message.reply_text(f"🔑 <b>Generated {amount} Keys</b>\n<b>Duration:</b> {days} days\n━━━━━━━━━━━━━━━━━━━━\n" + "\n".join(keys) + "\n\n<i>Users redeem with /redeem &lt;key&gt;</i>", parse_mode="HTML")
+    try:
+        keys = [f"<code>{create_key(None, days)}</code>" for _ in range(amount)]
+        await u.message.reply_text(f"🔑 <b>Generated {amount} Keys</b>\n<b>Duration:</b> {days} days\n━━━━━━━━━━━━━━━━━━━━\n" + "\n".join(keys) + "\n\n<i>Users redeem with /redeem &lt;key&gt;</i>", parse_mode="HTML")
+    except Exception as e:
+        await u.message.reply_text(f"⚠️ Error: {str(e)}", parse_mode="HTML")
 
+@owner_only
 async def cmd_genadminkey(u, c):
-    if u.effective_chat.id != ADMIN_ID: 
-        await u.message.reply_text("❌ Unauthorized. Only the owner can generate admin keys.")
-        return
     try:
         days = int(c.args[0]) if c.args and c.args[0].isdigit() else 30
         k = create_admin_key(days)
-        await u.message.reply_text(
-            f"🔑 <b>Admin Key Generated</b>\n"
-            f"<code>{k}</code>\n\n"
-            f"<b>Duration:</b> {days} days\n"
-            f"<b>Usage:</b> <code>/redeemadmin {k}</code>",
-            parse_mode="HTML"
-        )
+        await u.message.reply_text(f"🔑 <b>Admin Key Generated</b>\n<code>{k}</code>\n\n<b>Duration:</b> {days} days\n<b>Usage:</b> <code>/redeemadmin {k}</code>", parse_mode="HTML")
     except Exception as e:
-        await u.message.reply_text(f"⚠️ Error creating key: {str(e)}", parse_mode="HTML")
+        await u.message.reply_text(f"⚠️ Error: {str(e)}", parse_mode="HTML")
 
 async def cmd_redeemadmin(u, c):
     if not c.args: await u.message.reply_text("Usage: <code>/redeemadmin &lt;key&gt;</code>", parse_mode="HTML"); return
@@ -330,8 +340,8 @@ async def cmd_redeemadmin(u, c):
     except Exception as e:
         await u.message.reply_text(f"⚠️ System error: {str(e)}", parse_mode="HTML")
 
+@owner_only
 async def cmd_revokealladmins(u, c):
-    if u.effective_chat.id != ADMIN_ID: return
     try:
         revoke_admin_keys()
         await u.message.reply_text("🔒 <b>All admin keys revoked.</b>", parse_mode="HTML")
@@ -344,21 +354,24 @@ async def cmd_makeadmin(u, c):
     with db() as conn: conn.execute("UPDATE users SET tier='admin' WHERE id=?", (user["id"],))
     await u.message.reply_text("✅ Admin access granted.")
 
+@owner_only
 async def cmd_givepremium(u, c):
-    if u.effective_chat.id != ADMIN_ID or not c.args: return
+    if not c.args: return
     try: target_tg = int(c.args[0])
     except ValueError: return
     target_user = get_or_create(tg=target_tg); paid_until = grant_premium(target_user["id"], days=30, provider="manual")
     await u.message.reply_text(f"✅ Premium granted to <code>{target_tg}</code> until {paid_until}", parse_mode="HTML")
 
+@owner_only
 async def cmd_revoke(u, c):
-    if u.effective_chat.id != ADMIN_ID or not c.args: return
+    if not c.args: return
     target = int(c.args[0])
     with db() as conn: conn.execute("UPDATE users SET tier='free', paid_until=NULL WHERE telegram_id=?", (target,))
     await u.message.reply_text(f"✅ Revoked premium for <code>{target}</code>", parse_mode="HTML")
 
+@owner_only
 async def cmd_broadcast(u, c):
-    if u.effective_chat.id != ADMIN_ID or not c.args: return
+    if not c.args: return
     msg_text = " ".join(c.args)
     with db() as conn: users = conn.execute("SELECT DISTINCT telegram_id FROM users WHERE telegram_id IS NOT NULL").fetchall()
     count = 0; status_msg = await u.message.reply_text("Broadcasting...", parse_mode="HTML")
