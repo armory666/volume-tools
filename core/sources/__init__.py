@@ -8,15 +8,14 @@ from .crtsh import Crtsh
 from .phonenumbers_lib import PhoneNumbers
 from .breach import BreachEngine
 from .h8mail import H8Mail
-from .emailrep import EmailRep
-from .urlscan import UrlScan
-from .steam import Steam
-from .dnsdumpster import DnsDumpster
 from .discord_invite import DiscordInvite
+from .horus import Horus
+from .stealerlogs_com import StealerLogsCom
+from .osint_sx import OsintSx
 
 REGISTRY = [
     Holehe, HudsonRock, Gravatar,
     IpApi, InternetDB, BgpHe, Crtsh,
-    PhoneNumbers, BreachEngine, H8Mail,
-    EmailRep, UrlScan, Steam, DnsDumpster, DiscordInvite
+    PhoneNumbers, BreachEngine, H8Mail, DiscordInvite,
+    Horus, StealerLogsCom, OsintSx,
 ]
