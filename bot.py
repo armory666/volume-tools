@@ -1,7 +1,10 @@
 import os, json, re, asyncio, time, datetime, httpx
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, LabeledPrice, BotCommand, BotCommandScopeChat, WebAppInfo
 from telegram.ext import Application, CommandHandler, CallbackQueryHandler, PreCheckoutQueryHandler, MessageHandler, ContextTypes, filters
-from core.tier import init_db, get_or_create, grant_premium, tier_of, usage_today, TIERS, db, create_key, redeem_key, create_admin_key, redeem_admin_key, revoke_admin_keys, tier_of_admin_safe
+from core.tier import (
+    init_db, get_or_create, grant_premium, tier_of, usage_today, TIERS, db, 
+    create_key, redeem_key, create_admin_key, redeem_admin_key, revoke_admin_keys, tier_of_admin_safe
+)
 from core.pivot import fan_out
 from core.sources.breach import BreachEngine
 from core.sources.h8mail import H8Mail
@@ -12,16 +15,15 @@ TOKEN = os.environ["TELEGRAM_BOT_TOKEN"]
 LAST = {}
 init_db()
 
-ADMIN_ID = 8984546896      # hardcoded admin ID (for menu scoping & hardcoded admin override)
-OWNER_ID = 8984546896      # key minting locked to this — never changes
+ADMIN_ID = 8984546896      
+OWNER_ID = 8984546896      
 YOUR_USERNAME = "stomponheads"
-VERSION = "v2.3.0"
-WEB_APP_URL = "https://volume-tools-2.onrender.com"
+VERSION = "v2.4.0"
+WEB_APP_URL = "https://volume-tools-web.vercel.app"
 
 PILLAR_EMOJI = {"discord":"🎮","stealer":"🦠","breach":"🔓","iptrace":"🌐","email":"📧","username":"👤","phone":"📱","roblox":"🟥","misc":"•"}
 
 def owner_only(func):
-    """Restricts a command to the hardcoded owner, regardless of admin tier."""
     async def wrapper(u, c):
         if u.effective_chat.id != OWNER_ID:
             await u.message.reply_text(
@@ -308,16 +310,14 @@ async def cmd_redeem(u, c):
 
 @owner_only
 async def cmd_genkey(u, c):
-    if len(c.args) < 2: await u.message.reply_text("Usage: <code>/genkey &lt;amount&gt; &lt;duration&gt;</code>\nExample: <code>/genkey 5 30d</code>", parse_mode="HTML"); return
-    try: amount = int(c.args[0]); duration_str = c.args[1]
-    except ValueError: await u.message.reply_text("Invalid amount. Example: <code>/genkey 5 30d</code>", parse_mode="HTML"); return
+    if not c.args: await u.message.reply_text("Usage: <code>/genkey &lt;amount&gt;</code>\nExample: <code>/genkey 5</code>", parse_mode="HTML"); return
+    try: amount = int(c.args[0])
+    except ValueError: await u.message.reply_text("Invalid amount. Example: <code>/genkey 5</code>", parse_mode="HTML"); return
     if amount < 1 or amount > 10: await u.message.reply_text("Amount must be between 1 and 10.", parse_mode="HTML"); return
-    from core.tier import parse_duration
-    days = parse_duration(duration_str)
-    if not days: await u.message.reply_text("Invalid duration. Use d, w, m, or y. Example: <code>30d</code>", parse_mode="HTML"); return
+    
     try:
-        keys = [f"<code>{create_key(None, days)}</code>" for _ in range(amount)]
-        await u.message.reply_text(f"🔑 <b>Generated {amount} Keys</b>\n<b>Duration:</b> {days} days\n━━━━━━━━━━━━━━━━━━━━\n" + "\n".join(keys) + "\n\n<i>Users redeem with /redeem &lt;key&gt;</i>", parse_mode="HTML")
+        keys = [f"<code>{create_key('premium')}</code>" for _ in range(amount)]
+        await u.message.reply_text(f"🔑 <b>Generated {amount} Permanent Premium Keys</b>\n━━━━━━━━━━━━━━━━━━━━\n" + "\n".join(keys) + "\n\n<i>Users redeem with /redeem &lt;key&gt;</i>", parse_mode="HTML")
     except Exception as e:
         await u.message.reply_text(f"⚠️ Error: {str(e)}", parse_mode="HTML")
 
@@ -390,9 +390,9 @@ async def cmd_stats(u, c):
     if u.effective_chat.id != ADMIN_ID: return
     today = datetime.date.today().isoformat()
     with db() as conn:
-        total_users = conn.execute("SELECT COUNT(*) FROM users").fetchone()[0]
-        premium_users = conn.execute("SELECT COUNT(*) FROM users WHERE tier='premium' OR tier='admin'").fetchone()[0]
-        q_today = conn.execute("SELECT SUM(queries) FROM usage WHERE day=?", (today,)).fetchone()[0] or 0
+        total_users = conn.execute("SELECT COUNT(*) as n FROM users").fetchone()["n"]
+        premium_users = conn.execute("SELECT COUNT(*) as n FROM users WHERE tier='premium' OR tier='admin'").fetchone()["n"]
+        q_today = conn.execute("SELECT SUM(queries) as n FROM usage WHERE day=?", (today,)).fetchone()["n"] or 0
     await u.message.reply_text(f"📊 <b>Daily Metrics</b>\n<blockquote><b>Users:</b> {total_users}\n<b>Paid:</b> {premium_users}\n<b>Queries Today:</b> {q_today}</blockquote>", parse_mode="HTML")
 
 async def cmd_top(u, c):
@@ -443,7 +443,7 @@ async def on_paid(u, c):
     sp = u.message.successful_payment
     user = get_or_create(tg=u.effective_chat.id)
     days = 365 if "365" in sp.invoice_payload else 30
-    new_key = create_key(user["id"], days)
+    new_key = create_key("premium")
     paid_until = grant_premium(user["id"], days=days, provider="stars", provider_id=sp.telegram_payment_charge_id, amount=sp.total_amount)
     await send_receipt(u, c, user, days, sp.total_amount, sp.telegram_payment_charge_id, paid_until, new_key)
 
@@ -468,7 +468,7 @@ async def send_receipt(u, c, user, days, amount, charge_id, paid_until, key=None
         except Exception: pass
 
 async def on_startup(app: Application):
-    banner = f"🚀 <b>VOLUME.TOOLS {VERSION}</b>\n<b>System Online</b>\n\n• Key System Active\n• Pagination UI Active\n• Web App Linked"
+    banner = f"🚀 <b>VOLUME.TOOLS {VERSION}</b>\n<b>System Online</b>\n\n• Postgres DB Active\n• Key System Active\n• Web App Linked"
     try: await app.bot.send_message(chat_id=ADMIN_ID, text=banner, parse_mode="HTML")
     except Exception: pass
 
