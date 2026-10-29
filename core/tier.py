@@ -33,13 +33,11 @@ def db():
         conn.close()
 
 class _CursorWrapper:
-    """Wraps psycopg2 cursor to mimic sqlite3.Row behavior with ? -> %s conversion."""
     def __init__(self, cur, conn):
         self.cur = cur
         self.conn = conn
 
     def execute(self, sql, params=()):
-        # Replace ? placeholders with %s for psycopg2
         psql = sql.replace("?", "%s")
         self.cur.execute(psql, params)
         return self
@@ -59,11 +57,9 @@ class _CursorWrapper:
     def executescript(self, script):
         self.cur.execute(script)
 
-
 def init_db():
     with db() as c:
         c.executescript(open("core/db.sql").read())
-
 
 def get_user(uid=None, tg=None, email=None):
     with db() as c:
@@ -77,7 +73,6 @@ def get_user(uid=None, tg=None, email=None):
             return None
         return dict(r) if r else None
 
-
 def get_or_create(tg=None, email=None):
     u = get_user(tg=tg, email=email)
     if u:
@@ -90,7 +85,6 @@ def get_or_create(tg=None, email=None):
             (uid, tg, email, now, now))
     return get_user(uid=uid)
 
-
 def tier_of(user):
     if user["tier"] == "admin":
         return "admin"
@@ -101,7 +95,6 @@ def tier_of(user):
             c.execute("UPDATE users SET tier='free' WHERE id=%s", (user["id"],))
         return "free"
     return "free"
-
 
 def tier_of_admin_safe(user, hardcoded_admin_id):
     if user["tier"] == "admin":
@@ -114,10 +107,8 @@ def tier_of_admin_safe(user, hardcoded_admin_id):
         return "free"
     return tier_of(user)
 
-
 def today():
     return datetime.date.today().isoformat()
-
 
 def usage_today(user_id):
     with db() as c:
@@ -125,14 +116,12 @@ def usage_today(user_id):
                       (user_id, today())).fetchone()
         return r["queries"] if r else 0
 
-
 def bump_usage(user_id):
     with db() as c:
         c.execute(
             "INSERT INTO usage(user_id, day, queries) VALUES(%s,%s,1) "
             "ON CONFLICT(user_id, day) DO UPDATE SET queries = usage.queries + 1",
             (user_id, today()))
-
 
 def check(user, kind):
     tier = tier_of(user)
@@ -143,13 +132,11 @@ def check(user, kind):
         return False, f"daily limit reached ({limits['daily']}). upgrade for more."
     return True, None
 
-
 def allowed_sources(user, all_sources):
     tier = tier_of(user)
     if TIERS[tier]["sources"] == "*":
         return all_sources
     return [s for s in all_sources if getattr(s, "name", "") in TIERS[tier]["sources"]]
-
 
 def grant_premium(user_id, days=30, provider="stars", provider_id=None, amount=None):
     paid_until = (datetime.date.today() + datetime.timedelta(days=days)).isoformat()
@@ -164,11 +151,9 @@ def grant_premium(user_id, days=30, provider="stars", provider_id=None, amount=N
              datetime.datetime.utcnow().isoformat()))
     return paid_until
 
-
 def generate_key(prefix="PERM"):
     raw = secrets.token_hex(6).upper()
     return f"{prefix}-{raw[:4]}-{raw[4:8]}-{raw[8:12]}"
-
 
 def create_key(kind="premium"):
     prefix = "ADMIN" if kind == "admin" else "PERM"
@@ -178,6 +163,8 @@ def create_key(kind="premium"):
         c.execute("INSERT INTO keys (key, kind, created_at) VALUES (%s, %s, %s)", (k, kind, now))
     return k
 
+def create_admin_key(days=30):
+    return create_key("admin")
 
 def redeem_key(user_id, key):
     now_str = datetime.datetime.utcnow().isoformat()
@@ -202,6 +189,14 @@ def redeem_key(user_id, key):
         c.execute("UPDATE keys SET user_id=%s, redeemed_at=%s WHERE key=%s", (user_id, now_str, key))
     return True, msg
 
+def redeem_admin_key(user_id, key):
+    return redeem_key(user_id, key)
+
+def revoke_admin_keys():
+    with db() as c:
+        c.execute("UPDATE keys SET revoked=1 WHERE kind='admin'")
+        c.execute("UPDATE users SET tier='free', paid_until=NULL WHERE tier='admin'")
+    return True
 
 def create_session(user_id, days=30):
     token = secrets.token_urlsafe(32)
@@ -212,7 +207,6 @@ def create_session(user_id, days=30):
             "INSERT INTO sessions (token, user_id, created_at, expires_at) VALUES (%s,%s,%s,%s)",
             (token, user_id, now.isoformat(), expires))
     return token
-
 
 def get_session_user(token):
     if not token:
@@ -227,11 +221,9 @@ def get_session_user(token):
         return None
     return get_user(uid=row["user_id"])
 
-
 def revoke_session(token):
     with db() as c:
         c.execute("DELETE FROM sessions WHERE token=%s", (token,))
-
 
 def get_or_create_referral(user_id):
     with db() as c:
@@ -250,7 +242,6 @@ def get_or_create_referral(user_id):
             "INSERT INTO referrals (id, code, owner_id, created_at, reward_days) VALUES (%s,%s,%s,%s,%s)",
             (str(uuid.uuid4()), code, user_id, now, 30))
         return code
-
 
 def claim_referral_code(user_id, email, code):
     now_str = datetime.datetime.utcnow().isoformat()
@@ -281,7 +272,6 @@ def claim_referral_code(user_id, email, code):
     grant_premium(user_id, days=15, provider="referral", provider_id=code)
     grant_premium(row["owner_id"], days=30, provider="referral", provider_id=code)
     return True, "Referral accepted. You have 15 days of premium."
-
 
 def get_referral_stats(user_id):
     with db() as c:
