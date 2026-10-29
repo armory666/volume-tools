@@ -43,3 +43,25 @@ CREATE TABLE IF NOT EXISTS admin_keys (
   expires_at    TEXT,
   revoked       INTEGER NOT NULL DEFAULT 0
 );
+
+CREATE TABLE IF NOT EXISTS referrals (
+  id           TEXT PRIMARY KEY,
+  code         TEXT UNIQUE NOT NULL,
+  owner_id     TEXT NOT NULL,
+  used_by      TEXT,
+  used_at      TEXT,
+  created_at   TEXT NOT NULL,
+  reward_days  INTEGER NOT NULL DEFAULT 30
+);
+
+CREATE TABLE IF NOT EXISTS referral_claims (
+  id           TEXT PRIMARY KEY,
+  user_id      TEXT NOT NULL,
+  code         TEXT NOT NULL,
+  days_granted INTEGER NOT NULL,
+  claimed_at   TEXT NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_referrals_code ON referrals(code);
+CREATE INDEX IF NOT EXISTS idx_referrals_owner ON referrals(owner_id);
+CREATE INDEX IF NOT EXISTS idx_referral_claims_user ON referral_claims(user_id);
