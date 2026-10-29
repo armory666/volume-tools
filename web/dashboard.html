@@ -20,6 +20,7 @@
   body{
     font-family:var(--sans);background:var(--bg);color:var(--fg);
     min-height:100vh;font-size:14px;-webkit-font-smoothing:antialiased;
+    overflow-x:hidden;
   }
   body::before{
     content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
@@ -116,6 +117,87 @@
     font-size:12px;font-weight:600;transition:.15s;
   }
   .upgrade-banner .btn:hover{filter:brightness(1.06)}
+
+  /* REDEEM SECTION */
+  .redeem-card{
+    grid-column:1/-1;
+    background:var(--card);border:1px solid var(--border);border-radius:12px;
+    padding:24px;
+  }
+  .redeem-input-group{
+    display:flex;gap:8px;margin-top:12px;
+  }
+  .redeem-input{
+    flex:1;padding:11px 14px;background:var(--bg);border:1px solid var(--border);
+    border-radius:6px;color:var(--fg);font-family:var(--mono);font-size:13px;
+    outline:none;transition:.15s;letter-spacing:.04em;text-transform:uppercase;
+  }
+  .redeem-input:focus{border-color:var(--accent-2);box-shadow:0 0 0 2px rgba(110,231,168,.1)}
+  .redeem-btn{
+    padding:11px 20px;background:var(--accent);color:#062a17;
+    border:none;border-radius:6px;cursor:pointer;font-family:var(--mono);
+    font-weight:600;font-size:13px;transition:.15s;
+  }
+  .redeem-btn:hover{filter:brightness(1.06)}
+  .redeem-btn:disabled{background:var(--border);color:var(--dim);cursor:not-allowed}
+  .redeem-result{
+    margin-top:12px;font-family:var(--mono);font-size:12px;
+    display:none;padding:10px 12px;border-radius:6px;
+  }
+  .redeem-result.show{display:block}
+  .redeem-result.ok{background:rgba(110,231,168,.1);border:1px solid var(--accent-2);color:var(--accent)}
+  .redeem-result.err{background:rgba(237,66,69,.1);border:1px solid rgba(237,66,69,.3);color:var(--danger)}
+
+  /* ADMIN KEY SECTION */
+  .admin-section{
+    grid-column:1/-1;margin-top:16px;padding:20px 24px;
+    background:rgba(237,66,69,.02);border:1px dashed rgba(237,66,69,.25);
+    border-radius:12px;
+  }
+  .admin-section .head{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+  .admin-section .head .icon{font-size:16px}
+  .admin-section .head h4{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--danger);font-weight:600}
+  .admin-section p{font-size:12px;color:var(--dim);margin-bottom:12px;font-family:var(--mono)}
+
+  /* CARTOONY POPUP */
+  .admin-popup{
+    position:fixed;bottom:24px;left:24px;z-index:999;
+    display:flex;align-items:center;gap:12px;
+    padding:16px 20px;
+    background:linear-gradient(135deg,#6ee7a8,#3f9a6b);
+    color:#0a1a0f;border-radius:14px;
+    box-shadow:0 10px 40px rgba(110,231,168,0.4), 0 0 0 3px rgba(110,231,168,0.2);
+    font-family:var(--mono);font-weight:600;font-size:13px;
+    transform:translateY(200px) rotate(-4deg) scale(0.6);
+    opacity:0;
+    transition:transform 0.6s cubic-bezier(0.34,1.56,0.64,1), opacity 0.4s ease;
+    pointer-events:none;
+  }
+  .admin-popup.show{
+    transform:translateY(0) rotate(0) scale(1);
+    opacity:1;pointer-events:auto;
+    animation:wobble 0.6s ease-in-out 0.6s;
+  }
+  @keyframes wobble{
+    0%,100%{transform:rotate(0) scale(1)}
+    25%{transform:rotate(-2deg) scale(1.03)}
+    75%{transform:rotate(2deg) scale(1.03)}
+  }
+  .admin-popup .emoji{font-size:24px;animation:spin 1s ease-in-out 0.3s}
+  @keyframes spin{
+    0%{transform:rotate(0)}
+    100%{transform:rotate(360deg)}
+  }
+  .admin-popup .body{display:flex;flex-direction:column;gap:2px}
+  .admin-popup .body .title{font-size:14px;font-weight:700}
+  .admin-popup .body .sub{font-size:11px;font-weight:500;opacity:0.75}
+  .admin-popup .close{
+    margin-left:12px;background:rgba(0,0,0,0.1);border:none;
+    width:24px;height:24px;border-radius:50%;cursor:pointer;
+    font-size:14px;color:#0a1a0f;display:grid;place-items:center;
+    transition:.15s;
+  }
+  .admin-popup .close:hover{background:rgba(0,0,0,0.2)}
 </style>
 </head>
 <body>
@@ -185,73 +267,21 @@
         <div class="ref-stats" id="ref-stats">0 used · 0 days earned</div>
         <div class="ref-help">link: <span id="ref-link" style="color:var(--accent)">loading...</span></div>
       </div>
-    </div>
-  </div>
-</div>
 
-<script>
-(() => {
-  const TOKEN = localStorage.getItem('volume_token');
-  const EMAIL = localStorage.getItem('volume_email') || '—';
-  if (!TOKEN) { window.location.href = '/login'; return; }
+      <!-- REDEEM SECTION -->
+      <div class="redeem-card">
+        <div class="card-head">
+          <span class="card-label">redeem a key</span>
+          <span class="card-badge">permanent</span>
+        </div>
+        <p style="font-size:13px;color:var(--dim);margin-bottom:4px">
+          Have a premium key? Paste it below to unlock the full engine permanently.
+        </p>
+        <div class="redeem-input-group">
+          <input class="redeem-input" id="redeem-input" placeholder="PERM-XXXX-XXXX-XXXX" maxlength="32">
+          <button class="redeem-btn" id="redeem-btn">redeem →</button>
+        </div>
+        <div class="redeem-result" id="redeem-result"></div>
+      </div>
 
-  const API = window.location.hostname === 'localhost'
-    ? 'http://localhost:8000'
-    : 'https://volume-tools-2.onrender.com';
-
-  document.getElementById('nav-email').textContent = EMAIL;
-  document.getElementById('acc-email').textContent = EMAIL;
-
-  // Load account + referrals
-  Promise.all([
-    fetch(`${API}/api/me`, { headers: { 'authorization': `Bearer ${TOKEN}` } }).then(r => r.json()),
-    fetch(`${API}/api/referrals/me`, { headers: { 'authorization': `Bearer ${TOKEN}` } }).then(r => r.json())
-  ]).then(([me, ref]) => {
-    const tier = (me.tier || 'free').toUpperCase();
-    document.getElementById('greeting-tier').textContent = me.tier || 'free';
-    document.getElementById('acc-tier').textContent = me.tier || 'free';
-    document.getElementById('tier-badge').textContent = me.tier || 'free';
-    document.getElementById('acc-expires').textContent = me.paid_until || '—';
-    document.getElementById('acc-quota').textContent =
-      me.tier === 'admin' ? 'unlimited' :
-      me.tier === 'premium' ? '200 / 200' : '15 / 15';
-
-    if (me.tier === 'free') {
-      document.getElementById('upgrade-banner').style.display = 'flex';
-    }
-
-    if (ref.code) {
-      const codeEl = document.getElementById('ref-code');
-      codeEl.textContent = ref.code;
-      codeEl.onclick = () => {
-        navigator.clipboard.writeText(ref.code);
-        const orig = codeEl.textContent;
-        codeEl.textContent = 'copied ✓';
-        setTimeout(() => codeEl.textContent = orig, 1200);
-      };
-      document.getElementById('ref-stats').textContent =
-        `${ref.stats.used} used · ${ref.stats.earned_days} days earned`;
-      document.getElementById('ref-slots').textContent =
-        `${ref.stats.total}/3 slots`;
-      document.getElementById('ref-link').textContent =
-        `${window.location.origin}/login?ref=${ref.code}`;
-    }
-  }).catch(() => {});
-
-  document.getElementById('signout').onclick = async (e) => {
-    e.preventDefault();
-    try {
-      await fetch(`${API}/api/auth/logout`, {
-        method: 'POST',
-        headers: { 'authorization': `Bearer ${TOKEN}` }
-      });
-    } catch (err) {}
-    localStorage.removeItem('volume_token');
-    localStorage.removeItem('volume_email');
-    localStorage.removeItem('volume_tier');
-    window.location.href = '/login';
-  };
-})();
-</script>
-</body>
-</html>
+      <!-- ADMIN KEY SECTION -->
