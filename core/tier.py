@@ -215,3 +215,89 @@ def tier_of_admin_safe(user, hardcoded_admin_id):
             c.execute("UPDATE users SET tier='free' WHERE id=?", (user["id"],))
         return "free"
     return tier_of(user)
+
+def get_or_create_referral(user_id):
+    """Each user gets one permanent referral code on first call."""
+    with db() as c:
+        row = c.execute(
+            "SELECT code FROM referrals WHERE owner_id=? AND used_by IS NULL LIMIT 1",
+            (user_id,)
+        ).fetchone()
+        if row:
+            return row["code"]
+        total = c.execute(
+            "SELECT COUNT(*) FROM referrals WHERE owner_id=?", (user_id,)
+        ).fetchone()[0]
+        if total >= 3:
+            first = c.execute(
+                "SELECT code FROM referrals WHERE owner_id=? LIMIT 1", (user_id,)
+            ).fetchone()
+            return first["code"] if first else None
+        code = "VOL-REF-" + _secrets.token_hex(3).upper()
+        now = datetime.datetime.utcnow().isoformat()
+        c.execute(
+            "INSERT INTO referrals (id, code, owner_id, created_at, reward_days) VALUES (?,?,?,?,?)",
+            (str(uuid.uuid4()), code, user_id, now, 30)
+        )
+        return code
+
+
+def claim_referral_code(user_id, email, code):
+    now_str = datetime.datetime.utcnow().isoformat()
+    code = code.strip().upper()
+    with db() as c:
+        already = c.execute(
+            "SELECT 1 FROM referral_claims WHERE user_id=?", (user_id,)
+        ).fetchone()
+        if already:
+            return False, "You have already claimed a referral code."
+        row = c.execute("SELECT * FROM referrals WHERE code=?", (code,)).fetchone()
+        if not row:
+            return False, "Referral code not found."
+        if row["owner_id"] == user_id:
+            return False, "You cannot use your own referral code."
+        if row["used_by"]:
+            return False, "That code has already been used."
+        owner_count = c.execute(
+            "SELECT COUNT(*) FROM referrals WHERE owner_id=? AND used_by IS NOT NULL",
+            (row["owner_id"],)
+        ).fetchone()[0]
+        if owner_count >= 3:
+            return False, "That user has reached their referral limit."
+        c.execute(
+            "UPDATE referrals SET used_by=?, used_at=? WHERE code=?",
+            (user_id, now_str, code)
+        )
+        c.execute(
+            "INSERT INTO referral_claims (id, user_id, code, days_granted, claimed_at) VALUES (?,?,?,?,?)",
+            (str(uuid.uuid4()), user_id, code, 15, now_str)
+        )
+        c.execute(
+            "INSERT INTO referral_claims (id, user_id, code, days_granted, claimed_at) VALUES (?,?,?,?,?)",
+            (str(uuid.uuid4()), row["owner_id"], code, 30, now_str)
+        )
+    grant_premium(user_id, days=15, provider="referral", provider_id=code)
+    grant_premium(row["owner_id"], days=30, provider="referral", provider_id=code)
+    return True, "Referral accepted. You have 15 days of premium. Your inviter got 30."
+
+
+def get_referral_stats(user_id):
+    with db() as c:
+        total = c.execute(
+            "SELECT COUNT(*) FROM referrals WHERE owner_id=?", (user_id,)
+        ).fetchone()[0]
+        used = c.execute(
+            "SELECT COUNT(*) FROM referrals WHERE owner_id=? AND used_by IS NOT NULL",
+            (user_id,)
+        ).fetchone()[0]
+        earned = c.execute(
+            "SELECT COALESCE(SUM(days_granted), 0) FROM referral_claims "
+            "WHERE user_id=? AND code IN (SELECT code FROM referrals WHERE owner_id=?)",
+            (user_id, user_id)
+        ).fetchone()[0]
+    return {
+        "total": total,
+        "used": used,
+        "earned_days": earned,
+        "remaining_slots": max(0, 3 - total),
+    }
