@@ -285,3 +285,156 @@
       </div>
 
       <!-- ADMIN KEY SECTION -->
+      <div class="admin-section">
+        <div class="head">
+          <span class="icon">🔐</span>
+          <h4>admin access</h4>
+        </div>
+        <p>If you have an admin key, paste it below. Admin access grants key minting + all sources, forever.</p>
+        <div class="redeem-input-group">
+          <input class="redeem-input" id="admin-input" placeholder="ADMIN-XXXX-XXXX-XXXX" maxlength="32">
+          <button class="redeem-btn" id="admin-btn" style="background:#ed4245;color:#fff">authorize →</button>
+        </div>
+        <div class="redeem-result" id="admin-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CARTOONY ADMIN POPUP -->
+<div class="admin-popup" id="admin-popup">
+  <div class="emoji">🔐</div>
+  <div class="body">
+    <div class="title">You are now admin!</div>
+    <div class="sub">all powers unlocked</div>
+  </div>
+  <button class="close" id="admin-popup-close">×</button>
+</div>
+
+<script>
+(() => {
+  const TOKEN = localStorage.getItem('volume_token');
+  const EMAIL = localStorage.getItem('volume_email') || '—';
+  if (!TOKEN) { window.location.href = '/login'; return; }
+
+  const API = window.location.hostname === 'localhost'
+    ? 'http://localhost:8000'
+    : 'https://volume-tools-2.onrender.com';
+
+  const el = id => document.getElementById(id);
+
+  el('nav-email').textContent = EMAIL;
+  el('acc-email').textContent = EMAIL;
+
+  Promise.all([
+    fetch(`${API}/api/me`, { headers: { 'authorization': `Bearer ${TOKEN}` } }).then(r => r.json()),
+    fetch(`${API}/api/referrals/me`, { headers: { 'authorization': `Bearer ${TOKEN}` } }).then(r => r.json())
+  ]).then(([me, ref]) => {
+    document.getElementById('greeting-tier').textContent = me.tier || 'free';
+    document.getElementById('acc-tier').textContent = me.tier || 'free';
+    document.getElementById('tier-badge').textContent = me.tier || 'free';
+    document.getElementById('acc-expires').textContent = me.paid_until || '—';
+    document.getElementById('acc-quota').textContent =
+      me.tier === 'admin' ? 'unlimited' :
+      me.tier === 'premium' ? '200 / 200' : '15 / 15';
+
+    if (me.tier === 'free') {
+      document.getElementById('upgrade-banner').style.display = 'flex';
+    }
+
+    if (ref.code) {
+      const codeEl = document.getElementById('ref-code');
+      codeEl.textContent = ref.code;
+      codeEl.onclick = () => {
+        navigator.clipboard.writeText(ref.code);
+        const orig = codeEl.textContent;
+        codeEl.textContent = 'copied ✓';
+        setTimeout(() => codeEl.textContent = orig, 1200);
+      };
+      document.getElementById('ref-stats').textContent =
+        `${ref.stats.used} used · ${ref.stats.earned_days} days earned`;
+      document.getElementById('ref-slots').textContent =
+        `${ref.stats.total}/3 slots`;
+      document.getElementById('ref-link').textContent =
+        `${window.location.origin}/login?ref=${ref.code}`;
+    }
+  }).catch(() => {});
+
+  // PREMIUM REDEEM
+  const doRedeem = async (inputId, resultId, isAdmin) => {
+    const key = el(inputId).value.trim().toUpperCase();
+    const result = el(resultId);
+    result.className = 'redeem-result';
+    if (!key) return;
+    const btnId = isAdmin ? 'admin-btn' : 'redeem-btn';
+    el(btnId).disabled = true;
+    try {
+      const r = await fetch(`${API}/api/redeem`, {
+        method: 'POST',
+        headers: {
+          'content-type': 'application/json',
+          'authorization': `Bearer ${TOKEN}`
+        },
+        body: JSON.stringify({ key })
+      });
+      const d = await r.json();
+      if (!r.ok) {
+        result.textContent = '✕ ' + (d.detail || 'invalid key');
+        result.classList.add('show', 'err');
+        el(btnId).disabled = false;
+        return;
+      }
+      result.textContent = '✓ ' + d.message;
+      result.classList.add('show', 'ok');
+      el(inputId).value = '';
+
+      if (isAdmin) {
+        // Trigger cartoony popup
+        const popup = el('admin-popup');
+        popup.classList.add('show');
+        // Refresh account data
+        setTimeout(() => location.reload(), 2000);
+      } else {
+        // Premium — reload after short delay
+        setTimeout(() => location.reload(), 1500);
+      }
+    } catch (e) {
+      result.textContent = '✕ network error';
+      result.classList.add('show', 'err');
+      el(btnId).disabled = false;
+    }
+  };
+
+  el('redeem-btn').onclick = () => doRedeem('redeem-input', 'redeem-result', false);
+  el('admin-btn').onclick = () => doRedeem('admin-input', 'admin-result', true);
+
+  el('redeem-input').addEventListener('keydown', e => { if (e.key === 'Enter') el('redeem-btn').click(); });
+  el('admin-input').addEventListener('keydown', e => { if (e.key === 'Enter') el('admin-btn').click(); });
+
+  // Auto-uppercase
+  ['redeem-input', 'admin-input'].forEach(id => {
+    el(id).addEventListener('input', e => {
+      e.target.value = e.target.value.toUpperCase();
+    });
+  });
+
+  el('admin-popup-close').onclick = () => el('admin-popup').classList.remove('show');
+
+  // Signout
+  document.getElementById('signout').onclick = async (e) => {
+    e.preventDefault();
+    try {
+      await fetch(`${API}/api/auth/logout`, {
+        method: 'POST',
+        headers: { 'authorization': `Bearer ${TOKEN}` }
+      });
+    } catch (err) {}
+    localStorage.removeItem('volume_token');
+    localStorage.removeItem('volume_email');
+    localStorage.removeItem('volume_tier');
+    window.location.href = '/login';
+  };
+})();
+</script>
+</body>
+</html>
