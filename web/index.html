@@ -7,152 +7,121 @@
 <meta name="theme-color" content="#0a0e0b">
 <script src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
 <style>
-  :root {
-    --bg: #0a0e0b;
-    --bg-side: #0f1410;
-    --card: #121914;
-    --card-hover: #1a241f;
-    --border: #1d271f;
-    --border-2: #2a3a2c;
-    --fg: #e8ece8;
-    --fg-dim: #6e7a70;
-    --accent: #6ee7a8;
-    --accent-dim: #3f9a6b;
-    --danger: #ed4245;
-    --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  :root{
+    --bg:#0a0e0b;--bg-side:#0f1410;--card:#121914;--card-hover:#1a241f;
+    --border:#1d271f;--border-2:#2a3a2c;--fg:#e8ece8;--fg-dim:#6e7a70;
+    --accent:#6ee7a8;--accent-dim:#3f9a6b;--danger:#ed4245;--warn:#e6b800;
+    --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
   }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  html, body { height: 100%; }
-  body {
-    font-family: var(--sans); background: var(--bg); color: var(--fg);
-    display: flex; height: 100vh; overflow: hidden; font-size: 14px;
-    -webkit-font-smoothing: antialiased;
-  }
-
-  .sidebar {
-    width: 420px; background: var(--bg-side); border-right: 1px solid var(--border);
-    display: flex; flex-direction: column; min-height: 0;
-  }
-  .header {
-    padding: 24px 24px 16px; border-bottom: 1px solid var(--border);
-  }
-  .brand {
-    display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px;
-  }
-  .brand-name { font-weight: 500; font-size: 15px; letter-spacing: -0.02em; }
-  .brand-name span { color: var(--accent); }
-  .brand-actions { display: flex; gap: 8px; }
-  .brand-home {
-    font-size: 11px; font-family: var(--mono); color: var(--fg-dim);
-    text-decoration: none; padding: 4px 10px; border: 1px solid var(--border);
-    border-radius: 4px; transition: 0.2s;
-  }
-  .brand-home:hover { background: var(--card); color: var(--fg); }
-  .brand-home.signout { color: var(--danger); }
-
-  .status-pill {
-    display: inline-flex; align-items: center; gap: 8px; padding: 8px 12px;
-    background: var(--card); border: 1px solid var(--border); border-radius: 8px;
-    font-size: 11px; font-family: var(--mono); color: var(--fg-dim); width: 100%;
-  }
-  .status-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 3px rgba(110,231,168,0.1); }
-  .status-text { color: var(--fg); font-weight: 500; }
-  .status-count { margin-left: auto; }
-
-  .referral-card {
-    background: var(--card); border: 1px solid var(--border); border-radius: 8px;
-    padding: 12px; margin-top: 12px; display: none;
-  }
-  .referral-card.show { display: block; }
-  .ref-label { font-size: 9px; text-transform: uppercase; letter-spacing: .08em; color: var(--fg-dim); font-family: var(--mono); margin-bottom: 6px; }
-  .ref-code {
-    font-family: var(--mono); font-size: 13px; color: var(--accent);
-    cursor: pointer; padding: 6px; background: rgba(110,231,168,.06);
-    border-radius: 4px; text-align: center; letter-spacing: .04em; transition: .15s;
-  }
-  .ref-code:hover { background: rgba(110,231,168,.1); }
-  .ref-stats { font-size: 10px; color: var(--fg-dim); margin-top: 6px; font-family: var(--mono); }
-
-  .composer { padding: 20px 24px; border-bottom: 1px solid var(--border); }
-  .form-group { margin-bottom: 14px; }
-  .form-label {
-    display: block; font-size: 10px; text-transform: uppercase;
-    letter-spacing: 0.08em; color: var(--fg-dim); margin-bottom: 6px;
-    font-family: var(--mono); font-weight: 600;
-  }
-  .form-control {
-    width: 100%; padding: 10px 12px; background: var(--bg); border: 1px solid var(--border);
-    border-radius: 6px; color: var(--fg); font-family: var(--sans); font-size: 13px;
-    outline: none; transition: 0.2s;
-  }
-  .form-control:focus { border-color: var(--accent-dim); box-shadow: 0 0 0 2px rgba(110, 231, 168, 0.1); }
-  .btn-primary {
-    width: 100%; padding: 11px; background: var(--accent); color: #062a17; font-weight: 600;
-    border: none; border-radius: 6px; cursor: pointer; transition: 0.2s; font-size: 13px;
-    font-family: var(--mono);
-  }
-  .btn-primary:hover { filter: brightness(1.05); }
-  .btn-primary:active { transform: translateY(1px); }
-  .btn-primary:disabled { background: var(--border); color: var(--fg-dim); cursor: not-allowed; }
-
-  .results-status {
-    padding: 10px 24px; font-family: var(--mono); font-size: 11px;
-    color: var(--fg-dim); border-bottom: 1px solid var(--border);
-    min-height: 38px; display: flex; align-items: center;
-  }
-  .results-list { flex: 1; overflow-y: auto; padding: 16px 24px; }
-  .results-list::-webkit-scrollbar { width: 6px; }
-  .results-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
-
-  .empty-state { text-align: center; padding: 60px 20px; color: var(--fg-dim); font-size: 12px; line-height: 1.6; font-family: var(--mono); }
-  .empty-icon { font-size: 24px; margin-bottom: 12px; opacity: 0.4; }
-
-  .hit-card {
-    background: var(--card); border: 1px solid var(--border); border-radius: 8px;
-    padding: 14px; margin-bottom: 10px; transition: 0.2s;
-  }
-  .hit-card:hover { border-color: var(--border-2); background: var(--card-hover); }
-  .hit-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
-  .hit-badge {
-    font-size: 9px; text-transform: uppercase; letter-spacing: 0.06em; font-weight: 700;
-    color: var(--accent); background: rgba(110, 231, 168, 0.1); padding: 2px 6px; border-radius: 4px;
-    font-family: var(--mono);
-  }
-  .hit-kind { font-size: 10px; color: var(--fg-dim); font-family: var(--mono); }
-  .hit-value { font-size: 13px; color: var(--fg); word-break: break-all; line-height: 1.4; }
-  .hit-meta { font-size: 10px; color: var(--fg-dim); margin-top: 8px; font-family: var(--mono); }
-
-  .graph-panel { flex: 1; position: relative; background: var(--bg); }
-  .graph-bg {
-    position: absolute; inset: 0;
-    background-image: radial-gradient(var(--border) 1px, transparent 0);
-    background-size: 32px 32px; opacity: 0.3;
-  }
-  #network { width: 100%; height: 100%; position: absolute; z-index: 1; }
-  .graph-stats {
-    position: absolute; top: 20px; right: 20px; display: flex; gap: 8px; z-index: 2;
-  }
-  .stat-pill {
-    background: rgba(15, 20, 16, 0.9); border: 1px solid var(--border); padding: 6px 12px;
-    border-radius: 6px; font-family: var(--mono); font-size: 10px; color: var(--fg-dim);
-    backdrop-filter: blur(8px); text-transform: uppercase; letter-spacing: 0.06em;
-  }
-  .stat-pill b { color: var(--fg); font-weight: 500; margin-left: 4px; }
-
-  @media (max-width: 820px) {
-    body { flex-direction: column; }
-    .sidebar { width: 100%; height: 65vh; border-right: none; border-bottom: 1px solid var(--border); }
-    .graph-panel { height: 35vh; }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{font-family:var(--sans);background:var(--bg);color:var(--fg);
+    display:flex;height:100vh;overflow:hidden;font-size:14px;-webkit-font-smoothing:antialiased}
+  .sidebar{width:460px;background:var(--bg-side);border-right:1px solid var(--border);
+    display:flex;flex-direction:column;min-height:0}
+  .header{padding:20px 20px 0;border-bottom:1px solid var(--border)}
+  .brand{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+  .brand-name{font-weight:500;font-size:15px;letter-spacing:-0.02em}
+  .brand-name span{color:var(--accent)}
+  .brand-actions{display:flex;gap:6px}
+  .brand-home{font-size:11px;font-family:var(--mono);color:var(--fg-dim);
+    text-decoration:none;padding:4px 10px;border:1px solid var(--border);
+    border-radius:4px;transition:.2s}
+  .brand-home:hover{background:var(--card);color:var(--fg)}
+  .brand-home.signout{color:var(--danger)}
+  .tabs{display:flex;gap:2px;margin-bottom:-1px}
+  .tab{flex:1;padding:10px 8px;font-family:var(--mono);font-size:11px;
+    text-transform:uppercase;letter-spacing:.06em;color:var(--fg-dim);
+    background:transparent;border:none;border-bottom:2px solid transparent;
+    cursor:pointer;transition:.15s;font-weight:600}
+  .tab:hover{color:var(--fg)}
+  .tab.active{color:var(--accent);border-bottom-color:var(--accent)}
+  .pane{display:none;padding:20px;flex:1;overflow-y:auto}
+  .pane.active{display:flex;flex-direction:column}
+  .pane::-webkit-scrollbar{width:6px}
+  .pane::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+  .form-group{margin-bottom:14px}
+  .form-label{display:block;font-size:10px;text-transform:uppercase;
+    letter-spacing:.08em;color:var(--fg-dim);margin-bottom:6px;
+    font-family:var(--mono);font-weight:600}
+  .form-control{width:100%;padding:10px 12px;background:var(--bg);
+    border:1px solid var(--border);border-radius:6px;color:var(--fg);
+    font-family:var(--sans);font-size:13px;outline:none;transition:.2s}
+  .form-control:focus{border-color:var(--accent-dim);box-shadow:0 0 0 2px rgba(110,231,168,.1)}
+  .form-control.mono{font-family:var(--mono);font-size:12px}
+  .hint{font-size:11px;color:var(--fg-dim);margin-bottom:12px;
+    font-family:var(--mono);line-height:1.5}
+  .hint code{color:var(--accent);background:rgba(110,231,168,.06);padding:1px 4px;border-radius:3px}
+  .btn{padding:10px 14px;border-radius:6px;font-family:var(--mono);font-weight:600;
+    font-size:12px;cursor:pointer;border:none;transition:.15s;
+    background:var(--accent);color:#062a17}
+  .btn:hover{filter:brightness(1.06)}
+  .btn:disabled{background:var(--border);color:var(--fg-dim);cursor:not-allowed}
+  .btn.full{width:100%;padding:11px;font-size:13px}
+  .btn.ghost{background:transparent;border:1px solid var(--border);color:var(--fg)}
+  .btn.ghost:hover{border-color:var(--accent-dim)}
+  .btn.download{background:var(--accent-dim);color:#fff;margin-top:10px}
+  .pane-status{padding:10px 0;font-family:var(--mono);font-size:11px;
+    color:var(--fg-dim);min-height:32px;display:flex;align-items:center}
+  .pane-status.error{color:var(--danger)}
+  .pane-status.ok{color:var(--accent)}
+  .results{flex:1;overflow-y:auto;margin-top:12px}
+  .results::-webkit-scrollbar{width:6px}
+  .results::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+  .empty-state{text-align:center;padding:40px 20px;color:var(--fg-dim);
+    font-size:12px;line-height:1.6;font-family:var(--mono)}
+  .empty-icon{font-size:24px;margin-bottom:12px;opacity:.4}
+  .hit-card{background:var(--card);border:1px solid var(--border);border-radius:8px;
+    padding:12px 14px;margin-bottom:8px;transition:.2s}
+  .hit-card:hover{border-color:var(--border-2);background:var(--card-hover)}
+  .hit-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+  .hit-badge{font-size:9px;text-transform:uppercase;letter-spacing:.06em;
+    font-weight:700;color:var(--accent);background:rgba(110,231,168,.1);
+    padding:2px 6px;border-radius:4px;font-family:var(--mono)}
+  .hit-badge.warn{background:rgba(230,184,0,.1);color:var(--warn)}
+  .hit-badge.danger{background:rgba(237,66,69,.1);color:var(--danger)}
+  .hit-kind{font-size:10px;color:var(--fg-dim);font-family:var(--mono)}
+  .hit-value{font-size:13px;color:var(--fg);word-break:break-all;
+    line-height:1.4;font-family:var(--mono)}
+  .hit-meta{font-size:10px;color:var(--fg-dim);margin-top:6px;font-family:var(--mono)}
+  .result-block{background:var(--card);border:1px solid var(--border);
+    border-radius:8px;padding:14px;margin-top:12px;
+    font-family:var(--mono);font-size:12px;line-height:1.6}
+  .result-block .k{color:var(--fg-dim)}
+  .result-block .v{color:var(--fg)}
+  .result-block .v.ok{color:var(--accent)}
+  .result-block .v.err{color:var(--danger)}
+  .result-block .v.warn{color:var(--warn)}
+  .graph-panel{flex:1;position:relative;background:var(--bg)}
+  .graph-bg{position:absolute;inset:0;
+    background-image:radial-gradient(var(--border) 1px,transparent 0);
+    background-size:32px 32px;opacity:.3}
+  #network{width:100%;height:100%;position:absolute;z-index:1}
+  .graph-stats{position:absolute;top:20px;right:20px;display:flex;gap:8px;z-index:2}
+  .stat-pill{background:rgba(15,20,16,.9);border:1px solid var(--border);
+    padding:6px 12px;border-radius:6px;font-family:var(--mono);font-size:10px;
+    color:var(--fg-dim);backdrop-filter:blur(8px);
+    text-transform:uppercase;letter-spacing:.06em}
+  .stat-pill b{color:var(--fg);font-weight:500;margin-left:4px}
+  .mini-tabs{display:flex;gap:4px;margin-bottom:14px;flex-wrap:wrap}
+  .mini-tab{padding:6px 10px;font-family:var(--mono);font-size:10px;
+    text-transform:uppercase;letter-spacing:.05em;color:var(--fg-dim);
+    background:var(--bg);border:1px solid var(--border);border-radius:4px;
+    cursor:pointer;transition:.15s;font-weight:600}
+  .mini-tab:hover{color:var(--fg);border-color:var(--border-2)}
+  .mini-tab.active{color:var(--accent);border-color:var(--accent-dim);background:rgba(110,231,168,.06)}
+  @media (max-width:900px){
+    body{flex-direction:column}
+    .sidebar{width:100%;height:70vh;border-right:none;border-bottom:1px solid var(--border)}
+    .graph-panel{height:30vh}
   }
 </style>
 </head>
 <body>
 
 <script>
-  if (!localStorage.getItem('volume_token')) {
-    window.location.href = '/login';
-  }
+  if (!localStorage.getItem('volume_token')) window.location.href = '/login';
 </script>
 
 <div class="sidebar">
@@ -164,22 +133,18 @@
         <a href="#" id="logout-btn" class="brand-home signout">sign out</a>
       </div>
     </div>
-    <div class="status-pill">
-      <div class="status-dot"></div>
-      <span class="status-text">Connected</span>
-      <span class="status-count" id="src-count">...</span>
-    </div>
-    <div class="referral-card" id="referral-card">
-      <div class="ref-label">your referral code</div>
-      <div class="ref-code" id="ref-code">VOL-REF-...</div>
-      <div class="ref-stats" id="ref-stats">loading...</div>
+    <div class="tabs">
+      <button class="tab active" data-pane="pivot">Pivot</button>
+      <button class="tab" data-pane="discord">Discord</button>
+      <button class="tab" data-pane="breach">Breach</button>
+      <button class="tab" data-pane="history">History</button>
     </div>
   </div>
 
-  <div class="composer">
+  <div class="pane active" data-pane="pivot">
     <div class="form-group">
       <label class="form-label">Target Type</label>
-      <select id="kind" class="form-control">
+      <select id="pivot-kind" class="form-control">
         <option value="email">Email</option>
         <option value="username">Username</option>
         <option value="ip">IP Address</option>
@@ -190,17 +155,54 @@
     </div>
     <div class="form-group">
       <label class="form-label">Seed Artifact</label>
-      <input id="seed" class="form-control" placeholder="Enter target..." autofocus autocomplete="off" spellcheck="false">
+      <input id="pivot-seed" class="form-control" placeholder="Enter target..." autocomplete="off" spellcheck="false">
     </div>
-    <button id="go" class="btn-primary">Execute Pivot</button>
+    <button id="pivot-go" class="btn full">Execute Pivot</button>
+    <div class="pane-status" id="pivot-status">Ready</div>
+    <div class="results" id="pivot-results">
+      <div class="empty-state"><div class="empty-icon">◌</div>No data yet.</div>
+    </div>
   </div>
 
-  <div class="results-status" id="status">Ready · Feed me an artifact</div>
-  <div class="results-list" id="results">
-    <div class="empty-state">
-      <div class="empty-icon">◌</div>
-      No data yet.<br>Drop a target above to begin.
+  <div class="pane" data-pane="discord">
+    <div class="mini-tabs">
+      <button class="mini-tab active" data-dtool="id">ID Lookup</button>
+      <button class="mini-tab" data-dtool="namecheck">Username</button>
+      <button class="mini-tab" data-dtool="namebulk">Bulk</button>
+      <button class="mini-tab" data-dtool="vanity">Vanity</button>
+      <button class="mini-tab" data-dtool="token">Token</button>
     </div>
+    <div class="hint" id="dtool-hint">Checks the public Discord profile for this ID. Note: only returns data for bots or users in a mutual server.</div>
+    <div class="form-group">
+      <label class="form-label" id="dtool-label">Discord ID</label>
+      <input id="dtool-input" class="form-control mono" placeholder="850123456789012345" autocomplete="off" spellcheck="false">
+    </div>
+    <button id="dtool-go" class="btn full">Check</button>
+    <div class="pane-status" id="dtool-status"></div>
+    <div class="results" id="dtool-results"></div>
+  </div>
+
+  <div class="pane" data-pane="breach">
+    <div class="hint">Test with <code>support@hudsonrock.com</code> — always has a known stealer hit.</div>
+    <div class="form-group">
+      <label class="form-label">Email address</label>
+      <input id="breach-email" class="form-control" placeholder="target@example.com" autocomplete="off" spellcheck="false">
+    </div>
+    <button id="breach-go" class="btn full">Scan Breach Databases</button>
+    <div class="pane-status" id="breach-status">Premium feature. Requires active premium tier.</div>
+    <div class="results" id="breach-results"></div>
+    <div id="breach-export-wrap" style="display:none">
+      <button id="breach-export" class="btn download full">📥 download full report (.txt)</button>
+    </div>
+  </div>
+
+  <div class="pane" data-pane="history">
+    <div class="form-group">
+      <label class="form-label">Recent searches</label>
+    </div>
+    <button id="history-refresh" class="btn ghost full">Refresh</button>
+    <div class="pane-status" id="history-status"></div>
+    <div class="results" id="history-results"></div>
   </div>
 </div>
 
@@ -219,161 +221,284 @@
   const API = window.location.hostname === 'localhost'
     ? 'http://localhost:8000'
     : 'https://volume-tools-2.onrender.com';
+  const headers = { 'content-type':'application/json', 'authorization':`Bearer ${TOKEN}` };
 
+  // Tabs
+  document.querySelectorAll('.tab').forEach(tab => {
+    tab.onclick = () => {
+      const pane = tab.dataset.pane;
+      document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t === tab));
+      document.querySelectorAll('.pane').forEach(p => p.classList.toggle('active', p.dataset.pane === pane));
+    };
+  });
+
+  // Graph
   const nodesDS = new vis.DataSet([]);
   const edgesDS = new vis.DataSet([]);
   const seen = new Set();
-
-  const net = new vis.Network(
-    document.getElementById('network'),
-    { nodes: nodesDS, edges: edgesDS },
-    {
-      nodes: {
-        shape: 'dot', size: 12, borderWidth: 1,
-        font: { color: '#6e7a70', face: 'monospace', size: 11 },
-        color: { background: '#121914', border: '#6ee7a8' }
-      },
-      edges: {
-        color: { color: '#1d271f', highlight: '#6ee7a8' },
-        width: 1, smooth: { type: 'dynamic' }
-      },
-      physics: {
-        solver: 'forceAtlas2Based',
-        forceAtlas2Based: { gravitationalConstant: -40, centralGravity: 0.015, springLength: 100, springConstant: 0.06, damping: 0.4 },
-        stabilization: { iterations: 150 }
-      },
-      interaction: { hover: true, tooltipDelay: 200 }
-    }
-  );
-
+  const net = new vis.Network(document.getElementById('network'),
+    { nodes: nodesDS, edges: edgesDS }, {
+      nodes:{shape:'dot',size:12,borderWidth:1,
+        font:{color:'#6e7a70',face:'monospace',size:11},
+        color:{background:'#121914',border:'#6ee7a8'}},
+      edges:{color:{color:'#1d271f',highlight:'#6ee7a8'},width:1,smooth:{type:'dynamic'}},
+      physics:{solver:'forceAtlas2Based',
+        forceAtlas2Based:{gravitationalConstant:-40,centralGravity:.015,springLength:100,springConstant:.06,damping:.4},
+        stabilization:{iterations:150}},
+      interaction:{hover:true,tooltipDelay:200}
+    });
   const updateStats = () => {
     document.getElementById('node-count').textContent = nodesDS.length;
     document.getElementById('edge-count').textContent = edgesDS.length;
   };
-
-  const addNode = (id, label, isRoot = false) => {
-    if (seen.has(id)) return;
+  const addNode = (id,label,root=false) => {
+    if(seen.has(id)) return;
     seen.add(id);
-    nodesDS.add({
-      id, label,
-      size: isRoot ? 20 : 12,
-      color: isRoot ? { background: '#6ee7a8', border: '#e8ece8' } : { background: '#121914', border: '#6ee7a8' },
-      font: isRoot ? { color: '#0a0e0b', bold: true, face: 'monospace' } : { color: '#6e7a70', face: 'monospace' }
-    });
+    nodesDS.add({id,label,size:root?20:12,
+      color:root?{background:'#6ee7a8',border:'#e8ece8'}:{background:'#121914',border:'#6ee7a8'},
+      font:root?{color:'#0a0e0b',bold:true,face:'monospace'}:{color:'#6e7a70',face:'monospace'}});
     updateStats();
   };
-
-  const addEdge = (from, to) => {
-    edgesDS.add({ from, to, id: `${from}->${to}` });
+  const addEdge = (from,to) => {
+    edgesDS.add({from,to,id:`${from}->${to}`});
     updateStats();
   };
-
-  const setStatus = (text, isError = false) => {
-    const el = document.getElementById('status');
-    el.innerHTML = text;
-    el.style.color = isError ? 'var(--danger)' : 'var(--fg-dim)';
+  const setStatus = (id,text,cls='') => {
+    const el = document.getElementById(id);
+    el.textContent = text;
+    el.className = 'pane-status ' + cls;
   };
 
-  const renderResults = (hits) => {
-    const el = document.getElementById('results');
-    if (!hits.length) {
-      el.innerHTML = '<div class="empty-state"><div class="empty-icon">◌</div>No hits found.<br>Try a different target.</div>';
-      return;
-    }
-    el.innerHTML = hits.map(h => `
-      <div class="hit-card">
-        <div class="hit-header">
-          <span class="hit-badge">${h.pillar}</span>
-          <span class="hit-kind">${h.kind}</span>
-        </div>
-        <div class="hit-value">${h.value}</div>
-        <div class="hit-meta">via ${(h.meta.sources || []).join(', ')}</div>
-      </div>
-    `).join('');
-  };
-
-  document.getElementById('go').onclick = async () => {
-    const seed = document.getElementById('seed').value.trim();
-    const kind = document.getElementById('kind').value;
-    if (!seed) return;
-
-    const btn = document.getElementById('go');
+  // PIVOT
+  document.getElementById('pivot-go').onclick = async () => {
+    const seed = document.getElementById('pivot-seed').value.trim();
+    const kind = document.getElementById('pivot-kind').value;
+    if(!seed) return;
+    const btn = document.getElementById('pivot-go');
     btn.disabled = true;
-    setStatus(`Fanning out · ${kind}`);
-    document.getElementById('results').innerHTML = '<div class="empty-state"><div class="empty-icon">⏳</div>Scanning sources...</div>';
-
-    const rootId = kind + ':' + seed;
-    addNode(rootId, seed.length > 18 ? seed.slice(0, 18) + '…' : seed, true);
-
+    setStatus('pivot-status', `Fanning out · ${kind}`);
+    document.getElementById('pivot-results').innerHTML = '<div class="empty-state"><div class="empty-icon">⏳</div>Scanning sources...</div>';
+    const rootId = kind+':'+seed;
+    addNode(rootId, seed.slice(0,18), true);
     try {
-      const res = await fetch(`${API}/api/pivot`, {
-        method: 'POST',
-        headers: {
-          'content-type': 'application/json',
-          'authorization': `Bearer ${TOKEN}`
-        },
-        body: JSON.stringify({ seed, kind })
-      });
-
-      if (res.status === 402) {
+      const res = await fetch(`${API}/api/pivot`, {method:'POST',headers,body:JSON.stringify({seed,kind})});
+      if(res.status === 402){
         const d = await res.json();
-        setStatus(`Limit reached · ${d.detail || 'upgrade'}`, true);
-        renderResults([]);
+        setStatus('pivot-status','Limit reached · '+(d.detail||'upgrade'),'error');
+        document.getElementById('pivot-results').innerHTML='';
         return;
       }
-
       const d = await res.json();
-      setStatus(`Completed · ${d.count} hits`);
-      renderResults(d.hits);
+      setStatus('pivot-status', `${d.count} hits`, 'ok');
+      const results = document.getElementById('pivot-results');
+      if(!d.hits.length){
+        results.innerHTML = '<div class="empty-state"><div class="empty-icon">◌</div>No hits found.</div>';
+      } else {
+        results.innerHTML = d.hits.map(h => `
+          <div class="hit-card">
+            <div class="hit-header">
+              <span class="hit-badge">${h.pillar}</span>
+              <span class="hit-kind">${h.kind}</span>
+            </div>
+            <div class="hit-value">${h.value}</div>
+            <div class="hit-meta">via ${(h.meta.sources||[]).join(', ')}</div>
+          </div>`).join('');
+        d.hits.forEach(h => {
+          const id = h.kind+':'+h.value;
+          addNode(id, String(h.value).slice(0,18));
+          addEdge(rootId, id);
+        });
+      }
+    } catch(e){
+      setStatus('pivot-status','Error · '+e.message,'error');
+    } finally { btn.disabled = false; }
+  };
 
-      d.hits.forEach(h => {
-        const id = h.kind + ':' + h.value;
-        addNode(id, String(h.value).slice(0, 18), false);
-        addEdge(rootId, id);
-      });
-    } catch (e) {
-      setStatus(`Error · ${e.message}`, true);
-      renderResults([]);
-    } finally {
-      btn.disabled = false;
+  // DISCORD
+  let dtool = 'id';
+  const dtoolCfg = {
+    id:{label:'Discord ID',placeholder:'850123456789012345',
+        hint:'Checks the public Discord profile. Only returns data for bots or users in a mutual server.'},
+    namecheck:{label:'Username',placeholder:'n0cturn',
+        hint:'Checks if a Discord username (@handle) is available.'},
+    namebulk:{label:'Usernames (comma separated)',placeholder:'user1,user2,user3',
+        hint:'Check up to 10 usernames at once. Rate limited.'},
+    vanity:{label:'Vanity code',placeholder:'discord',
+        hint:'Checks if discord.gg/CODE is taken, available, or terminated.'},
+    token:{label:'Discord token',placeholder:'paste token here',
+        hint:'Validates a Discord token against the /users/@me endpoint.'},
+  };
+  document.querySelectorAll('.mini-tab').forEach(t => {
+    t.onclick = () => {
+      dtool = t.dataset.dtool;
+      document.querySelectorAll('.mini-tab').forEach(x => x.classList.toggle('active', x===t));
+      const c = dtoolCfg[dtool];
+      document.getElementById('dtool-label').textContent = c.label;
+      document.getElementById('dtool-input').placeholder = c.placeholder;
+      document.getElementById('dtool-hint').textContent = c.hint;
+      document.getElementById('dtool-input').value = '';
+      document.getElementById('dtool-results').innerHTML = '';
+      setStatus('dtool-status','');
+    };
+  });
+  document.getElementById('dtool-go').onclick = async () => {
+    const input = document.getElementById('dtool-input').value.trim();
+    if(!input) return;
+    const btn = document.getElementById('dtool-go');
+    btn.disabled = true;
+    setStatus('dtool-status','Checking...');
+    const results = document.getElementById('dtool-results');
+    results.innerHTML = '';
+    try {
+      if(dtool === 'id'){
+        const res = await fetch(`${API}/api/pivot`,{method:'POST',headers,
+          body:JSON.stringify({seed:input,kind:'discord_id'})});
+        const d = await res.json();
+        if(!res.ok){ setStatus('dtool-status',d.detail||'error','error'); }
+        else if(!d.hits.length){
+          results.innerHTML = '<div class="empty-state"><div class="empty-icon">◌</div>No public profile found.</div>';
+          setStatus('dtool-status','No results','error');
+        } else {
+          results.innerHTML = d.hits.map(h => `
+            <div class="hit-card">
+              <div class="hit-header">
+                <span class="hit-badge">${h.pillar}</span>
+                <span class="hit-kind">${h.kind}</span>
+              </div>
+              <div class="hit-value">${h.value}</div>
+              <div class="hit-meta">${JSON.stringify(h.meta)}</div>
+            </div>`).join('');
+          setStatus('dtool-status', `${d.count} hits`, 'ok');
+        }
+      } else {
+        const ep = {namecheck:'/api/discord/namecheck',namebulk:'/api/discord/namebulk',vanity:'/api/discord/vanity',token:'/api/discord/token'}[dtool];
+        const bd = {namecheck:{username:input},namebulk:{username:input},vanity:{code:input},token:{token:input}}[dtool];
+        const res = await fetch(`${API}${ep}`,{method:'POST',headers,body:JSON.stringify(bd)});
+        const d = await res.json();
+        if(!res.ok){ setStatus('dtool-status',d.detail||'error','error'); }
+        else {
+          if(dtool==='namecheck'){
+            const cls = d.status==='AVAILABLE'?'ok':(d.status==='TAKEN'?'warn':'err');
+            results.innerHTML = `<div class="result-block">
+              <div><span class="k">status:</span> <span class="v ${cls}">${d.status}</span></div>
+              <div><span class="k">detail:</span> <span class="v">${d.detail}</span></div>
+            </div>`;
+            setStatus('dtool-status', d.status, 'ok');
+          } else if(dtool==='namebulk'){
+            results.innerHTML = d.results.map(r => {
+              const cls = r.status==='AVAILABLE'?'ok':(r.status==='TAKEN'?'warn':'err');
+              return `<div class="result-block"><div><span class="k">@${r.username}:</span> <span class="v ${cls}">${r.status}</span></div></div>`;
+            }).join('');
+            setStatus('dtool-status', `${d.results.length} checked`, 'ok');
+          } else if(dtool==='vanity'){
+            const cls = d.status==='AVAILABLE'?'ok':(d.status==='TAKEN'?'warn':'err');
+            results.innerHTML = `<div class="result-block">
+              <div><span class="k">status:</span> <span class="v ${cls}">${d.status}</span></div>
+              <div><span class="k">detail:</span> <span class="v">${d.detail}</span></div>
+            </div>`;
+            setStatus('dtool-status', d.status, 'ok');
+          } else if(dtool==='token'){
+            const cls = d.valid?'ok':'err';
+            results.innerHTML = `<div class="result-block">
+              <div><span class="k">valid:</span> <span class="v ${cls}">${d.valid}</span></div>
+              <div><span class="k">detail:</span> <span class="v">${d.detail}</span></div>
+            </div>`;
+            setStatus('dtool-status', d.valid?'Valid':'Invalid', d.valid?'ok':'error');
+          }
+        }
+      }
+    } catch(e){
+      setStatus('dtool-status','Error · '+e.message,'error');
+    } finally { btn.disabled = false; }
+  };
+
+  // BREACH
+  let lastBreachEmail = null;
+  document.getElementById('breach-go').onclick = async () => {
+    const email = document.getElementById('breach-email').value.trim();
+    if(!email) return;
+    const btn = document.getElementById('breach-go');
+    btn.disabled = true;
+    setStatus('breach-status','Scanning...');
+    document.getElementById('breach-export-wrap').style.display = 'none';
+    const results = document.getElementById('breach-results');
+    results.innerHTML = '<div class="empty-state"><div class="empty-icon">⏳</div>Querying breach databases...</div>';
+    try {
+      const res = await fetch(`${API}/api/breach`,{method:'POST',headers,body:JSON.stringify({email})});
+      if(res.status === 402){
+        setStatus('breach-status','Premium required · upgrade in dashboard','error');
+        results.innerHTML = '<div class="empty-state"><div class="empty-icon">🔒</div>Breach engine requires premium.</div>';
+        return;
+      }
+      const d = await res.json();
+      if(!res.ok){
+        setStatus('breach-status', d.detail||'error','error');
+        results.innerHTML = '';
+        return;
+      }
+      if(!d.count){
+        setStatus('breach-status','No hits','error');
+        results.innerHTML = '<div class="empty-state"><div class="empty-icon">◌</div>No breach hits for this email.</div>';
+        return;
+      }
+      lastBreachEmail = email;
+      setStatus('breach-status',`${d.count} hits across ${new Set(d.hits.map(h=>h.source)).size} sources`,'ok');
+      results.innerHTML = d.hits.map(h => `
+        <div class="hit-card">
+          <div class="hit-header">
+            <span class="hit-badge ${h.kind==='stealer_log'?'danger':'warn'}">${h.kind}</span>
+            <span class="hit-kind">${h.source}</span>
+          </div>
+          <div class="hit-value">${h.value}</div>
+          <div class="hit-meta">${JSON.stringify(h.meta).slice(0,200)}</div>
+        </div>`).join('');
+      document.getElementById('breach-export-wrap').style.display = 'block';
+    } catch(e){
+      setStatus('breach-status','Error · '+e.message,'error');
+    } finally { btn.disabled = false; }
+  };
+
+  document.getElementById('breach-export').onclick = async () => {
+    if(!lastBreachEmail) return;
+    const btn = document.getElementById('breach-export');
+    btn.disabled = true;
+    try {
+      const res = await fetch(`${API}/api/breach/export`,{method:'POST',headers,body:JSON.stringify({email:lastBreachEmail})});
+      if(!res.ok){
+        setStatus('breach-status','Export failed','error');
+        btn.disabled = false;
+        return;
+      }
+      const d = await res.json();
+      const blob = new Blob([d.report], {type:'text/plain'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = d.filename;
+      a.click();
+      URL.revokeObjectURL(url);
+      setStatus('breach-status','Report downloaded','ok');
+    } catch(e){
+      setStatus('breach-status','Error · '+e.message,'error');
+    } finally { btn.disabled = false; }
+  };
+
+  // HISTORY
+  document.getElementById('history-refresh').onclick = async () => {
+    setStatus('history-status','Loading...');
+    try {
+      const res = await fetch(`${API}/api/me`,{headers:{'authorization':`Bearer ${TOKEN}`}});
+      const d = await res.json();
+      setStatus('history-status', `Account: ${d.email || d.telegram_id || 'anonymous'} · ${d.tier}`, 'ok');
+    } catch(e){
+      setStatus('history-status','Error','error');
     }
   };
 
-  fetch(`${API}/api/health`)
-    .then(r => r.json())
-    .then(d => {
-      document.getElementById('src-count').textContent = d.sources.length + ' sources';
-    })
-    .catch(() => {});
-
-  fetch(`${API}/api/referrals/me`, {
-    headers: { 'authorization': `Bearer ${TOKEN}` }
-  })
-    .then(r => r.json())
-    .then(d => {
-      if (!d.code) return;
-      const card = document.getElementById('referral-card');
-      const codeEl = document.getElementById('ref-code');
-      const statsEl = document.getElementById('ref-stats');
-      codeEl.textContent = d.code;
-      codeEl.onclick = () => {
-        navigator.clipboard.writeText(d.code);
-        codeEl.textContent = 'copied ✓';
-        setTimeout(() => { codeEl.textContent = d.code; }, 1200);
-      };
-      statsEl.textContent = `${d.stats.used} used · ${d.stats.earned_days} days earned · ${d.stats.remaining_slots}/3 slots`;
-      card.classList.add('show');
-    })
-    .catch(() => {});
-
+  // Logout
   document.getElementById('logout-btn').onclick = async (e) => {
     e.preventDefault();
-    try {
-      await fetch(`${API}/api/auth/logout`, {
-        method: 'POST',
-        headers: { 'authorization': `Bearer ${TOKEN}` }
-      });
-    } catch (err) {}
+    try { await fetch(`${API}/api/auth/logout`,{method:'POST',headers:{'authorization':`Bearer ${TOKEN}`}}); } catch(err){}
     localStorage.removeItem('volume_token');
     localStorage.removeItem('volume_email');
     localStorage.removeItem('volume_tier');
