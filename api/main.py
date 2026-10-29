@@ -121,6 +121,19 @@ async def auth_logout(authorization: str = Header(default="")):
     revoke_session(token)
     return {"ok": True}
 
+class RedeemReq(BaseModel):
+    key: str
+
+@app.post("/api/redeem")
+def api_redeem(req: RedeemReq, user=Depends(current_user)):
+    from core.tier import redeem_key
+    if not req.key.strip():
+        raise HTTPException(400, "no key provided")
+    ok, msg = redeem_key(user["id"], req.key.strip().upper())
+    if not ok:
+        raise HTTPException(400, msg)
+    return {"ok": True, "message": msg, "tier": "premium"}
+
 @app.get("/api/referrals/me")
 def my_referral(user=Depends(current_user)):
     from core.tier import get_or_create_referral, get_referral_stats
