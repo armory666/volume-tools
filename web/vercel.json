@@ -1,0 +1,8 @@
+{
+  "rewrites": [
+    { "source": "/login", "destination": "/login.html" },
+    { "source": "/app", "destination": "/index.html" },
+    { "source": "/upgrade", "destination": "https://volume-tools-2.onrender.com/upgrade" },
+    { "source": "/api/:path*", "destination": "https://volume-tools-2.onrender.com/api/:path*" }
+  ]
+}
