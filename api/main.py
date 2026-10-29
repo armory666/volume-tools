@@ -72,6 +72,60 @@ async def pivot(q: Query, user=Depends(current_user)):
                   "value": h.value, "meta": _clean(h.meta)} for h in hits],
     }
 
+@app.post("/api/breach/export")
+async def breach_export(req: BreachReq, user=Depends(current_user)):
+    if tier_of(user) not in ("premium", "admin"):
+        raise HTTPException(402, "breach export requires premium")
+    from core.sources.breach import BreachEngine
+    from core.sources.h8mail import H8Mail
+    seed = req.email.strip()
+    if not seed:
+        raise HTTPException(400, "no email")
+    engine_hits = await BreachEngine().query(seed, "email")
+    h8_hits = await H8Mail().query(seed, "email")
+    all_hits = engine_hits + h8_hits
+    if not all_hits:
+        raise HTTPException(404, "no hits for this email")
+
+    lines = []
+    lines.append("=" * 64)
+    lines.append(f"VOLUME.TOOLS — BREACH REPORT")
+    lines.append(f"Query:     {seed}")
+    lines.append(f"Generated: {datetime.datetime.utcnow().isoformat()} UTC")
+    lines.append(f"Operator:  {user.get('email') or user.get('telegram_id') or 'anonymous'}")
+    lines.append("=" * 64)
+    lines.append("")
+
+    by_source = {}
+    for h in all_hits:
+        by_source.setdefault(h.source, []).append(h)
+
+    for source, hits in by_source.items():
+        lines.append(f"── {source.upper()} ({len(hits)} hits) ──")
+        for h in hits:
+            lines.append(f"  [{h.kind}] {h.value}")
+            for k, v in (h.meta or {}).items():
+                if k in ("sources", "pillar", "confidence"):
+                    continue
+                if isinstance(v, list):
+                    if not v: continue
+                    lines.append(f"    {k}:")
+                    for item in v:
+                        lines.append(f"      - {item}")
+                else:
+                    if v is None or v == "": continue
+                    lines.append(f"    {k}: {v}")
+            lines.append("")
+        lines.append("")
+
+    lines.append("=" * 64)
+    lines.append(f"Total records:    {len(all_hits)}")
+    lines.append(f"Sources involved: {', '.join(sorted(by_source.keys()))}")
+    lines.append(f"Attribution:      Every hit traces to a named source above.")
+    lines.append("=" * 64)
+
+    report = "\n".join(lines)
+    return {"report": report, "count": len(all_hits), "filename": f"volume_breach_{seed.split('@')[0]}.txt"}
 def _clean(m):
     return {k: (sorted(v) if isinstance(v, set) else v) for k, v in m.items()}
 
