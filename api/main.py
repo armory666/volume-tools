@@ -21,6 +21,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# --- MODELS ---
 class Query(BaseModel):
     seed: str
     kind: str
@@ -35,11 +36,27 @@ class VerifyReq(BaseModel):
 class ClaimReq(BaseModel):
     code: str
 
+class RedeemReq(BaseModel):
+    key: str
+
+class BreachReq(BaseModel):
+    email: str
+
+class UsernameReq(BaseModel):
+    username: str
+
+class VanityReq(BaseModel):
+    code: str
+
+class TokenReq(BaseModel):
+    token: str
+
 KINDS = {"email", "username", "ip", "hash", "phone",
          "discord_id", "discord_username", "discord_invite", "domain"}
 
 _PENDING = {}
 
+# --- AUTH ---
 def current_user(
     x_api_key: str = Header(default=""),
     x_telegram_id: str = Header(default=""),
@@ -56,6 +73,7 @@ def current_user(
         return get_or_create(tg=int(x_telegram_id))
     return get_or_create(tg=None, email=None)
 
+# --- PIVOT ---
 @app.post("/api/pivot")
 async def pivot(q: Query, user=Depends(current_user)):
     if q.kind not in KINDS:
@@ -72,63 +90,10 @@ async def pivot(q: Query, user=Depends(current_user)):
                   "value": h.value, "meta": _clean(h.meta)} for h in hits],
     }
 
-@app.post("/api/breach/export")
-async def breach_export(req: BreachReq, user=Depends(current_user)):
-    if tier_of(user) not in ("premium", "admin"):
-        raise HTTPException(402, "breach export requires premium")
-    from core.sources.breach import BreachEngine
-    from core.sources.h8mail import H8Mail
-    seed = req.email.strip()
-    if not seed:
-        raise HTTPException(400, "no email")
-    engine_hits = await BreachEngine().query(seed, "email")
-    h8_hits = await H8Mail().query(seed, "email")
-    all_hits = engine_hits + h8_hits
-    if not all_hits:
-        raise HTTPException(404, "no hits for this email")
-
-    lines = []
-    lines.append("=" * 64)
-    lines.append(f"VOLUME.TOOLS — BREACH REPORT")
-    lines.append(f"Query:     {seed}")
-    lines.append(f"Generated: {datetime.datetime.utcnow().isoformat()} UTC")
-    lines.append(f"Operator:  {user.get('email') or user.get('telegram_id') or 'anonymous'}")
-    lines.append("=" * 64)
-    lines.append("")
-
-    by_source = {}
-    for h in all_hits:
-        by_source.setdefault(h.source, []).append(h)
-
-    for source, hits in by_source.items():
-        lines.append(f"── {source.upper()} ({len(hits)} hits) ──")
-        for h in hits:
-            lines.append(f"  [{h.kind}] {h.value}")
-            for k, v in (h.meta or {}).items():
-                if k in ("sources", "pillar", "confidence"):
-                    continue
-                if isinstance(v, list):
-                    if not v: continue
-                    lines.append(f"    {k}:")
-                    for item in v:
-                        lines.append(f"      - {item}")
-                else:
-                    if v is None or v == "": continue
-                    lines.append(f"    {k}: {v}")
-            lines.append("")
-        lines.append("")
-
-    lines.append("=" * 64)
-    lines.append(f"Total records:    {len(all_hits)}")
-    lines.append(f"Sources involved: {', '.join(sorted(by_source.keys()))}")
-    lines.append(f"Attribution:      Every hit traces to a named source above.")
-    lines.append("=" * 64)
-
-    report = "\n".join(lines)
-    return {"report": report, "count": len(all_hits), "filename": f"volume_breach_{seed.split('@')[0]}.txt"}
 def _clean(m):
     return {k: (sorted(v) if isinstance(v, set) else v) for k, v in m.items()}
 
+# --- ACCOUNT ---
 @app.get("/api/me")
 def me(user=Depends(current_user)):
     return {"tier": tier_of(user), "paid_until": user.get("paid_until"),
@@ -140,6 +105,7 @@ def health():
     return {"ok": True, "tool": "volume.tools",
             "sources": [getattr(x, "name", x.__name__) for x in s.REGISTRY]}
 
+# --- AUTH ---
 @app.post("/api/auth/request")
 async def auth_request(req: LoginReq):
     email = req.email.strip().lower()
@@ -175,9 +141,7 @@ async def auth_logout(authorization: str = Header(default="")):
     revoke_session(token)
     return {"ok": True}
 
-class RedeemReq(BaseModel):
-    key: str
-
+# --- REDEEM ---
 @app.post("/api/redeem")
 def api_redeem(req: RedeemReq, user=Depends(current_user)):
     from core.tier import redeem_key
@@ -188,6 +152,7 @@ def api_redeem(req: RedeemReq, user=Depends(current_user)):
         raise HTTPException(400, msg)
     return {"ok": True, "message": msg, "tier": "premium"}
 
+# --- REFERRALS ---
 @app.get("/api/referrals/me")
 def my_referral(user=Depends(current_user)):
     from core.tier import get_or_create_referral, get_referral_stats
@@ -205,6 +170,103 @@ def claim_referral(req: ClaimReq, user=Depends(current_user)):
         raise HTTPException(400, msg)
     return {"ok": True, "message": msg}
 
+# --- BREACH ---
+@app.post("/api/breach")
+async def api_breach(req: BreachReq, user=Depends(current_user)):
+    if tier_of(user) not in ("premium", "admin"):
+        raise HTTPException(402, "breach engine requires premium")
+    from core.sources.breach import BreachEngine
+    from core.sources.h8mail import H8Mail
+    seed = req.email.strip()
+    if not seed:
+        raise HTTPException(400, "no email")
+    hits_engine = await BreachEngine().query(seed, "email")
+    hits_h8 = await H8Mail().query(seed, "email")
+    all_hits = hits_engine + hits_h8
+    return {
+        "email": seed, "count": len(all_hits),
+        "hits": [{"source": h.source, "kind": h.kind, "value": h.value,
+                  "meta": _clean(h.meta)} for h in all_hits],
+    }
+
+@app.post("/api/breach/export")
+async def breach_export(req: BreachReq, user=Depends(current_user)):
+    if tier_of(user) not in ("premium", "admin"):
+        raise HTTPException(402, "breach export requires premium")
+    from core.sources.breach import BreachEngine
+    from core.sources.h8mail import H8Mail
+    seed = req.email.strip()
+    if not seed:
+        raise HTTPException(400, "no email")
+    engine_hits = await BreachEngine().query(seed, "email")
+    h8_hits = await H8Mail().query(seed, "email")
+    all_hits = engine_hits + h8_hits
+    if not all_hits:
+        raise HTTPException(404, "no hits for this email")
+
+    lines = ["=" * 64, "VOLUME.TOOLS — BREACH REPORT",
+             f"Query:     {seed}",
+             f"Generated: {datetime.datetime.utcnow().isoformat()} UTC",
+             f"Operator:  {user.get('email') or user.get('telegram_id') or 'anonymous'}",
+             "=" * 64, ""]
+
+    by_source = {}
+    for h in all_hits:
+        by_source.setdefault(h.source, []).append(h)
+
+    for source, hits in by_source.items():
+        lines.append(f"── {source.upper()} ({len(hits)} hits) ──")
+        for h in hits:
+            lines.append(f"  [{h.kind}] {h.value}")
+            for k, v in (h.meta or {}).items():
+                if k in ("sources", "pillar", "confidence"): continue
+                if isinstance(v, list):
+                    if not v: continue
+                    lines.append(f"    {k}:")
+                    for item in v: lines.append(f"      - {item}")
+                else:
+                    if v is None or v == "": continue
+                    lines.append(f"    {k}: {v}")
+            lines.append("")
+        lines.append("")
+
+    lines += ["=" * 64, f"Total records:    {len(all_hits)}",
+              f"Sources involved: {', '.join(sorted(by_source.keys()))}",
+              f"Attribution:      Every hit traces to a named source above.",
+              "=" * 64]
+
+    return {"report": "\n".join(lines), "count": len(all_hits),
+            "filename": f"volume_breach_{seed.split('@')[0]}.txt"}
+
+# --- DISCORD ---
+@app.post("/api/discord/namecheck")
+async def discord_namecheck(req: UsernameReq, user=Depends(current_user)):
+    from core.discord_tools import check_discord_username
+    status, detail = await check_discord_username(req.username)
+    return {"status": status, "detail": detail}
+
+@app.post("/api/discord/namebulk")
+async def discord_namebulk(req: UsernameReq, user=Depends(current_user)):
+    from core.discord_tools import check_username_batch
+    usernames = [u.strip() for u in req.username.split(",") if u.strip()][:10]
+    if not usernames:
+        raise HTTPException(400, "no usernames")
+    results = await check_username_batch(usernames)
+    return {"results": [{"username": u, "status": s} for u, s in results]}
+
+@app.post("/api/discord/vanity")
+async def discord_vanity(req: VanityReq, user=Depends(current_user)):
+    from core.discord_tools import check_vanity
+    status, detail = await check_vanity(req.code)
+    return {"status": status, "detail": detail}
+
+@app.post("/api/discord/token")
+async def discord_token(req: TokenReq, user=Depends(current_user)):
+    from core.discord_tools import validate_token
+    is_valid, detail = await validate_token(req.token)
+    return {"valid": is_valid, "detail": detail}
+
+# --- SPA ROUTES ---
 @app.get("/")
 def home():
     return FileResponse("web/home.html")
