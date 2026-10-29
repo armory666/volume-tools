@@ -21,6 +21,9 @@ class HudsonRock:
         try:
             async with httpx.AsyncClient(timeout=25) as c:
                 r = await c.get(endpoint, params={param: seed})
+            if r.status_code == 429:
+                print(f"[hudsonrock] rate limited on {seed}")
+                return []
             if r.status_code != 200:
                 return []
             data = (r.json() or {}).get("data", {}) or {}
@@ -30,11 +33,12 @@ class HudsonRock:
                 "stealer_family": data.get("stealerFamily"),
                 "computer_name": data.get("computerName"),
                 "date_compromised": data.get("date_compromised"),
-                "top_passwords": data.get("top_passwords", []),
-                "top_logins": data.get("top_logins", []),
+                "top_passwords": data.get("top_passwords", [])[:3],
+                "top_logins": data.get("top_logins", [])[:3],
             })]
-            for p in (data.get("top_passwords") or [])[:5]:
+            for p in (data.get("top_passwords") or [])[:3]:
                 hits.append(Hit(self.name, "password", p, {"via": seed}))
             return hits
-        except Exception:
+        except Exception as e:
+            print(f"[hudsonrock] error: {e}")
             return []
