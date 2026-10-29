@@ -146,13 +146,17 @@ def home():
 def login_page():
     return FileResponse("web/login.html")
 
+@app.get("/dashboard")
+def dashboard_page():
+    return FileResponse("web/dashboard.html")
+
 @app.get("/app")
 def app_console():
     return FileResponse("web/index.html")
 
 @app.get("/upgrade")
 def upgrade():
-    bot = os.environ.get("TELEGRAM_BOT_USERNAME", "YourBotUsername")
+    bot = os.environ.get("VolumeTools_Bot", "VolumeTools_Bot")
     return RedirectResponse(f"https://t.me/{bot}?start=upgrade")
 
 app.mount("/static", StaticFiles(directory="web"), name="static")
