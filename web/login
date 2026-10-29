@@ -1,0 +1,278 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>volume.tools — sign in</title>
+<meta name="theme-color" content="#0a0e0b">
+<style>
+  :root{
+    --bg:#0a0e0b; --card:#121914; --border:#1d271f; --border-2:#2a3a2c;
+    --fg:#e8ece8; --fg-2:#b8c0b9; --dim:#6e7a70; --accent:#6ee7a8; --accent-2:#3f9a6b;
+    --danger:#ed4245;
+    --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    --serif:Georgia,"Times New Roman",serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    font-family:var(--sans);background:var(--bg);color:var(--fg);
+    min-height:100vh;display:grid;place-items:center;padding:24px;
+    -webkit-font-smoothing:antialiased;
+  }
+  body::before{
+    content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
+    background:radial-gradient(ellipse 60% 40% at 50% 0%, rgba(110,231,168,.06), transparent 60%);
+  }
+  .shell{position:relative;z-index:1;width:100%;max-width:420px}
+  .brand{
+    display:flex;align-items:center;gap:10px;justify-content:center;
+    margin-bottom:32px;font-size:14px;font-weight:500;
+  }
+  .brand .logo{
+    width:26px;height:26px;border-radius:7px;
+    background:linear-gradient(135deg,var(--accent),var(--accent-2));
+    display:grid;place-items:center;color:#0a1a0f;font-weight:700;font-size:13px;
+    font-family:var(--mono);
+  }
+  .brand span{color:var(--accent);font-weight:400}
+  .card{
+    background:var(--card);border:1px solid var(--border);
+    border-radius:12px;padding:32px 28px;
+  }
+  h1{
+    font-family:var(--serif);font-weight:500;font-size:28px;
+    letter-spacing:-.02em;margin-bottom:8px;line-height:1.15;
+  }
+  h1 em{font-style:italic;color:var(--accent)}
+  p.lede{font-size:13px;color:var(--dim);margin-bottom:24px;line-height:1.5}
+  .field{margin-bottom:14px}
+  label{
+    display:block;font-family:var(--mono);font-size:10px;
+    text-transform:uppercase;letter-spacing:.08em;
+    color:var(--dim);margin-bottom:6px;font-weight:600;
+  }
+  input{
+    width:100%;padding:11px 14px;background:var(--bg);
+    border:1px solid var(--border);border-radius:6px;
+    color:var(--fg);font-family:var(--sans);font-size:13px;
+    outline:none;transition:.15s;
+  }
+  input:focus{border-color:var(--accent-2);box-shadow:0 0 0 2px rgba(110,231,168,.1)}
+  input.code-input{
+    font-family:var(--mono);font-size:18px;letter-spacing:.4em;
+    text-align:center;padding:14px;
+  }
+  button{
+    width:100%;padding:11px;background:var(--accent);color:#062a17;
+    border:none;border-radius:6px;cursor:pointer;font-weight:600;
+    font-family:var(--mono);font-size:13px;transition:.15s;margin-top:4px;
+  }
+  button:hover{filter:brightness(1.05)}
+  button:disabled{background:var(--border);color:var(--dim);cursor:not-allowed}
+  .error{
+    background:rgba(237,66,69,.1);border:1px solid rgba(237,66,69,.3);
+    color:var(--danger);padding:10px 12px;border-radius:6px;
+    font-size:12px;margin-bottom:14px;font-family:var(--mono);
+    display:none;
+  }
+  .error.show{display:block}
+  .hidden{display:none !important}
+  .hint{
+    font-size:11px;color:var(--dim);margin-top:16px;
+    font-family:var(--mono);text-align:center;line-height:1.5;
+  }
+  .hint a{color:var(--accent);text-decoration:none}
+  .code-display{
+    background:rgba(110,231,168,.08);border:1px solid var(--accent-2);
+    border-radius:6px;padding:14px;margin:16px 0;
+    text-align:center;font-family:var(--mono);
+  }
+  .code-display .label{font-size:10px;color:var(--dim);letter-spacing:.06em;text-transform:uppercase;margin-bottom:6px}
+  .code-display .value{font-size:24px;color:var(--accent);letter-spacing:.3em;font-weight:500}
+  .code-display .note{font-size:10px;color:var(--dim);margin-top:6px}
+  .ref-banner{
+    background:rgba(110,231,168,.06);border:1px solid var(--accent-2);
+    border-radius:6px;padding:10px 12px;margin-bottom:16px;
+    font-family:var(--mono);font-size:11px;color:var(--accent);
+    display:none;
+  }
+  .ref-banner.show{display:block}
+</style>
+</head>
+<body>
+
+<div class="shell">
+  <div class="brand">
+    <div class="logo">v</div>
+    <div>volume<span>.tools</span></div>
+  </div>
+
+  <div class="card">
+    <div class="error" id="error"></div>
+    <div class="ref-banner" id="ref-banner"></div>
+
+    <div id="step-email">
+      <h1>Sign in.<br><em>No passwords.</em></h1>
+      <p class="lede">Enter your email. We'll send a 6-digit code to verify it's you.</p>
+      <div class="field">
+        <label>Email address</label>
+        <input id="email-input" type="email" placeholder="you@example.com" autocomplete="email" autofocus>
+      </div>
+      <button id="email-btn">send code →</button>
+      <div class="hint">By signing in you agree to the acceptable use policy.</div>
+    </div>
+
+    <div id="step-code" class="hidden">
+      <h1>Check your code.</h1>
+      <p class="lede">Enter the 6-digit code sent to <span id="email-display" style="color:var(--fg)"></span>.</p>
+      <div class="code-display" id="code-display">
+        <div class="label">beta mode · code</div>
+        <div class="value" id="beta-code">------</div>
+        <div class="note">in production this is emailed, not shown</div>
+      </div>
+      <div class="field">
+        <label>Verification code</label>
+        <input id="code-input" type="text" class="code-input" placeholder="000000" maxlength="6" autocomplete="one-time-code">
+      </div>
+      <button id="code-btn">verify →</button>
+      <div class="hint"><a href="#" id="back-btn">← use a different email</a></div>
+    </div>
+  </div>
+</div>
+
+<script>
+(() => {
+  const API = window.location.hostname === 'localhost'
+    ? 'http://localhost:8000'
+    : 'https://volume-tools-2.onrender.com';
+  let currentEmail = '';
+  const urlRef = new URLSearchParams(window.location.search).get('ref');
+
+  const el = id => document.getElementById(id);
+  const showError = (msg) => {
+    const e = el('error');
+    e.textContent = msg;
+    e.classList.add('show');
+  };
+  const clearError = () => el('error').classList.remove('show');
+  const setLoading = (btn, loading) => {
+    btn.disabled = loading;
+    btn.textContent = loading ? '...' : btn.dataset.label;
+  };
+
+  el('email-btn').dataset.label = el('email-btn').textContent;
+  el('code-btn').dataset.label = el('code-btn').textContent;
+
+  if (urlRef) {
+    const b = el('ref-banner');
+    b.textContent = 'Referral code applied: ' + urlRef + ' · sign up to redeem';
+    b.classList.add('show');
+  }
+
+  el('email-btn').onclick = async () => {
+    clearError();
+    const email = el('email-input').value.trim().toLowerCase();
+    if (!email || !email.includes('@')) {
+      showError('enter a valid email address');
+      return;
+    }
+    setLoading(el('email-btn'), true);
+    try {
+      const r = await fetch(`${API}/api/auth/request`, {
+        method: 'POST',
+        headers: {'content-type': 'application/json'},
+        body: JSON.stringify({ email })
+      });
+      const d = await r.json();
+      if (!r.ok) {
+        showError(d.detail || 'could not send code');
+        setLoading(el('email-btn'), false);
+        return;
+      }
+      currentEmail = email;
+      el('email-display').textContent = email;
+      el('step-email').classList.add('hidden');
+      el('step-code').classList.remove('hidden');
+      el('beta-code').textContent = d.code || '------';
+      el('code-input').focus();
+      setLoading(el('email-btn'), false);
+    } catch (e) {
+      showError('network error · ' + e.message);
+      setLoading(el('email-btn'), false);
+    }
+  };
+
+  el('code-btn').onclick = async () => {
+    clearError();
+    const code = el('code-input').value.trim();
+    if (code.length !== 6) {
+      showError('enter the 6-digit code');
+      return;
+    }
+    setLoading(el('code-btn'), true);
+    try {
+      const r = await fetch(`${API}/api/auth/verify`, {
+        method: 'POST',
+        headers: {'content-type': 'application/json'},
+        body: JSON.stringify({ email: currentEmail, code })
+      });
+      const d = await r.json();
+      if (!r.ok) {
+        showError(d.detail || 'invalid code');
+        setLoading(el('code-btn'), false);
+        return;
+      }
+      localStorage.setItem('volume_token', d.token);
+      localStorage.setItem('volume_email', currentEmail);
+      localStorage.setItem('volume_tier', d.user.tier);
+
+      // If a referral code is in the URL, try to claim it
+      if (urlRef) {
+        try {
+          const cr = await fetch(`${API}/api/referrals/claim`, {
+            method: 'POST',
+            headers: {
+              'content-type': 'application/json',
+              'authorization': `Bearer ${d.token}`
+            },
+            body: JSON.stringify({ code: urlRef })
+          });
+          if (!cr.ok) {
+            const cd = await cr.json();
+            console.warn('Referral claim failed:', cd.detail);
+          }
+        } catch (err) {
+          console.warn('Referral claim network error:', err);
+        }
+      }
+
+      window.location.href = '/app';
+    } catch (e) {
+      showError('network error · ' + e.message);
+      setLoading(el('code-btn'), false);
+    }
+  };
+
+  el('back-btn').onclick = (e) => {
+    e.preventDefault();
+    el('step-code').classList.add('hidden');
+    el('step-email').classList.remove('hidden');
+    el('code-input').value = '';
+    clearError();
+  };
+
+  el('code-input').addEventListener('input', (e) => {
+    e.target.value = e.target.value.replace(/\D/g, '');
+  });
+
+  el('email-input').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') el('email-btn').click();
+  });
+  el('code-input').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') el('code-btn').click();
+  });
+})();
+</script>
+</body>
+</html>
