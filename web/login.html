@@ -166,7 +166,7 @@
 
   if (urlRef) {
     const b = el('ref-banner');
-    b.textContent = 'Referral code applied: ' + urlRef + ' · sign up to redeem';
+    b.textContent = 'Referral code applied: ' + urlRef;
     b.classList.add('show');
   }
 
@@ -227,10 +227,9 @@
       localStorage.setItem('volume_email', currentEmail);
       localStorage.setItem('volume_tier', d.user.tier);
 
-      // If a referral code is in the URL, try to claim it
       if (urlRef) {
         try {
-          const cr = await fetch(`${API}/api/referrals/claim`, {
+          await fetch(`${API}/api/referrals/claim`, {
             method: 'POST',
             headers: {
               'content-type': 'application/json',
@@ -238,13 +237,7 @@
             },
             body: JSON.stringify({ code: urlRef })
           });
-          if (!cr.ok) {
-            const cd = await cr.json();
-            console.warn('Referral claim failed:', cd.detail);
-          }
-        } catch (err) {
-          console.warn('Referral claim network error:', err);
-        }
+        } catch (err) {}
       }
 
       window.location.href = '/app';
