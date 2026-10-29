@@ -3,518 +3,383 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>volume.tools — one identifier, the whole trail</title>
+<title>volume.tools · console</title>
 <meta name="theme-color" content="#0a0e0b">
+<script src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
 <style>
-  :root{
-    --bg:#0a0e0b;
-    --bg-soft:#0f1410;
-    --card:#121914;
-    --card-2:#0d120e;
-    --card-3:#161f1a;
-    --border:#1d271f;
-    --border-2:#2a3a2c;
-    --fg:#e8ece8;
-    --fg-2:#b8c0b9;
-    --dim:#6e7a70;
-    --dim-2:#455048;
-    --accent:#6ee7a8;
-    --accent-2:#3f9a6b;
-    --accent-glow:rgba(110,231,168,.12);
-    --danger:#ed4245;
-    --warn:#e6b800;
-    --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
-    --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
-    --serif:Georgia,"Times New Roman",serif;
+  :root {
+    --bg: #0a0e0b;
+    --bg-side: #0f1410;
+    --card: #121914;
+    --card-hover: #1a241f;
+    --border: #1d271f;
+    --border-2: #2a3a2c;
+    --fg: #e8ece8;
+    --fg-dim: #6e7a70;
+    --accent: #6ee7a8;
+    --accent-dim: #3f9a6b;
+    --danger: #ed4245;
+    --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   }
-  *{box-sizing:border-box;margin:0;padding:0}
-  html{scroll-behavior:smooth}
-  body{
-    font-family:var(--sans);background:var(--bg);color:var(--fg);
-    line-height:1.55;overflow-x:hidden;font-size:15px;
-    -webkit-font-smoothing:antialiased;
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; }
+  body {
+    font-family: var(--sans); background: var(--bg); color: var(--fg);
+    display: flex; height: 100vh; overflow: hidden; font-size: 14px;
+    -webkit-font-smoothing: antialiased;
   }
-  body::before{
-    content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
-    background:
-      radial-gradient(ellipse 60% 40% at 20% 0%, rgba(110,231,168,.05), transparent 60%),
-      radial-gradient(ellipse 50% 35% at 100% 100%, rgba(63,154,107,.04), transparent 60%);
-  }
-  .wrap{position:relative;z-index:1;max-width:1180px;margin:0 auto;padding:0 32px}
 
-  /* NAV */
-  nav{
-    display:flex;align-items:center;gap:32px;
-    padding:22px 0;border-bottom:1px solid var(--border);
-    position:sticky;top:0;background:rgba(10,14,11,.85);
-    backdrop-filter:blur(10px);z-index:100;
+  .sidebar {
+    width: 420px; background: var(--bg-side); border-right: 1px solid var(--border);
+    display: flex; flex-direction: column; min-height: 0;
   }
-  .brand{display:flex;align-items:center;gap:10px;font-weight:500;font-size:14px;letter-spacing:-.01em}
-  .brand .logo{
-    width:24px;height:24px;border-radius:6px;
-    background:linear-gradient(135deg,var(--accent),var(--accent-2));
-    display:grid;place-items:center;color:#0a1a0f;font-weight:700;font-size:13px;
-    font-family:var(--mono);
+  .header {
+    padding: 24px 24px 16px; border-bottom: 1px solid var(--border);
   }
-  .brand span{color:var(--accent);font-weight:400}
-  nav .links{display:flex;gap:26px;margin-left:36px}
-  nav a{color:var(--dim);text-decoration:none;font-size:13px;transition:color .15s}
-  nav a:hover{color:var(--fg)}
-  nav .cta{
-    margin-left:auto;background:var(--accent);color:#081a0e;
-    padding:7px 14px;border-radius:6px;font-size:12px;font-weight:600;
-    text-decoration:none;font-family:var(--mono);letter-spacing:.02em;
-    transition:filter .15s;
+  .brand {
+    display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px;
   }
-  nav .cta:hover{filter:brightness(1.06)}
+  .brand-name { font-weight: 500; font-size: 15px; letter-spacing: -0.02em; }
+  .brand-name span { color: var(--accent); }
+  .brand-actions { display: flex; gap: 8px; }
+  .brand-home {
+    font-size: 11px; font-family: var(--mono); color: var(--fg-dim);
+    text-decoration: none; padding: 4px 10px; border: 1px solid var(--border);
+    border-radius: 4px; transition: 0.2s;
+  }
+  .brand-home:hover { background: var(--card); color: var(--fg); }
+  .brand-home.signout { color: var(--danger); }
 
-  /* HERO */
-  .hero{padding:88px 0 72px;display:grid;grid-template-columns:1.15fr 1fr;gap:56px;align-items:center}
-  .hero-copy .disclaimer{
-    display:inline-flex;align-items:center;gap:8px;
-    font-family:var(--mono);font-size:11px;color:var(--dim);
-    padding:5px 10px;border:1px solid var(--border-2);border-radius:4px;
-    margin-bottom:22px;
+  .status-pill {
+    display: inline-flex; align-items: center; gap: 8px; padding: 8px 12px;
+    background: var(--card); border: 1px solid var(--border); border-radius: 8px;
+    font-size: 11px; font-family: var(--mono); color: var(--fg-dim); width: 100%;
   }
-  .hero-copy .disclaimer::before{
-    content:"";width:6px;height:6px;border-radius:50%;
-    background:var(--accent);box-shadow:0 0 0 3px var(--accent-glow);
-  }
-  .hero h1{
-    font-family:var(--serif);font-weight:500;
-    font-size:clamp(40px,5.2vw,64px);
-    line-height:1.02;letter-spacing:-.025em;margin-bottom:22px;
-  }
-  .hero h1 em{font-style:italic;color:var(--accent)}
-  .hero p.lede{font-size:16px;color:var(--fg-2);max-width:480px;margin-bottom:32px;line-height:1.6}
-  .hero .btns{display:flex;gap:10px;flex-wrap:wrap}
-  .btn{
-    padding:11px 20px;border-radius:6px;font-size:13px;font-weight:500;
-    text-decoration:none;display:inline-flex;align-items:center;gap:8px;
-    font-family:var(--mono);letter-spacing:.01em;
-    transition:filter .15s, background .15s;
-  }
-  .btn-primary{background:var(--accent);color:#081a0e;font-weight:600}
-  .btn-primary:hover{filter:brightness(1.06)}
-  .btn-ghost{background:transparent;border:1px solid var(--border-2);color:var(--fg)}
-  .btn-ghost:hover{border-color:var(--accent-2)}
+  .status-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 3px rgba(110,231,168,0.1); }
+  .status-text { color: var(--fg); font-weight: 500; }
+  .status-count { margin-left: auto; }
 
-  /* HERO TERMINAL */
-  .hero-panel{
-    background:var(--card-2);border:1px solid var(--border);
-    border-radius:12px;padding:0;overflow:hidden;
-    font-family:var(--mono);font-size:12px;line-height:1.55;
+  .referral-card {
+    background: var(--card); border: 1px solid var(--border); border-radius: 8px;
+    padding: 12px; margin-top: 12px; display: none;
   }
-  .hero-panel .panel-header{
-    display:flex;align-items:center;gap:8px;padding:10px 14px;
-    background:var(--card);border-bottom:1px solid var(--border);
-    font-size:11px;color:var(--dim);
+  .referral-card.show { display: block; }
+  .ref-label { font-size: 9px; text-transform: uppercase; letter-spacing: .08em; color: var(--fg-dim); font-family: var(--mono); margin-bottom: 6px; }
+  .ref-code {
+    font-family: var(--mono); font-size: 13px; color: var(--accent);
+    cursor: pointer; padding: 6px; background: rgba(110,231,168,.06);
+    border-radius: 4px; text-align: center; letter-spacing: .04em; transition: .15s;
   }
-  .hero-panel .panel-header .dots{display:flex;gap:4px}
-  .hero-panel .panel-header .dots span{width:8px;height:8px;border-radius:50%;background:var(--border-2)}
-  .hero-panel .panel-header .dots span:first-child{background:#ed4245}
-  .hero-panel .panel-header .dots span:nth-child(2){background:#e6b800}
-  .hero-panel .panel-header .dots span:last-child{background:var(--accent-2)}
-  .hero-panel .panel-body{padding:16px 18px;color:var(--fg-2)}
-  .hero-panel .line{display:flex;gap:8px;margin-bottom:6px;flex-wrap:wrap}
-  .hero-panel .prompt{color:var(--accent);flex-shrink:0}
-  .hero-panel .cmd{color:var(--fg)}
-  .hero-panel .res-line{padding-left:16px;border-left:2px solid var(--border);margin-bottom:10px}
-  .hero-panel .hit-head{color:var(--accent);font-size:10px;letter-spacing:.06em;text-transform:uppercase;margin-bottom:4px}
-  .hero-panel .hit-val{color:var(--fg);font-size:12px;word-break:break-all}
-  .hero-panel .hit-meta{color:var(--dim);font-size:10px;margin-top:2px}
-  .hero-panel .badge{
-    display:inline-block;padding:1px 6px;border-radius:3px;
-    font-size:9px;letter-spacing:.06em;text-transform:uppercase;
-    background:var(--accent-glow);color:var(--accent);margin-right:6px;
-  }
-  .hero-panel .badge.warn{background:rgba(230,184,0,.1);color:var(--warn)}
-  .hero-panel .badge.danger{background:rgba(237,66,69,.1);color:var(--danger)}
+  .ref-code:hover { background: rgba(110,231,168,.1); }
+  .ref-stats { font-size: 10px; color: var(--fg-dim); margin-top: 6px; font-family: var(--mono); }
 
-  /* SECTION HEADERS */
-  .section{padding:88px 0;border-top:1px solid var(--border)}
-  .section-head{display:flex;align-items:baseline;gap:16px;margin-bottom:12px}
-  .section-head .num{font-family:var(--mono);font-size:11px;color:var(--dim);letter-spacing:.08em}
-  .section-head h2{
-    font-family:var(--serif);font-weight:500;
-    font-size:clamp(28px,3.4vw,40px);
-    line-height:1.15;letter-spacing:-.02em;
+  .composer { padding: 20px 24px; border-bottom: 1px solid var(--border); }
+  .form-group { margin-bottom: 14px; }
+  .form-label {
+    display: block; font-size: 10px; text-transform: uppercase;
+    letter-spacing: 0.08em; color: var(--fg-dim); margin-bottom: 6px;
+    font-family: var(--mono); font-weight: 600;
   }
-  .section-head h2 em{font-style:italic;color:var(--accent)}
-  .section .sub{color:var(--fg-2);max-width:580px;margin-bottom:44px;font-size:15px}
+  .form-control {
+    width: 100%; padding: 10px 12px; background: var(--bg); border: 1px solid var(--border);
+    border-radius: 6px; color: var(--fg); font-family: var(--sans); font-size: 13px;
+    outline: none; transition: 0.2s;
+  }
+  .form-control:focus { border-color: var(--accent-dim); box-shadow: 0 0 0 2px rgba(110, 231, 168, 0.1); }
+  .btn-primary {
+    width: 100%; padding: 11px; background: var(--accent); color: #062a17; font-weight: 600;
+    border: none; border-radius: 6px; cursor: pointer; transition: 0.2s; font-size: 13px;
+    font-family: var(--mono);
+  }
+  .btn-primary:hover { filter: brightness(1.05); }
+  .btn-primary:active { transform: translateY(1px); }
+  .btn-primary:disabled { background: var(--border); color: var(--fg-dim); cursor: not-allowed; }
 
-  /* 01 — PULSE */
-  .pulse-grid{
-    display:grid;grid-template-columns:repeat(4,1fr);gap:1px;
-    background:var(--border);border:1px solid var(--border);border-radius:10px;overflow:hidden;
+  .results-status {
+    padding: 10px 24px; font-family: var(--mono); font-size: 11px;
+    color: var(--fg-dim); border-bottom: 1px solid var(--border);
+    min-height: 38px; display: flex; align-items: center;
   }
-  @media (max-width:820px){.pulse-grid{grid-template-columns:repeat(2,1fr)}}
-  .pulse-cell{background:var(--card);padding:22px 20px}
-  .pulse-cell .label{font-family:var(--mono);font-size:10px;color:var(--dim);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px}
-  .pulse-cell .value{font-family:var(--mono);font-size:24px;color:var(--fg);font-weight:500;letter-spacing:-.02em}
-  .pulse-cell .delta{font-family:var(--mono);font-size:10px;color:var(--accent);margin-top:4px}
+  .results-list { flex: 1; overflow-y: auto; padding: 16px 24px; }
+  .results-list::-webkit-scrollbar { width: 6px; }
+  .results-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
 
-  /* 02 — LENS (two column with fake hits) */
-  .lens{display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:start}
-  @media (max-width:820px){.lens{grid-template-columns:1fr}}
-  .lens-copy p{color:var(--fg-2);margin-bottom:16px;font-size:15px}
-  .lens-demo{
-    background:var(--card);border:1px solid var(--border);border-radius:10px;
-    overflow:hidden;font-family:var(--mono);font-size:11px;
-  }
-  .lens-demo .demo-header{
-    padding:10px 14px;background:var(--card-2);border-bottom:1px solid var(--border);
-    color:var(--dim);display:flex;justify-content:space-between;
-  }
-  .lens-demo .demo-header b{color:var(--fg-2);font-weight:500}
-  .lens-demo .demo-body{padding:14px}
-  .hit-card{
-    padding:10px 12px;border:1px solid var(--border);border-radius:6px;
-    margin-bottom:8px;background:var(--card-2);
-  }
-  .hit-card .hc-head{display:flex;justify-content:space-between;margin-bottom:6px}
-  .hit-card .hc-source{font-size:9px;color:var(--dim);letter-spacing:.06em;text-transform:uppercase}
-  .hit-card .hc-kind{font-size:9px;color:var(--accent);letter-spacing:.06em;text-transform:uppercase}
-  .hit-card .hc-val{color:var(--fg);font-size:11px;margin-bottom:4px;word-break:break-all}
-  .hit-card .hc-meta{color:var(--dim);font-size:9px}
+  .empty-state { text-align: center; padding: 60px 20px; color: var(--fg-dim); font-size: 12px; line-height: 1.6; font-family: var(--mono); }
+  .empty-icon { font-size: 24px; margin-bottom: 12px; opacity: 0.4; }
 
-  /* 03 — STACK */
-  .stack-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--border);border:1px solid var(--border);border-radius:10px;overflow:hidden}
-  @media (max-width:820px){.stack-grid{grid-template-columns:1fr}}
-  .stack-cell{background:var(--card);padding:28px 24px}
-  .stack-cell .num{font-family:var(--mono);font-size:10px;color:var(--dim);letter-spacing:.08em;margin-bottom:14px}
-  .stack-cell h3{font-size:15px;font-weight:500;margin-bottom:10px;color:var(--fg)}
-  .stack-cell p{font-size:13px;color:var(--dim);line-height:1.55}
-
-  /* 04 — ACCESS */
-  .access-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
-  @media (max-width:960px){.access-grid{grid-template-columns:1fr}}
-  .plan{
-    background:var(--card);border:1px solid var(--border);
-    border-radius:12px;padding:26px 22px;display:flex;flex-direction:column;
+  .hit-card {
+    background: var(--card); border: 1px solid var(--border); border-radius: 8px;
+    padding: 14px; margin-bottom: 10px; transition: 0.2s;
   }
-  .plan.featured{border-color:var(--accent-2);background:linear-gradient(180deg,var(--card) 0%, rgba(63,154,107,.05) 100%)}
-  .plan .tag{font-family:var(--mono);font-size:10px;color:var(--accent);letter-spacing:.08em;text-transform:uppercase;margin-bottom:8px;height:14px}
-  .plan .name{font-family:var(--serif);font-size:22px;font-weight:500;letter-spacing:-.01em;margin-bottom:4px}
-  .plan .desc{font-size:12px;color:var(--dim);margin-bottom:20px}
-  .plan .price{font-family:var(--mono);font-size:32px;letter-spacing:-.02em;font-weight:500;margin-bottom:4px}
-  .plan .price small{font-size:12px;color:var(--dim);font-weight:400}
-  .plan .cycle{font-size:11px;color:var(--dim);margin-bottom:22px}
-  .plan ul{list-style:none;display:flex;flex-direction:column;gap:10px;margin-bottom:22px;flex:1}
-  .plan li{font-size:13px;color:var(--fg-2);padding-left:20px;position:relative;line-height:1.4}
-  .plan li::before{content:"—";position:absolute;left:0;color:var(--accent);font-family:var(--mono)}
-  .plan .btn{width:100%;justify-content:center;font-size:12px;padding:10px}
-
-  /* 05 — MODULES */
-  .modules{
-    display:grid;grid-template-columns:repeat(4,1fr);gap:8px;
+  .hit-card:hover { border-color: var(--border-2); background: var(--card-hover); }
+  .hit-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+  .hit-badge {
+    font-size: 9px; text-transform: uppercase; letter-spacing: 0.06em; font-weight: 700;
+    color: var(--accent); background: rgba(110, 231, 168, 0.1); padding: 2px 6px; border-radius: 4px;
+    font-family: var(--mono);
   }
-  @media (max-width:820px){.modules{grid-template-columns:repeat(2,1fr)}}
-  .module{
-    background:var(--card);border:1px solid var(--border);border-radius:8px;
-    padding:14px 16px;font-family:var(--mono);font-size:11px;
-    display:flex;align-items:center;gap:10px;
-    transition:border-color .15s, background .15s;
+  .hit-kind { font-size: 10px; color: var(--fg-dim); font-family: var(--mono); }
+  .hit-value { font-size: 13px; color: var(--fg); word-break: break-all; line-height: 1.4; }
+  .hit-meta { font-size: 10px; color: var(--fg-dim); margin-top: 8px; font-family: var(--mono); }
+
+  .graph-panel { flex: 1; position: relative; background: var(--bg); }
+  .graph-bg {
+    position: absolute; inset: 0;
+    background-image: radial-gradient(var(--border) 1px, transparent 0);
+    background-size: 32px 32px; opacity: 0.3;
   }
-  .module:hover{border-color:var(--border-2);background:var(--card-3)}
-  .module .dot{width:6px;height:6px;border-radius:50%;background:var(--accent);flex-shrink:0}
-  .module .name{color:var(--fg-2);letter-spacing:.02em}
-  .module .kind{margin-left:auto;font-size:9px;color:var(--dim);letter-spacing:.06em;text-transform:uppercase}
-
-  /* 06 — FAQ */
-  .faq{display:flex;flex-direction:column;gap:1px;background:var(--border);border:1px solid var(--border);border-radius:10px;overflow:hidden;max-width:760px}
-  .faq-item{background:var(--card);padding:20px 24px}
-  .faq-item .q{font-size:14px;font-weight:500;color:var(--fg);margin-bottom:6px}
-  .faq-item .a{font-size:13px;color:var(--dim);line-height:1.6}
-
-  /* FOOTER */
-  footer{
-    padding:56px 0 40px;border-top:1px solid var(--border);
-    display:flex;align-items:center;justify-content:space-between;
-    color:var(--dim);font-size:11px;font-family:var(--mono);
-    flex-wrap:wrap;gap:16px;
+  #network { width: 100%; height: 100%; position: absolute; z-index: 1; }
+  .graph-stats {
+    position: absolute; top: 20px; right: 20px; display: flex; gap: 8px; z-index: 2;
   }
-  footer a{color:var(--dim);text-decoration:none;transition:color .15s}
-  footer a:hover{color:var(--fg)}
-  footer .left{display:flex;align-items:center;gap:10px}
+  .stat-pill {
+    background: rgba(15, 20, 16, 0.9); border: 1px solid var(--border); padding: 6px 12px;
+    border-radius: 6px; font-family: var(--mono); font-size: 10px; color: var(--fg-dim);
+    backdrop-filter: blur(8px); text-transform: uppercase; letter-spacing: 0.06em;
+  }
+  .stat-pill b { color: var(--fg); font-weight: 500; margin-left: 4px; }
 
-  @media (max-width:820px){
-    .wrap{padding:0 20px}
-    .hero{grid-template-columns:1fr;gap:40px;padding:60px 0 40px}
-    nav .links{display:none}
-    nav{gap:16px}
+  @media (max-width: 820px) {
+    body { flex-direction: column; }
+    .sidebar { width: 100%; height: 65vh; border-right: none; border-bottom: 1px solid var(--border); }
+    .graph-panel { height: 35vh; }
   }
 </style>
 </head>
 <body>
 
-<div class="wrap">
-  <nav>
+<script>
+  if (!localStorage.getItem('volume_token')) {
+    window.location.href = '/login';
+  }
+</script>
+
+<div class="sidebar">
+  <div class="header">
     <div class="brand">
-      <div class="logo">v</div>
-      <div>volume<span>.tools</span></div>
-    </div>
-    <div class="links">
-      <a href="#pulse">Pulse</a>
-      <a href="#lens">Lens</a>
-      <a href="#stack">Stack</a>
-      <a href="#access">Access</a>
-      <a href="#modules">Modules</a>
-      <a href="#notes">Notes</a>
-    </div>
-    <a href="/app" class="cta">open console →</a>
-  </nav>
-
-  <!-- HERO -->
-  <section class="hero">
-    <div class="hero-copy">
-      <div class="disclaimer">Authorized security research only</div>
-      <h1>One identifier.<br><em>The whole trail.</em></h1>
-      <p class="lede">Drop in an email, username, IP, phone, or Discord ID. Volume fans it out across breach corpora, stealer logs, and public signals — then hands you one clean case you can actually work.</p>
-      <div class="btns">
-        <a href="/app" class="btn btn-primary">open console →</a>
-        <a href="https://t.me/YOUR_BOT_USERNAME" class="btn btn-ghost">get telegram bot</a>
+      <div class="brand-name">volume<span>.tools</span></div>
+      <div class="brand-actions">
+        <a href="/dashboard" class="brand-home">← dashboard</a>
+        <a href="#" id="logout-btn" class="brand-home signout">sign out</a>
       </div>
     </div>
+    <div class="status-pill">
+      <div class="status-dot"></div>
+      <span class="status-text">Connected</span>
+      <span class="status-count" id="src-count">...</span>
+    </div>
+    <div class="referral-card" id="referral-card">
+      <div class="ref-label">your referral code</div>
+      <div class="ref-code" id="ref-code">VOL-REF-...</div>
+      <div class="ref-stats" id="ref-stats">loading...</div>
+    </div>
+  </div>
 
-    <!-- Fake terminal showing a real pivot -->
-    <div class="hero-panel">
-      <div class="panel-header">
-        <div class="dots"><span></span><span></span><span></span></div>
-        <span style="margin-left:8px">volume.tools · pivot</span>
-        <span style="margin-left:auto">live</span>
-      </div>
-      <div class="panel-body">
-        <div class="line"><span class="prompt">›</span><span class="cmd">/email river@example.com</span></div>
-        <div class="res-line">
-          <div class="hit-head"><span class="badge">stealer</span>7 hits · confidence 90</div>
-          <div class="hit-val">river.hale</div>
-          <div class="hit-meta">via hudsonrock, h8mail</div>
-        </div>
-        <div class="res-line">
-          <div class="hit-head"><span class="badge warn">breach</span>3 hits · confidence 60</div>
-          <div class="hit-val">Collection #1 · 2019</div>
-          <div class="hit-meta">via breach engine, intelx</div>
-        </div>
-        <div class="res-line">
-          <div class="hit-head"><span class="badge">account</span>12 hits · confidence 120</div>
-          <div class="hit-val">github · twitter · spotify</div>
-          <div class="hit-meta">via holehe, gravatar</div>
-        </div>
-        <div class="line" style="margin-top:12px"><span class="prompt">›</span><span class="cmd" style="color:var(--dim)">_</span></div>
-      </div>
+  <div class="composer">
+    <div class="form-group">
+      <label class="form-label">Target Type</label>
+      <select id="kind" class="form-control">
+        <option value="email">Email</option>
+        <option value="username">Username</option>
+        <option value="ip">IP Address</option>
+        <option value="discord_id">Discord ID</option>
+        <option value="domain">Domain</option>
+        <option value="phone">Phone</option>
+      </select>
     </div>
-  </section>
+    <div class="form-group">
+      <label class="form-label">Seed Artifact</label>
+      <input id="seed" class="form-control" placeholder="Enter target..." autofocus autocomplete="off" spellcheck="false">
+    </div>
+    <button id="go" class="btn-primary">Execute Pivot</button>
+  </div>
 
-  <!-- 01 PULSE -->
-  <section class="section" id="pulse">
-    <div class="section-head">
-      <span class="num">01 — Pulse</span>
-      <h2>Live pressure <em>on the index.</em></h2>
+  <div class="results-status" id="status">Ready · Feed me an artifact</div>
+  <div class="results-list" id="results">
+    <div class="empty-state">
+      <div class="empty-icon">◌</div>
+      No data yet.<br>Drop a target above to begin.
     </div>
-    <p class="sub">The shape of what's been indexed, refreshed continuously. Rounded on purpose — the shape is the point, not the last digit.</p>
-    <div class="pulse-grid">
-      <div class="pulse-cell"><div class="label">Breach rows</div><div class="value" id="p-breach">4.6B+</div><div class="delta">+12K / hr</div></div>
-      <div class="pulse-cell"><div class="label">Stealer machines</div><div class="value">94K+</div><div class="delta">+340 / hr</div></div>
-      <div class="pulse-cell"><div class="label">Discord profiles</div><div class="value">669K+</div><div class="delta">+2.1K / hr</div></div>
-      <div class="pulse-cell"><div class="label">Sources wired</div><div class="value" id="p-sources">15</div><div class="delta">stable</div></div>
-    </div>
-  </section>
+  </div>
+</div>
 
-  <!-- 02 LENS -->
-  <section class="section" id="lens">
-    <div class="section-head">
-      <span class="num">02 — Lens</span>
-      <h2>Drop one signal. <em>Watch the graph tighten.</em></h2>
-    </div>
-    <div class="lens">
-      <div class="lens-copy">
-        <p>Volume fans a query across private corpora and public intel, collapses duplicates into a single thread, and returns a case that's already been deduped and confidence-scored.</p>
-        <p>Every hit carries source provenance and a confidence badge. Corroborated facts rank first. Isolated claims fall to the bottom.</p>
-        <p>Follow the thread from any hit — recursive pivots open a new hop without leaving the console.</p>
-      </div>
-      <div class="lens-demo">
-        <div class="demo-header">
-          <span><b>river@example.com</b></span>
-          <span>4 hits · deduped</span>
-        </div>
-        <div class="demo-body">
-          <div class="hit-card">
-            <div class="hc-head"><span class="hc-source">hudsonrock</span><span class="hc-kind">stealer · 🟢🟢🟢</span></div>
-            <div class="hc-val">river.hale</div>
-            <div class="hc-meta">machine DESKTOP-8FJ2 · redline family</div>
-          </div>
-          <div class="hit-card">
-            <div class="hc-head"><span class="hc-source">h8mail</span><span class="hc-kind">breach · 🟡</span></div>
-            <div class="hc-val">Collection #1 (2019)</div>
-            <div class="hc-meta">password leaked · 773M records</div>
-          </div>
-          <div class="hit-card">
-            <div class="hc-head"><span class="hc-source">holehe</span><span class="hc-kind">account · ⚪</span></div>
-            <div class="hc-val">github · spotify · twitter</div>
-            <div class="hc-meta">3 accounts found</div>
-          </div>
-          <div class="hit-card">
-            <div class="hc-head"><span class="hc-source">telegram</span><span class="hc-kind">bio · 🟡</span></div>
-            <div class="hc-val">"river.eth — dm for collab"</div>
-            <div class="hc-meta">linked: t.me/riverhale</div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- 03 STACK -->
-  <section class="section" id="stack">
-    <div class="section-head">
-      <span class="num">03 — Stack</span>
-      <h2>Built as a system, <em>not a dump.</em></h2>
-    </div>
-    <p class="sub">Six connected layers, one console. No tabs to juggle, no CSV to reconcile.</p>
-    <div class="stack-grid">
-      <div class="stack-cell"><div class="num">01</div><h3>Unified search</h3><p>Email, phone, username, IP, Discord, stealer artifacts — one console, many modules.</p></div>
-      <div class="stack-cell"><div class="num">02</div><h3>Case workspace</h3><p>Pin hits, annotate timelines, and keep investigations from dissolving into tabs.</p></div>
-      <div class="stack-cell"><div class="num">03</div><h3>Private corpora</h3><p>Breach and stealer coverage with indexing that favors recall without drowning you in noise.</p></div>
-      <div class="stack-cell"><div class="num">04</div><h3>API + bots</h3><p>Wire volume into your own tooling, Discord flows, and automation without leaving the panel.</p></div>
-      <div class="stack-cell"><div class="num">05</div><h3>Access control</h3><p>Roles, quotas, and audit trails so teams can share power without sharing chaos.</p></div>
-      <div class="stack-cell"><div class="num">06</div><h3>Permanent keys</h3><p>Premium and admin keys that survive restarts. Redeem once, own forever.</p></div>
-    </div>
-  </section>
-
-  <!-- 04 ACCESS -->
-  <section class="section" id="access">
-    <div class="section-head">
-      <span class="num">04 — Access</span>
-      <h2>Pick a lane. <em>Start hunting.</em></h2>
-    </div>
-    <div class="access-grid">
-      <div class="plan">
-        <div class="tag">Starter</div>
-        <div class="name">Free</div>
-        <div class="desc">Core OSINT access on a small daily budget.</div>
-        <div class="price">$0</div>
-        <div class="cycle">forever, no card</div>
-        <ul>
-          <li>15 searches / day</li>
-          <li>email · username · ip · discord</li>
-          <li>console + telegram bot</li>
-          <li>json export</li>
-        </ul>
-        <a href="/app" class="btn btn-ghost">start free →</a>
-      </div>
-      <div class="plan featured">
-        <div class="tag">Most used</div>
-        <div class="name">Premium</div>
-        <div class="desc">Full firepower for daily investigations.</div>
-        <div class="price">100 <small>stars / mo</small></div>
-        <div class="cycle">via telegram · permanent key</div>
-        <ul>
-          <li>200 searches / day</li>
-          <li>all 15 sources wired</li>
-          <li>breach · stealer · domain · phone</li>
-          <li>deep breach engine (h8mail)</li>
-          <li>json + csv export</li>
-          <li>permanent key — survive resets</li>
-        </ul>
-        <a href="https://t.me/YOUR_BOT_USERNAME?start=upgrade" class="btn btn-primary">upgrade in telegram →</a>
-      </div>
-      <div class="plan">
-        <div class="tag">Team</div>
-        <div class="name">Professional</div>
-        <div class="desc">API access + team roles for crews.</div>
-        <div class="price">$13<small>/mo</small></div>
-        <div class="cycle">via card · monthly</div>
-        <ul>
-          <li>500 searches / day</li>
-          <li>API keys + automation hooks</li>
-          <li>case workspace + roles</li>
-          <li>priority support</li>
-          <li>all premium features</li>
-        </ul>
-        <a href="#" class="btn btn-ghost">contact →</a>
-      </div>
-    </div>
-  </section>
-
-  <!-- 05 MODULES -->
-  <section class="section" id="modules">
-    <div class="section-head">
-      <span class="num">05 — Modules</span>
-      <h2>Everything wired. <em>Nothing hidden.</em></h2>
-    </div>
-    <p class="sub">Every source in the stack, listed. No "and more" fog. If it's in Volume, it's here.</p>
-    <div class="modules">
-      <div class="module"><span class="dot"></span><span class="name">holehe</span><span class="kind">email</span></div>
-      <div class="module"><span class="dot"></span><span class="name">hudsonrock</span><span class="kind">stealer</span></div>
-      <div class="module"><span class="dot"></span><span class="name">h8mail</span><span class="kind">breach</span></div>
-      <div class="module"><span class="dot"></span><span class="name">gravatar</span><span class="kind">email</span></div>
-      <div class="module"><span class="dot"></span><span class="name">ipapi</span><span class="kind">ip</span></div>
-      <div class="module"><span class="dot"></span><span class="name">internetdb</span><span class="kind">ip</span></div>
-      <div class="module"><span class="dot"></span><span class="name">bgphe</span><span class="kind">ip</span></div>
-      <div class="module"><span class="dot"></span><span class="name">crtsh</span><span class="kind">ip</span></div>
-      <div class="module"><span class="dot"></span><span class="name">phonenumbers</span><span class="kind">phone</span></div>
-      <div class="module"><span class="dot"></span><span class="name">discordlookup</span><span class="kind">discord</span></div>
-      <div class="module"><span class="dot"></span><span class="name">telegram osint</span><span class="kind">username</span></div>
-      <div class="module"><span class="dot"></span><span class="name">instagram osint</span><span class="kind">username</span></div>
-      <div class="module"><span class="dot"></span><span class="name">stealerlogs.com</span><span class="kind">premium</span></div>
-      <div class="module"><span class="dot"></span><span class="name">osint.sx</span><span class="kind">premium</span></div>
-      <div class="module"><span class="dot"></span><span class="name">horus</span><span class="kind">premium</span></div>
-      <div class="module"><span class="dot"></span><span class="name">intelx.io</span><span class="kind">premium</span></div>
-    </div>
-  </section>
-
-  <!-- 06 NOTES -->
-  <section class="section" id="notes">
-    <div class="section-head">
-      <span class="num">06 — Notes</span>
-      <h2>Short answers. <em>No brochure fog.</em></h2>
-    </div>
-    <div class="faq">
-      <div class="faq-item"><div class="q">Who is this for?</div><div class="a">Authorized security researchers, pentesters, and investigators. Use must stay lawful and aligned with our acceptable use rules.</div></div>
-      <div class="faq-item"><div class="q">How does a search work?</div><div class="a">Your identifier fans out across configured modules and corpora. Hits are merged, ranked, and attached to your case.</div></div>
-      <div class="faq-item"><div class="q">Do you have an API?</div><div class="a">Yes. Higher tiers unlock API keys and automation hooks. Exact limits depend on the plan you pick.</div></div>
-      <div class="faq-item"><div class="q">Can I share my account?</div><div class="a">No. Accounts are individual. Sharing credentials violates policy and will get revoked.</div></div>
-      <div class="faq-item"><div class="q">Can I use this for anything?</div><div class="a">No. Abuse, harassment, and unlawful targeting are banned. We log and act on violations.</div></div>
-    </div>
-  </section>
-
-  <footer>
-    <div class="left">
-      <span>volume.tools</span>
-      <span style="color:var(--dim-2)">·</span>
-      <span>one identifier, the whole trail</span>
-    </div>
-    <div>
-      <a href="/app">console</a>
-      <span style="margin:0 10px;color:var(--dim-2)">·</span>
-      <a href="https://t.me/YOUR_BOT_USERNAME">telegram</a>
-      <span style="margin:0 10px;color:var(--dim-2)">·</span>
-      <a href="#notes">acceptable use</a>
-    </div>
-  </footer>
+<div class="graph-panel">
+  <div class="graph-bg"></div>
+  <div id="network"></div>
+  <div class="graph-stats">
+    <div class="stat-pill">nodes <b id="node-count">0</b></div>
+    <div class="stat-pill">edges <b id="edge-count">0</b></div>
+  </div>
 </div>
 
 <script>
-// Live clock in hero panel
-setInterval(() => {
-  const el = document.querySelector('.hero-panel .panel-header span:last-child');
-  if (el) el.textContent = new Date().toUTCString().slice(17,25) + ' UTC';
-}, 1000);
+(() => {
+  const TOKEN = localStorage.getItem('volume_token');
+  const API = window.location.hostname === 'localhost'
+    ? 'http://localhost:8000'
+    : 'https://volume-tools-2.onrender.com';
 
-// Live source count
-fetch('/api/health').then(r => r.json()).then(d => {
-  document.getElementById('p-sources').textContent = d.sources.length;
-}).catch(()=>{});
+  const nodesDS = new vis.DataSet([]);
+  const edgesDS = new vis.DataSet([]);
+  const seen = new Set();
 
-// Fake pulsing breach rows
-const base = 4620000000;
-const el = document.getElementById('p-breach');
-const fmt = n => n.toLocaleString();
-el.textContent = fmt(base);
-setInterval(() => {
-  const jitter = Math.floor(Math.random() * 8000) + 1000;
-  el.textContent = fmt(base + jitter);
-}, 15000);
+  const net = new vis.Network(
+    document.getElementById('network'),
+    { nodes: nodesDS, edges: edgesDS },
+    {
+      nodes: {
+        shape: 'dot', size: 12, borderWidth: 1,
+        font: { color: '#6e7a70', face: 'monospace', size: 11 },
+        color: { background: '#121914', border: '#6ee7a8' }
+      },
+      edges: {
+        color: { color: '#1d271f', highlight: '#6ee7a8' },
+        width: 1, smooth: { type: 'dynamic' }
+      },
+      physics: {
+        solver: 'forceAtlas2Based',
+        forceAtlas2Based: { gravitationalConstant: -40, centralGravity: 0.015, springLength: 100, springConstant: 0.06, damping: 0.4 },
+        stabilization: { iterations: 150 }
+      },
+      interaction: { hover: true, tooltipDelay: 200 }
+    }
+  );
+
+  const updateStats = () => {
+    document.getElementById('node-count').textContent = nodesDS.length;
+    document.getElementById('edge-count').textContent = edgesDS.length;
+  };
+
+  const addNode = (id, label, isRoot = false) => {
+    if (seen.has(id)) return;
+    seen.add(id);
+    nodesDS.add({
+      id, label,
+      size: isRoot ? 20 : 12,
+      color: isRoot ? { background: '#6ee7a8', border: '#e8ece8' } : { background: '#121914', border: '#6ee7a8' },
+      font: isRoot ? { color: '#0a0e0b', bold: true, face: 'monospace' } : { color: '#6e7a70', face: 'monospace' }
+    });
+    updateStats();
+  };
+
+  const addEdge = (from, to) => {
+    edgesDS.add({ from, to, id: `${from}->${to}` });
+    updateStats();
+  };
+
+  const setStatus = (text, isError = false) => {
+    const el = document.getElementById('status');
+    el.innerHTML = text;
+    el.style.color = isError ? 'var(--danger)' : 'var(--fg-dim)';
+  };
+
+  const renderResults = (hits) => {
+    const el = document.getElementById('results');
+    if (!hits.length) {
+      el.innerHTML = '<div class="empty-state"><div class="empty-icon">◌</div>No hits found.<br>Try a different target.</div>';
+      return;
+    }
+    el.innerHTML = hits.map(h => `
+      <div class="hit-card">
+        <div class="hit-header">
+          <span class="hit-badge">${h.pillar}</span>
+          <span class="hit-kind">${h.kind}</span>
+        </div>
+        <div class="hit-value">${h.value}</div>
+        <div class="hit-meta">via ${(h.meta.sources || []).join(', ')}</div>
+      </div>
+    `).join('');
+  };
+
+  document.getElementById('go').onclick = async () => {
+    const seed = document.getElementById('seed').value.trim();
+    const kind = document.getElementById('kind').value;
+    if (!seed) return;
+
+    const btn = document.getElementById('go');
+    btn.disabled = true;
+    setStatus(`Fanning out · ${kind}`);
+    document.getElementById('results').innerHTML = '<div class="empty-state"><div class="empty-icon">⏳</div>Scanning sources...</div>';
+
+    const rootId = kind + ':' + seed;
+    addNode(rootId, seed.length > 18 ? seed.slice(0, 18) + '…' : seed, true);
+
+    try {
+      const res = await fetch(`${API}/api/pivot`, {
+        method: 'POST',
+        headers: {
+          'content-type': 'application/json',
+          'authorization': `Bearer ${TOKEN}`
+        },
+        body: JSON.stringify({ seed, kind })
+      });
+
+      if (res.status === 402) {
+        const d = await res.json();
+        setStatus(`Limit reached · ${d.detail || 'upgrade'}`, true);
+        renderResults([]);
+        return;
+      }
+
+      const d = await res.json();
+      setStatus(`Completed · ${d.count} hits`);
+      renderResults(d.hits);
+
+      d.hits.forEach(h => {
+        const id = h.kind + ':' + h.value;
+        addNode(id, String(h.value).slice(0, 18), false);
+        addEdge(rootId, id);
+      });
+    } catch (e) {
+      setStatus(`Error · ${e.message}`, true);
+      renderResults([]);
+    } finally {
+      btn.disabled = false;
+    }
+  };
+
+  fetch(`${API}/api/health`)
+    .then(r => r.json())
+    .then(d => {
+      document.getElementById('src-count').textContent = d.sources.length + ' sources';
+    })
+    .catch(() => {});
+
+  fetch(`${API}/api/referrals/me`, {
+    headers: { 'authorization': `Bearer ${TOKEN}` }
+  })
+    .then(r => r.json())
+    .then(d => {
+      if (!d.code) return;
+      const card = document.getElementById('referral-card');
+      const codeEl = document.getElementById('ref-code');
+      const statsEl = document.getElementById('ref-stats');
+      codeEl.textContent = d.code;
+      codeEl.onclick = () => {
+        navigator.clipboard.writeText(d.code);
+        codeEl.textContent = 'copied ✓';
+        setTimeout(() => { codeEl.textContent = d.code; }, 1200);
+      };
+      statsEl.textContent = `${d.stats.used} used · ${d.stats.earned_days} days earned · ${d.stats.remaining_slots}/3 slots`;
+      card.classList.add('show');
+    })
+    .catch(() => {});
+
+  document.getElementById('logout-btn').onclick = async (e) => {
+    e.preventDefault();
+    try {
+      await fetch(`${API}/api/auth/logout`, {
+        method: 'POST',
+        headers: { 'authorization': `Bearer ${TOKEN}` }
+      });
+    } catch (err) {}
+    localStorage.removeItem('volume_token');
+    localStorage.removeItem('volume_email');
+    localStorage.removeItem('volume_tier');
+    window.location.href = '/login';
+  };
+})();
 </script>
 </body>
 </html>
