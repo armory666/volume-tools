@@ -1,9 +1,8 @@
 CREATE TABLE IF NOT EXISTS users (
   id           TEXT PRIMARY KEY,
-  telegram_id  INTEGER UNIQUE,
+  telegram_id  BIGINT UNIQUE,
   email        TEXT UNIQUE,
   tier         TEXT NOT NULL DEFAULT 'free',
-  credits      INTEGER NOT NULL DEFAULT 0,
   paid_until   TEXT,
   created_at   TEXT NOT NULL,
   last_seen    TEXT
@@ -16,6 +15,15 @@ CREATE TABLE IF NOT EXISTS usage (
   PRIMARY KEY (user_id, day)
 );
 
+CREATE TABLE IF NOT EXISTS keys (
+  key         TEXT PRIMARY KEY,
+  kind        TEXT NOT NULL,
+  user_id     TEXT,
+  redeemed_at TEXT,
+  created_at  TEXT NOT NULL,
+  revoked     INTEGER NOT NULL DEFAULT 0
+);
+
 CREATE TABLE IF NOT EXISTS payments (
   id           TEXT PRIMARY KEY,
   user_id      TEXT NOT NULL,
@@ -26,22 +34,11 @@ CREATE TABLE IF NOT EXISTS payments (
   created_at   TEXT NOT NULL
 );
 
-CREATE TABLE IF NOT EXISTS keys (
-  key           TEXT PRIMARY KEY,
-  user_id       TEXT,
-  duration_days INTEGER NOT NULL,
-  created_at    TEXT NOT NULL,
-  redeemed_at   TEXT,
-  expires_at    TEXT
-);
-
-CREATE TABLE IF NOT EXISTS admin_keys (
-  key           TEXT PRIMARY KEY,
-  user_id       TEXT,
-  created_at    TEXT NOT NULL,
-  redeemed_at   TEXT,
-  expires_at    TEXT,
-  revoked       INTEGER NOT NULL DEFAULT 0
+CREATE TABLE IF NOT EXISTS sessions (
+  token       TEXT PRIMARY KEY,
+  user_id     TEXT NOT NULL,
+  created_at  TEXT NOT NULL,
+  expires_at  TEXT NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS referrals (
@@ -62,6 +59,9 @@ CREATE TABLE IF NOT EXISTS referral_claims (
   claimed_at   TEXT NOT NULL
 );
 
+CREATE INDEX IF NOT EXISTS idx_users_telegram ON users(telegram_id);
+CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
+CREATE INDEX IF NOT EXISTS idx_sessions_user ON sessions(user_id);
 CREATE INDEX IF NOT EXISTS idx_referrals_code ON referrals(code);
 CREATE INDEX IF NOT EXISTS idx_referrals_owner ON referrals(owner_id);
 CREATE INDEX IF NOT EXISTS idx_referral_claims_user ON referral_claims(user_id);
