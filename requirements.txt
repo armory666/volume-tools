@@ -6,3 +6,4 @@ holehe
 sherlock-project
 phonenumbers
 h8mail
+legacy-cgi
