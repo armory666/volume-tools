@@ -74,3 +74,12 @@ def upgrade():
 
 # static assets
 app.mount("/static", StaticFiles(directory="web"), name="static")
+
+from fastapi.middleware.cors import CORSMiddleware
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # lock this to your Vercel domain later
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
