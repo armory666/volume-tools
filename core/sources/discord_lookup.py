@@ -16,7 +16,6 @@ class DiscordLookup:
         if not re.match(r"^\d{17,19}$", str(seed)):
             return [Hit(self.name, "error", seed, {"reason": "invalid snowflake (17-19 digits)"})]
 
-        # Try authenticated endpoint first if bot token exists
         if BOT_TOKEN:
             try:
                 async with httpx.AsyncClient(timeout=15) as c:
@@ -44,11 +43,9 @@ class DiscordLookup:
                     return [Hit(self.name, "error", seed, {"reason": "rate limited by Discord — try in 30s"})]
                 elif r.status_code != 404:
                     return [Hit(self.name, "error", seed, {"reason": f"bot api {r.status_code}"})]
-                # 404 → fall through to anonymous
             except Exception as e:
                 print(f"[discord_lookup] bot error: {e}")
 
-        # Anonymous fallback
         try:
             async with httpx.AsyncClient(timeout=15) as c:
                 r = await c.get(
@@ -66,7 +63,7 @@ class DiscordLookup:
                 })]
             if r.status_code == 404:
                 return [Hit(self.name, "error", seed, {
-                    "reason": "user not found OR no mutual server with our bot" + ("" if BOT_TOKEN else " — add DISCORD_BOT_TOKEN to Render env for better coverage")
+                    "reason": "user not found or no mutual server" + ("" if BOT_TOKEN else " — add DISCORD_BOT_TOKEN for wider coverage")
                 })]
             return [Hit(self.name, "error", seed, {"reason": f"api {r.status_code}"})]
         except Exception as e:
