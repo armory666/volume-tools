@@ -288,4 +288,8 @@ def upgrade():
     bot = os.environ.get("VolumeTools_Bot", "VolumeTools_Bot")
     return RedirectResponse(f"https://t.me/{bot}?start=upgrade")
 
+@app.get("/1995")
+def cove_1995():
+    return FileResponse("web/1995.html")
+
 app.mount("/static", StaticFiles(directory="web"), name="static")
