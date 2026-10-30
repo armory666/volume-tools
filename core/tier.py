@@ -5,9 +5,12 @@ from contextlib import contextmanager
 
 DATABASE_URL = os.environ.get("DATABASE_URL", "")
 
-FREE_SOURCES = {"holehe", "gravatar", "ipapi", "internetdb", "bgphe", "crtsh"}
-FREE_KINDS   = {"email", "username", "ip"}
-FREE_DAILY   = 15
+FREE_SOURCES = {
+    "holehe", "gravatar", "ipapi", "internetdb", "bgphe", "crtsh",
+    "wayback", "subdomains", "hibp", "pgp", "hudsonrock_phone", "discord_lookup"
+}
+FREE_KINDS = {"email", "username", "ip", "domain", "discord_id"}
+FREE_DAILY = 15
 PREMIUM_DAILY = 200
 
 TIERS = {
@@ -42,20 +45,11 @@ class _CursorWrapper:
         self.cur.execute(psql, params)
         return self
 
-    def fetchone(self):
-        return self.cur.fetchone()
-
-    def fetchall(self):
-        return self.cur.fetchall()
-
-    def __iter__(self):
-        return iter(self.cur)
-
-    def __getitem__(self, k):
-        return self.cur.fetchone()[k]
-
-    def executescript(self, script):
-        self.cur.execute(script)
+    def fetchone(self): return self.cur.fetchone()
+    def fetchall(self): return self.cur.fetchall()
+    def __iter__(self): return iter(self.cur)
+    def __getitem__(self, k): return self.cur.fetchone()[k]
+    def executescript(self, script): self.cur.execute(script)
 
 def init_db():
     with db() as c:
