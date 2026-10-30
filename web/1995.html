@@ -1,0 +1,24 @@
+.launch-card-red {
+  background: linear-gradient(180deg, rgba(20,6,6,.95) 0%, rgba(15,5,5,.98) 100%);
+  border-color: #a01818;
+  animation: redPulseCard 3s ease-in-out infinite;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+@keyframes redPulseCard {
+  0%,100% { box-shadow: 0 0 20px rgba(255,59,59,.1); border-color: #a01818; }
+  50%     { box-shadow: 0 0 40px rgba(255,59,59,.3); border-color: #ff3b3b; }
+}
+.launch-card-red h2 { font-family: var(--serif); font-weight: 500; font-size: 22px; letter-spacing: -.01em; margin-bottom: 8px; color: #fff; }
+.launch-card-red p { font-size: 13px; color: var(--fg-dim); margin-bottom: 20px; line-height: 1.5; }
+.launch-card-red .card-badge.danger { background: rgba(237,66,69,.15); color: var(--danger); border: 1px solid rgba(237,66,69,.3); }
+.launch-btn-red {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  padding: 12px 20px; background: transparent; color: #ff3b3b;
+  border: 2px solid #ff3b3b; border-radius: 6px;
+  font-family: var(--mono); font-weight: 700; font-size: 13px;
+  text-decoration: none; cursor: pointer; transition: all .2s;
+  letter-spacing: .08em; text-transform: uppercase;
+}
+.launch-btn-red:hover { background: #ff3b3b; color: #0a0303; box-shadow: 0 0 30px rgba(255,59,59,.5); }
