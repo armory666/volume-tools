@@ -1,24 +1,1028 @@
-.launch-card-red {
-  background: linear-gradient(180deg, rgba(20,6,6,.95) 0%, rgba(15,5,5,.98) 100%);
-  border-color: #a01818;
-  animation: redPulseCard 3s ease-in-out infinite;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-}
-@keyframes redPulseCard {
-  0%,100% { box-shadow: 0 0 20px rgba(255,59,59,.1); border-color: #a01818; }
-  50%     { box-shadow: 0 0 40px rgba(255,59,59,.3); border-color: #ff3b3b; }
-}
-.launch-card-red h2 { font-family: var(--serif); font-weight: 500; font-size: 22px; letter-spacing: -.01em; margin-bottom: 8px; color: #fff; }
-.launch-card-red p { font-size: 13px; color: var(--fg-dim); margin-bottom: 20px; line-height: 1.5; }
-.launch-card-red .card-badge.danger { background: rgba(237,66,69,.15); color: var(--danger); border: 1px solid rgba(237,66,69,.3); }
-.launch-btn-red {
-  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
-  padding: 12px 20px; background: transparent; color: #ff3b3b;
-  border: 2px solid #ff3b3b; border-radius: 6px;
-  font-family: var(--mono); font-weight: 700; font-size: 13px;
-  text-decoration: none; cursor: pointer; transition: all .2s;
-  letter-spacing: .08em; text-transform: uppercase;
-}
-.launch-btn-red:hover { background: #ff3b3b; color: #0a0303; box-shadow: 0 0 30px rgba(255,59,59,.5); }
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>1995 // DVKR — COVE</title>
+<meta name="theme-color" content="#0a0303">
+<style>
+  :root{
+    --bg:#0a0303; --bg-2:#0f0505; --card:#140606; --border:#2a0808; --border-2:#4a0d0d;
+    --fg:#e8d8d8; --fg-dim:#7a6060; --red:#ff3b3b; --red-dim:#a01818; --red-glow:rgba(255,59,59,.15);
+    --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{
+    font-family:var(--mono);background:var(--bg);color:var(--fg);
+    overflow-x:hidden;-webkit-font-smoothing:antialiased;
+    min-height:100vh;
+  }
+  body::before{
+    content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
+    background:
+      radial-gradient(ellipse 60% 40% at 20% 0%, rgba(255,59,59,.06), transparent 60%),
+      radial-gradient(ellipse 50% 35% at 100% 100%, rgba(160,24,24,.04), transparent 60%);
+    animation:hudBreathe 6s ease-in-out infinite;
+  }
+  @keyframes hudBreathe{
+    0%,100%{opacity:.6}
+    50%{opacity:1}
+  }
+
+  /* WIPE TRANSITION */
+  .wipe{
+    position:fixed;inset:0;z-index:9999;
+    background:linear-gradient(135deg,#ff3b3b,#a01818);
+    transform:translateX(-100%);
+    transition:transform .55s cubic-bezier(.7,0,.3,1);
+    display:grid;place-items:center;pointer-events:none;
+  }
+  .wipe.in{transform:translateX(0);pointer-events:auto}
+  .wipe.out{transform:translateX(100%)}
+  .wipe-inner{
+    font-family:var(--mono);font-size:14px;font-weight:700;
+    letter-spacing:.3em;text-transform:uppercase;color:#0a0303;
+    text-align:center;
+  }
+  .wipe-inner .skull{font-size:44px;margin-bottom:12px;display:block}
+
+  /* LANDING */
+  .landing{
+    position:relative;z-index:1;min-height:100vh;
+    display:grid;place-items:center;padding:24px;
+    transition:opacity .4s ease;
+  }
+  .landing.hidden{opacity:0;pointer-events:none}
+
+  .warning-panel{
+    width:100%;max-width:640px;
+    background:linear-gradient(180deg,rgba(20,6,6,.95) 0%,rgba(15,5,5,.98) 100%);
+    border:2px solid var(--red-dim);
+    border-radius:16px;
+    padding:48px 40px;
+    text-align:center;
+    position:relative;
+    overflow:hidden;
+    animation:redPulse 3s ease-in-out infinite;
+  }
+  @keyframes redPulse{
+    0%,100%{
+      box-shadow:0 0 30px rgba(255,59,59,.15), 0 0 60px rgba(255,59,59,.05), inset 0 0 20px rgba(255,59,59,.02);
+      border-color:var(--red-dim);
+    }
+    50%{
+      box-shadow:0 0 50px rgba(255,59,59,.35), 0 0 100px rgba(255,59,59,.12), inset 0 0 30px rgba(255,59,59,.05);
+      border-color:var(--red);
+    }
+  }
+  .warning-panel::before{
+    content:"";position:absolute;top:0;left:0;right:0;height:1px;
+    background:linear-gradient(90deg,transparent,var(--red),transparent);
+    animation:scanline 3s linear infinite;
+  }
+  @keyframes scanline{
+    0%{transform:translateY(0)}
+    100%{transform:translateY(400px)}
+  }
+  .warning-tag{
+    display:inline-block;padding:5px 14px;
+    border:1px solid var(--red-dim);border-radius:4px;
+    font-size:10px;letter-spacing:.2em;text-transform:uppercase;
+    color:var(--red);margin-bottom:24px;
+    animation:tagBlink 2s ease-in-out infinite;
+  }
+  @keyframes tagBlink{
+    0%,100%{opacity:.5}
+    50%{opacity:1}
+  }
+  .warning-panel h1{
+    font-family:var(--mono);font-weight:700;
+    font-size:clamp(20px,3vw,28px);
+    letter-spacing:.02em;line-height:1.3;
+    margin-bottom:12px;
+    color:#fff;
+    text-shadow:0 0 20px rgba(255,59,59,.5);
+  }
+  .warning-panel h1 .red{color:var(--red)}
+  .warning-panel p.sub{
+    font-size:12px;color:var(--fg-dim);
+    letter-spacing:.05em;margin-bottom:36px;
+    line-height:1.6;
+  }
+  .open-keypad{
+    display:inline-flex;align-items:center;gap:10px;
+    padding:16px 32px;
+    background:transparent;
+    border:2px solid var(--red);
+    color:var(--red);
+    font-family:var(--mono);font-size:14px;font-weight:700;
+    letter-spacing:.15em;text-transform:uppercase;
+    cursor:pointer;border-radius:8px;
+    transition:all .25s ease;
+    position:relative;overflow:hidden;
+  }
+  .open-keypad::before{
+    content:"";position:absolute;inset:0;
+    background:var(--red);
+    transform:scaleX(0);transform-origin:left;
+    transition:transform .3s ease;
+    z-index:-1;
+  }
+  .open-keypad:hover::before{transform:scaleX(1)}
+  .open-keypad:hover{color:#0a0303;box-shadow:0 0 30px rgba(255,59,59,.4)}
+  .open-keypad:active{transform:scale(.97)}
+
+  .footer-note{
+    margin-top:36px;font-size:10px;color:var(--fg-dim);
+    letter-spacing:.15em;text-transform:uppercase;
+    opacity:.5;
+  }
+
+  /* KEYPAD */
+  .keypad-screen{
+    position:fixed;inset:0;z-index:100;
+    background:var(--bg);
+    display:none;
+    place-items:center;
+    padding:24px;
+    opacity:0;
+    transition:opacity .4s ease;
+  }
+  .keypad-screen.active{
+    display:grid;opacity:1;
+  }
+  .terminal{
+    width:100%;max-width:720px;
+    background:rgba(10,3,3,.95);
+    border:1px solid var(--red-dim);
+    border-radius:12px;
+    padding:40px;
+    position:relative;
+    overflow:hidden;
+    box-shadow:0 0 60px rgba(255,59,59,.1);
+  }
+  .terminal::before{
+    content:"● ● ●";position:absolute;top:12px;left:16px;
+    font-size:10px;color:var(--fg-dim);letter-spacing:3px;
+  }
+  .terminal::after{
+    content:"DVKR://1995/COVE";position:absolute;top:12px;right:16px;
+    font-size:10px;color:var(--red);letter-spacing:2px;text-transform:uppercase;
+  }
+  .term-line{
+    font-family:var(--mono);font-size:13px;line-height:1.9;
+    color:var(--fg-dim);margin-bottom:4px;
+  }
+  .term-line .prompt{color:var(--red)}
+  .term-line .typed{color:var(--fg)}
+  .term-line .cursor{
+    display:inline-block;width:8px;height:14px;
+    background:var(--red);vertical-align:middle;margin-left:2px;
+    animation:cursorBlink 1s step-end infinite;
+  }
+  @keyframes cursorBlink{0%,49%{opacity:1}50%,100%{opacity:0}}
+
+  .name-input-wrap{
+    margin-top:24px;display:none;
+  }
+  .name-input-wrap.show{display:block}
+  .name-input{
+    width:100%;padding:16px 18px;
+    background:transparent;
+    border:1px solid var(--border-2);
+    border-radius:6px;color:var(--red);
+    font-family:var(--mono);font-size:16px;
+    letter-spacing:.1em;text-transform:uppercase;
+    outline:none;transition:all .2s;
+  }
+  .name-input:focus{
+    border-color:var(--red);
+    box-shadow:0 0 20px rgba(255,59,59,.3);
+  }
+  .name-input::placeholder{color:var(--fg-dim);text-transform:none;letter-spacing:normal}
+  .submit-name{
+    width:100%;margin-top:12px;padding:16px;
+    background:var(--red);color:#0a0303;
+    border:none;border-radius:6px;
+    font-family:var(--mono);font-size:13px;
+    font-weight:700;letter-spacing:.15em;text-transform:uppercase;
+    cursor:pointer;transition:all .2s;
+  }
+  .submit-name:hover{filter:brightness(1.15);box-shadow:0 0 20px rgba(255,59,59,.5)}
+
+  /* ERROR SCREEN */
+  .error-screen{
+    position:fixed;inset:0;z-index:200;
+    background:#000;
+    display:none;
+    place-items:center;padding:24px;
+  }
+  .error-screen.active{display:grid}
+  .error-inner{
+    text-align:center;max-width:640px;
+    animation:shake .5s ease-in-out;
+  }
+  @keyframes shake{
+    0%,100%{transform:translateX(0)}
+    10%,30%,50%,70%,90%{transform:translateX(-8px)}
+    20%,40%,60%,80%{transform:translateX(8px)}
+  }
+  .error-skull{
+    font-size:80px;margin-bottom:24px;
+    animation:skullPulse .8s ease-in-out infinite;
+    filter:drop-shadow(0 0 20px var(--red));
+  }
+  @keyframes skullPulse{
+    0%,100%{transform:scale(1);opacity:1}
+    50%{transform:scale(1.08);opacity:.7}
+  }
+  .error-text{
+    font-family:var(--mono);font-size:clamp(16px,2.5vw,22px);
+    color:var(--red);font-weight:700;letter-spacing:.15em;
+    line-height:1.5;
+    text-shadow:0 0 30px rgba(255,59,59,.8);
+  }
+  .error-sub{
+    margin-top:16px;font-size:12px;color:var(--fg-dim);
+    letter-spacing:.2em;text-transform:uppercase;
+  }
+
+  /* MAIN COVE */
+  .cove{
+    position:relative;z-index:1;min-height:100vh;
+    display:none;
+    grid-template-columns:280px 1fr;
+  }
+  .cove.active{display:grid}
+
+  .cove-sidebar{
+    background:var(--bg-2);
+    border-right:1px solid var(--border);
+    padding:28px 20px;
+    overflow-y:auto;
+    display:flex;flex-direction:column;gap:24px;
+  }
+  .cove-brand{
+    font-family:var(--mono);font-size:13px;font-weight:700;
+    color:var(--red);letter-spacing:.2em;text-transform:uppercase;
+    padding-bottom:20px;border-bottom:1px solid var(--border);
+  }
+  .cove-brand small{
+    display:block;font-size:9px;color:var(--fg-dim);
+    font-weight:400;letter-spacing:.1em;margin-top:4px;
+  }
+  .welcome-msg{
+    font-family:var(--mono);font-size:12px;
+    color:var(--fg);line-height:1.7;
+    padding:16px;background:rgba(255,59,59,.04);
+    border-left:2px solid var(--red);border-radius:4px;
+  }
+  .welcome-msg .name{color:var(--red);font-weight:700}
+  .welcome-msg .q{color:var(--fg-dim);margin-top:8px;font-size:11px}
+
+  .nav-section{margin-top:8px}
+  .nav-section h4{
+    font-size:9px;letter-spacing:.2em;text-transform:uppercase;
+    color:var(--fg-dim);margin-bottom:12px;
+    padding-bottom:6px;border-bottom:1px solid var(--border);
+  }
+  .nav-item{
+    display:flex;align-items:center;gap:10px;
+    padding:10px 12px;margin-bottom:4px;
+    background:transparent;border:none;
+    font-family:var(--mono);font-size:11px;
+    color:var(--fg-dim);text-align:left;
+    cursor:pointer;border-radius:6px;
+    transition:all .15s;width:100%;
+    letter-spacing:.05em;
+  }
+  .nav-item:hover{background:rgba(255,59,59,.08);color:var(--fg)}
+  .nav-item.active{background:rgba(255,59,59,.15);color:var(--red);border-left:2px solid var(--red);padding-left:10px}
+  .nav-item .icon{font-size:13px}
+
+  .cove-main{
+    padding:32px 40px;
+    overflow-y:auto;
+    max-height:100vh;
+  }
+
+  .cove-header{
+    margin-bottom:32px;
+    padding-bottom:20px;
+    border-bottom:1px solid var(--border);
+  }
+  .cove-header .breadcrumb{
+    font-size:10px;color:var(--fg-dim);
+    letter-spacing:.2em;text-transform:uppercase;
+    margin-bottom:8px;
+  }
+  .cove-header .breadcrumb .red{color:var(--red)}
+  .cove-header h2{
+    font-family:var(--mono);font-size:22px;font-weight:700;
+    color:var(--fg);letter-spacing:.02em;
+  }
+  .cove-header h2 .red{color:var(--red)}
+
+  .panel{display:none}
+  .panel.active{display:block}
+
+  .card{
+    background:var(--card);border:1px solid var(--border);
+    border-radius:10px;padding:20px;margin-bottom:16px;
+  }
+  .card-head{
+    display:flex;align-items:center;justify-content:space-between;
+    margin-bottom:16px;padding-bottom:12px;
+    border-bottom:1px solid var(--border);
+  }
+  .card-head h3{font-size:12px;letter-spacing:.15em;text-transform:uppercase;color:var(--red)}
+  .card-head .badge{
+    font-size:9px;letter-spacing:.1em;text-transform:uppercase;
+    padding:3px 8px;background:rgba(255,59,59,.1);
+    border:1px solid var(--border-2);border-radius:4px;color:var(--red);
+  }
+
+  .field-group{display:flex;flex-direction:column;gap:6px;margin-bottom:12px}
+  .field-group label{font-size:10px;color:var(--fg-dim);letter-spacing:.1em;text-transform:uppercase}
+  .field-group input, .field-group textarea, .field-group select{
+    padding:10px 12px;background:var(--bg);border:1px solid var(--border-2);
+    border-radius:6px;color:var(--fg);font-family:var(--mono);font-size:12px;
+    outline:none;transition:all .15s;width:100%;
+  }
+  .field-group textarea{resize:vertical;min-height:80px;line-height:1.5}
+  .field-group input:focus, .field-group textarea:focus, .field-group select:focus{
+    border-color:var(--red);box-shadow:0 0 0 2px var(--red-glow);
+  }
+
+  .btn{
+    padding:10px 20px;background:var(--red);color:#0a0303;
+    border:none;border-radius:6px;cursor:pointer;
+    font-family:var(--mono);font-size:11px;font-weight:700;
+    letter-spacing:.15em;text-transform:uppercase;
+    transition:all .15s;
+  }
+  .btn:hover{filter:brightness(1.15);box-shadow:0 0 20px rgba(255,59,59,.4)}
+  .btn.ghost{background:transparent;border:1px solid var(--border-2);color:var(--fg)}
+  .btn.ghost:hover{border-color:var(--red);color:var(--red);box-shadow:none}
+
+  .case-list{display:flex;flex-direction:column;gap:8px}
+  .case-item{
+    padding:14px 16px;background:var(--bg-2);
+    border:1px solid var(--border);border-radius:8px;
+    cursor:pointer;transition:all .15s;
+  }
+  .case-item:hover{border-color:var(--red);background:rgba(255,59,59,.04)}
+  .case-item .case-id{
+    font-size:10px;color:var(--fg-dim);
+    letter-spacing:.1em;text-transform:uppercase;
+    margin-bottom:4px;
+  }
+  .case-item .case-name{font-size:13px;font-weight:700;color:var(--fg)}
+  .case-item .case-meta{font-size:10px;color:var(--fg-dim);margin-top:4px}
+
+  .tool-grid{
+    display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px;
+  }
+  .tool-card{
+    padding:16px;background:var(--bg-2);
+    border:1px solid var(--border);border-radius:8px;
+    cursor:pointer;transition:all .15s;text-align:left;
+    font-family:var(--mono);
+  }
+  .tool-card:hover{border-color:var(--red);background:rgba(255,59,59,.04);transform:translateY(-2px)}
+  .tool-card .tool-icon{font-size:20px;margin-bottom:8px;display:block}
+  .tool-card .tool-name{font-size:11px;font-weight:700;color:var(--fg);letter-spacing:.1em;text-transform:uppercase}
+  .tool-card .tool-desc{font-size:10px;color:var(--fg-dim);margin-top:4px;line-height:1.4}
+
+  .result-box{
+    margin-top:16px;padding:14px;
+    background:var(--bg-2);border:1px solid var(--border);
+    border-radius:6px;font-size:11px;color:var(--fg-dim);
+    line-height:1.6;max-height:400px;overflow-y:auto;
+    font-family:var(--mono);white-space:pre-wrap;word-break:break-word;
+  }
+  .result-box:empty{display:none}
+
+  .note-timeline{
+    display:flex;flex-direction:column;gap:8px;
+    max-height:300px;overflow-y:auto;
+  }
+  .note{
+    padding:10px 12px;background:var(--bg-2);
+    border-left:2px solid var(--red);
+    border-radius:4px;
+  }
+  .note .note-time{font-size:9px;color:var(--fg-dim);margin-bottom:4px}
+  .note .note-text{font-size:11px;color:var(--fg);line-height:1.5}
+
+  @media (max-width:900px){
+    .cove{grid-template-columns:1fr}
+    .cove-sidebar{flex-direction:row;overflow-x:auto;overflow-y:visible;padding:16px;border-right:none;border-bottom:1px solid var(--border)}
+    .cove-main{padding:24px 20px}
+  }
+</style>
+</head>
+<body>
+
+<div class="wipe" id="wipe">
+  <div class="wipe-inner">
+    <span class="skull">☠</span>
+    <div>AUTHENTICATING</div>
+  </div>
+</div>
+
+<!-- LANDING -->
+<div class="landing" id="landing">
+  <div class="warning-panel">
+    <div class="warning-tag">⚠ restricted access</div>
+    <h1>ARE YOU APART OF<br><span class="red">DVKR</span> or <span class="red">1995</span>?</h1>
+    <p class="sub">This console is reserved for authorized operators.<br>All access is logged. Unauthorized attempts will be reported.</p>
+    <button class="open-keypad" id="open-keypad">⌨ open keypad</button>
+    <div class="footer-note">DVKR://1995 · COVE CONSOLE · v1</div>
+  </div>
+</div>
+
+<!-- KEYPAD -->
+<div class="keypad-screen" id="keypad-screen">
+  <div class="terminal">
+    <div id="term-output"></div>
+    <div class="name-input-wrap" id="name-input-wrap">
+      <input type="text" class="name-input" id="name-input" placeholder="enter your name" autocomplete="off" spellcheck="false">
+      <button class="submit-name" id="submit-name">submit →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ERROR SCREEN -->
+<div class="error-screen" id="error-screen">
+  <div class="error-inner">
+    <div class="error-skull">☠</div>
+    <div class="error-text" id="error-text"></div>
+    <div class="error-sub">connection terminated · returning</div>
+  </div>
+</div>
+
+<!-- MAIN COVE -->
+<div class="cove" id="cove">
+  <aside class="cove-sidebar">
+    <div class="cove-brand">
+      DVKR // 1995
+      <small>cove console · private</small>
+    </div>
+    <div class="welcome-msg" id="welcome-msg"></div>
+    <div class="nav-section">
+      <h4>cases</h4>
+      <button class="nav-item active" data-panel="create-case"><span class="icon">＋</span> create case</button>
+      <button class="nav-item" data-panel="previous-cases"><span class="icon">📁</span> previous cases</button>
+    </div>
+    <div class="nav-section">
+      <h4>intel</h4>
+      <button class="nav-item" data-panel="breaches"><span class="icon">🦠</span> breaches</button>
+      <button class="nav-item" data-panel="osint"><span class="icon">🔍</span> osint</button>
+      <button class="nav-item" data-panel="csint"><span class="icon">💬</span> csint</button>
+      <button class="nav-item" data-panel="geosint"><span class="icon">🌐</span> geosint</button>
+      <button class="nav-item" data-panel="socsint"><span class="icon">👥</span> socsint</button>
+    </div>
+    <div class="nav-section">
+      <h4>tools</h4>
+      <button class="nav-item" data-panel="notes"><span class="icon">📝</span> notes</button>
+      <button class="nav-item" data-panel="timeline"><span class="icon">⏱</span> timeline</button>
+    </div>
+  </aside>
+
+  <main class="cove-main">
+    <div class="cove-header">
+      <div class="breadcrumb">DVKR://1995 · <span class="red" id="crumb-panel">create case</span></div>
+      <h2 id="panel-title">Create a new case</h2>
+    </div>
+
+    <div class="panel active" data-panel="create-case">
+      <div class="card">
+        <div class="card-head"><h3>case details</h3><span class="badge">new</span></div>
+        <div class="field-group">
+          <label>Case Name</label>
+          <input type="text" id="case-name" placeholder="e.g. Operation Nightfall" maxlength="60">
+        </div>
+        <div class="field-group">
+          <label>Subject / Target</label>
+          <input type="text" id="case-subject" placeholder="email, username, phone, IP, or name" maxlength="120">
+        </div>
+        <div class="field-group">
+          <label>Notes</label>
+          <textarea id="case-notes" placeholder="background, objectives, initial intel..."></textarea>
+        </div>
+        <button class="btn" id="create-case-btn">create case →</button>
+        <div class="result-box" id="create-case-result"></div>
+      </div>
+    </div>
+
+    <div class="panel" data-panel="previous-cases">
+      <div class="card">
+        <div class="card-head"><h3>previous cases</h3><span class="badge" id="case-count">0</span></div>
+        <div class="case-list" id="case-list">
+          <div style="color:var(--fg-dim);font-size:11px;padding:20px;text-align:center">no cases yet</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel" data-panel="breaches">
+      <div class="card">
+        <div class="card-head"><h3>breach intelligence</h3><span class="badge">premium</span></div>
+        <div class="field-group">
+          <label>Email address</label>
+          <input type="email" id="breach-email" placeholder="target@example.com">
+        </div>
+        <button class="btn" id="breach-scan-btn">scan breach databases</button>
+        <div class="result-box" id="breach-result"></div>
+      </div>
+    </div>
+
+    <div class="panel" data-panel="osint">
+      <div class="card">
+        <div class="card-head"><h3>osint pivot</h3><span class="badge">15 sources</span></div>
+        <div class="field-group">
+          <label>Target type</label>
+          <select id="osint-kind">
+            <option value="email">email</option>
+            <option value="username">username</option>
+            <option value="ip">ip</option>
+            <option value="phone">phone</option>
+            <option value="domain">domain</option>
+            <option value="discord_id">discord id</option>
+          </select>
+        </div>
+        <div class="field-group">
+          <label>Seed</label>
+          <input type="text" id="osint-seed" placeholder="enter target...">
+        </div>
+        <button class="btn" id="osint-pivot-btn">execute pivot</button>
+        <div class="result-box" id="osint-result"></div>
+      </div>
+    </div>
+
+    <div class="panel" data-panel="csint">
+      <div class="card">
+        <div class="card-head"><h3>csint — cyber signal intelligence</h3><span class="badge">monitor</span></div>
+        <p style="font-size:11px;color:var(--fg-dim);margin-bottom:16px;line-height:1.6">
+          Track ongoing signal from breach feeds, stealer logs, and public incident data. Input an identifier to monitor.
+        </p>
+        <div class="field-group">
+          <label>Identifier to monitor</label>
+          <input type="text" id="csint-input" placeholder="email, domain, IP, or hash">
+        </div>
+        <button class="btn" id="csint-btn">analyze signal</button>
+        <div class="result-box" id="csint-result"></div>
+      </div>
+    </div>
+
+    <div class="panel" data-panel="geosint">
+      <div class="card">
+        <div class="card-head"><h3>geosint — geo signal intelligence</h3><span class="badge">location</span></div>
+        <div class="field-group">
+          <label>IP or address</label>
+          <input type="text" id="geosint-input" placeholder="IP, city, or address">
+        </div>
+        <button class="btn" id="geosint-btn">locate</button>
+        <div class="result-box" id="geosint-result"></div>
+      </div>
+    </div>
+
+    <div class="panel" data-panel="socsint">
+      <div class="card">
+        <div class="card-head"><h3>socsint — social intelligence</h3><span class="badge">social</span></div>
+        <div class="field-group">
+          <label>Username or handle</label>
+          <input type="text" id="socsint-input" placeholder="@username">
+        </div>
+        <button class="btn" id="socsint-btn">find accounts</button>
+        <div class="result-box" id="socsint-result"></div>
+      </div>
+    </div>
+
+    <div class="panel" data-panel="notes">
+      <div class="card">
+        <div class="card-head"><h3>case notes</h3><span class="badge">timeline</span></div>
+        <div class="field-group">
+          <label>Add note</label>
+          <textarea id="note-input" placeholder="observation, finding, next step..."></textarea>
+        </div>
+        <button class="btn" id="note-add-btn">add note</button>
+        <div class="note-timeline" id="note-timeline" style="margin-top:16px"></div>
+      </div>
+    </div>
+
+    <div class="panel" data-panel="timeline">
+      <div class="card">
+        <div class="card-head"><h3>case timeline</h3><span class="badge">full log</span></div>
+        <div class="result-box" id="timeline-result" style="min-height:200px">no events yet</div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script>
+(() => {
+  const API = window.location.hostname === 'localhost'
+    ? 'http://localhost:8000'
+    : 'https://volume-tools-2.onrender.com';
+  const TOKEN = localStorage.getItem('volume_token');
+
+  // WHITELIST
+  const WHITELIST = ['Wounds','Despair','Kairo','Mannequin','Raken','Trident','Ryuu','Courtfall','Codiene','Armory'];
+
+  // state
+  let currentOperator = null;
+  let currentCase = null;
+  let cases = JSON.parse(localStorage.getItem('dvkr_cases') || '[]');
+  let notes = JSON.parse(localStorage.getItem('dvkr_notes') || '[]');
+
+  // DOM
+  const $ = id => document.getElementById(id);
+  const landing = $('landing');
+  const keypadScreen = $('keypad-screen');
+  const termOutput = $('term-output');
+  const nameInputWrap = $('name-input-wrap');
+  const nameInput = $('name-input');
+  const submitName = $('submit-name');
+  const errorScreen = $('error-screen');
+  const errorText = $('error-text');
+  const cove = $('cove');
+  const welcomeMsg = $('welcome-msg');
+  const wipe = $('wipe');
+
+  // --- KEYPAD TYPEWRITER SEQUENCE ---
+  const typeLine = async (text, prompt = '>', delay = 40) => {
+    const line = document.createElement('div');
+    line.className = 'term-line';
+    line.innerHTML = `<span class="prompt">${prompt}</span> <span class="typed"></span><span class="cursor"></span>`;
+    termOutput.appendChild(line);
+    const typed = line.querySelector('.typed');
+    const cursor = line.querySelector('.cursor');
+    for (let i = 0; i < text.length; i++) {
+      typed.textContent += text[i];
+      await new Promise(r => setTimeout(r, delay));
+    }
+    cursor.remove();
+    return line;
+  };
+
+  const clearTerm = () => termOutput.innerHTML = '';
+
+  const keypadSequence = async () => {
+    clearTerm();
+    nameInputWrap.classList.remove('show');
+    await typeLine('initializing dvkr secure channel...', '>', 25);
+    await new Promise(r => setTimeout(r, 300));
+    await typeLine('handshake accepted.', '>', 30);
+    await new Promise(r => setTimeout(r, 200));
+    await typeLine('welcome, boss.', '>', 60);
+    await new Promise(r => setTimeout(r, 400));
+    await typeLine('which dvkr/1995 leader am i honoring today?', '>', 35);
+    nameInputWrap.classList.add('show');
+    nameInput.focus();
+  };
+
+  // --- OPEN KEYPAD (with wipe) ---
+  $('open-keypad').onclick = () => {
+    wipe.classList.add('in');
+    setTimeout(() => {
+      landing.classList.add('hidden');
+      keypadScreen.classList.add('active');
+      wipe.classList.remove('in');
+      wipe.classList.add('out');
+      setTimeout(() => {
+        wipe.classList.remove('out');
+        keypadSequence();
+      }, 550);
+    }, 550);
+  };
+
+  // --- SUBMIT NAME ---
+  submitName.onclick = async () => {
+    const name = nameInput.value.trim();
+    if (!name) return;
+    nameInputWrap.classList.remove('show');
+
+    const normalized = WHITELIST.find(n =>
+      n.toLowerCase() === name.toLowerCase() ||
+      (n === 'Trident' && name.toLowerCase() === 'ryuu')
+    );
+
+    await typeLine(`authenticating "${name}"...`, '>', 30);
+    await new Promise(r => setTimeout(r, 500));
+
+    if (!normalized) {
+      // ERROR SEQUENCE
+      await typeLine('verifying identity...', '>', 30);
+      await new Promise(r => setTimeout(r, 400));
+      await typeLine('✕ no record found.', '>', 40);
+      await new Promise(r => setTimeout(r, 300));
+      await typeLine('✕ access denied.', '>', 40);
+      await new Promise(r => setTimeout(r, 400));
+
+      keypadScreen.classList.remove('active');
+      errorScreen.classList.add('active');
+      errorText.textContent = 'ERROR. UNAUTHORIZED. SEIZING AND RETURNING TO DASHBOARD';
+      setTimeout(() => {
+        errorScreen.classList.remove('active');
+        landing.classList.remove('hidden');
+        wipe.classList.add('in');
+        setTimeout(() => {
+          wipe.classList.remove('in');
+          wipe.classList.add('out');
+          setTimeout(() => wipe.classList.remove('out'), 550);
+        }, 400);
+      }, 3000);
+      return;
+    }
+
+    // SUCCESS
+    await typeLine('✓ identity confirmed.', '>', 40);
+    await new Promise(r => setTimeout(r, 300));
+    await typeLine(`✓ welcome to your cove, ${normalized}.`, '>', 35);
+    await new Promise(r => setTimeout(r, 500));
+
+    // transition to cove
+    keypadScreen.classList.remove('active');
+    wipe.classList.add('in');
+    setTimeout(() => {
+      cove.classList.add('active');
+      currentOperator = normalized;
+      document.body.style.background = '#0a0303';
+      welcomeMsg.innerHTML = `<span class="name">${normalized}</span>, welcome to your cove.<div class="q">what case are we working on today?</div>`;
+      wipe.classList.remove('in');
+      wipe.classList.add('out');
+      setTimeout(() => wipe.classList.remove('out'), 550);
+      renderCases();
+      renderNotes();
+    }, 550);
+  };
+
+  nameInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') submitName.click();
+  });
+
+  // --- PANEL NAV ---
+  document.querySelectorAll('.nav-item').forEach(btn => {
+    btn.onclick = () => {
+      document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const panel = btn.dataset.panel;
+      document.querySelectorAll('.panel').forEach(p => p.classList.toggle('active', p.dataset.panel === panel));
+      $('crumb-panel').textContent = btn.textContent.trim().toLowerCase();
+      const titles = {
+        'create-case': 'Create a new case',
+        'previous-cases': 'Previous cases',
+        'breaches': 'Breach intelligence',
+        'osint': 'OSINT pivot',
+        'csint': 'Cyber signal intelligence',
+        'geosint': 'Geo signal intelligence',
+        'socsint': 'Social intelligence',
+        'notes': 'Case notes',
+        'timeline': 'Case timeline'
+      };
+      $('panel-title').textContent = titles[panel] || panel;
+    };
+  });
+
+  // --- CREATE CASE ---
+  $('create-case-btn').onclick = () => {
+    const name = $('case-name').value.trim();
+    const subject = $('case-subject').value.trim();
+    const caseNotes = $('case-notes').value.trim();
+    if (!name) {
+      $('create-case-result').textContent = '✕ case name required';
+      return;
+    }
+    const newCase = {
+      id: 'CASE-' + Date.now().toString(36).toUpperCase(),
+      name,
+      subject,
+      notes: caseNotes,
+      operator: currentOperator,
+      created: new Date().toISOString(),
+      status: 'active'
+    };
+    cases.unshift(newCase);
+    localStorage.setItem('dvkr_cases', JSON.stringify(cases));
+    $('case-name').value = '';
+    $('case-subject').value = '';
+    $('case-notes').value = '';
+    $('create-case-result').textContent = `✓ case ${newCase.id} created — "${name}"`;
+    renderCases();
+  };
+
+  const renderCases = () => {
+    const list = $('case-list');
+    $('case-count').textContent = cases.length;
+    if (!cases.length) {
+      list.innerHTML = '<div style="color:var(--fg-dim);font-size:11px;padding:20px;text-align:center">no cases yet</div>';
+      return;
+    }
+    list.innerHTML = cases.map(c => `
+      <div class="case-item" data-case-id="${c.id}">
+        <div class="case-id">${c.id} · ${c.status}</div>
+        <div class="case-name">${c.name}</div>
+        <div class="case-meta">${c.subject ? 'target: ' + c.subject + ' · ' : ''}op: ${c.operator} · ${new Date(c.created).toLocaleString()}</div>
+      </div>
+    `).join('');
+    list.querySelectorAll('.case-item').forEach(item => {
+      item.onclick = () => {
+        const c = cases.find(x => x.id === item.dataset.caseId);
+        if (c) {
+          currentCase = c;
+          $('case-name').value = c.name;
+          $('case-subject').value = c.subject;
+          $('case-notes').value = c.notes;
+          document.querySelector('.nav-item[data-panel="create-case"]').click();
+        }
+      };
+    });
+  };
+
+  // --- BREACH ---
+  $('breach-scan-btn').onclick = async () => {
+    const email = $('breach-email').value.trim();
+    if (!email) return;
+    $('breach-result').textContent = '⏳ scanning breach databases...';
+    try {
+      const res = await fetch(`${API}/api/breach`, {
+        method: 'POST',
+        headers: {'content-type':'application/json','authorization':`Bearer ${TOKEN}`},
+        body: JSON.stringify({ email })
+      });
+      const d = await res.json();
+      if (!res.ok) {
+        $('breach-result').textContent = '✕ ' + (d.detail || 'error');
+        return;
+      }
+      if (!d.count) {
+        $('breach-result').textContent = '✓ no breach hits found for ' + email;
+        return;
+      }
+      $('breach-result').textContent = `✓ ${d.count} hits found\n\n` + d.hits.map(h =>
+        `[${h.kind}] ${h.value}\n  source: ${h.source}\n  ${JSON.stringify(h.meta, null, 0).slice(0, 300)}`
+      ).join('\n\n');
+    } catch(e) {
+      $('breach-result').textContent = '✕ network error: ' + e.message;
+    }
+  };
+
+  // --- OSINT ---
+  $('osint-pivot-btn').onclick = async () => {
+    const seed = $('osint-seed').value.trim();
+    const kind = $('osint-kind').value;
+    if (!seed) return;
+    $('osint-result').textContent = '⏳ fanning out across sources...';
+    try {
+      const res = await fetch(`${API}/api/pivot`, {
+        method: 'POST',
+        headers: {'content-type':'application/json','authorization':`Bearer ${TOKEN}`},
+        body: JSON.stringify({ seed, kind })
+      });
+      const d = await res.json();
+      if (!res.ok) {
+        $('osint-result').textContent = '✕ ' + (d.detail || 'error');
+        return;
+      }
+      if (!d.count) {
+        $('osint-result').textContent = '✓ no hits for ' + seed;
+        return;
+      }
+      $('osint-result').textContent = `✓ ${d.count} hits across ${new Set(d.hits.map(h=>h.pillar)).size} pillars\n\n` + d.hits.map(h =>
+        `[${h.pillar}] ${h.kind}: ${h.value}\n  via ${(h.meta.sources||[]).join(', ')}`
+      ).join('\n\n');
+    } catch(e) {
+      $('osint-result').textContent = '✕ network error: ' + e.message;
+    }
+  };
+
+  // --- CSINT ---
+  $('csint-btn').onclick = async () => {
+    const input = $('csint-input').value.trim();
+    if (!input) return;
+    $('csint-result').textContent = '⏳ analyzing signal across stealer logs and breach feeds...';
+    try {
+      const res = await fetch(`${API}/api/breach`, {
+        method: 'POST',
+        headers: {'content-type':'application/json','authorization':`Bearer ${TOKEN}`},
+        body: JSON.stringify({ email: input })
+      });
+      const d = await res.json();
+      if (!res.ok) { $('csint-result').textContent = '✕ ' + (d.detail || 'no signal'); return; }
+      $('csint-result').textContent = `✓ signal analysis\n\n` +
+        `identifier: ${input}\n` +
+        `hits found: ${d.count}\n` +
+        `sources: ${new Set(d.hits.map(h=>h.source)).size}\n\n` +
+        (d.count ? d.hits.slice(0, 10).map(h => `[${h.kind}] ${h.value}`).join('\n') : 'no active signal detected');
+    } catch(e) {
+      $('csint-result').textContent = '✕ ' + e.message;
+    }
+  };
+
+  // --- GEOSINT ---
+  $('geosint-btn').onclick = async () => {
+    const input = $('geosint-input').value.trim();
+    if (!input) return;
+    $('geosint-result').textContent = '⏳ resolving location...';
+    try {
+      const kind = /^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/.test(input) ? 'ip' : 'domain';
+      const res = await fetch(`${API}/api/pivot`, {
+        method: 'POST',
+        headers: {'content-type':'application/json','authorization':`Bearer ${TOKEN}`},
+        body: JSON.stringify({ seed: input, kind })
+      });
+      const d = await res.json();
+      if (!res.ok) { $('geosint-result').textContent = '✕ ' + (d.detail || 'error'); return; }
+      $('geosint-result').textContent = `✓ geolocation data\n\n` + d.hits.map(h =>
+        `[${h.pillar}] ${h.value}\n  ${JSON.stringify(h.meta, null, 0).slice(0, 250)}`
+      ).join('\n\n');
+    } catch(e) {
+      $('geosint-result').textContent = '✕ ' + e.message;
+    }
+  };
+
+  // --- SOCSINT ---
+  $('socsint-btn').onclick = async () => {
+    const input = $('socsint-input').value.trim().replace(/^@/, '');
+    if (!input) return;
+    $('socsint-result').textContent = '⏳ scanning social sources...';
+    try {
+      const res = await fetch(`${API}/api/pivot`, {
+        method: 'POST',
+        headers: {'content-type':'application/json','authorization':`Bearer ${TOKEN}`},
+        body: JSON.stringify({ seed: input, kind: 'username' })
+      });
+      const d = await res.json();
+      if (!res.ok) { $('socsint-result').textContent = '✕ ' + (d.detail || 'error'); return; }
+      $('socsint-result').textContent = `✓ social intelligence\n\n` + d.hits.map(h =>
+        `[${h.pillar}] ${h.value}\n  via ${(h.meta.sources||[]).join(', ')}`
+      ).join('\n\n');
+    } catch(e) {
+      $('socsint-result').textContent = '✕ ' + e.message;
+    }
+  };
+
+  // --- NOTES ---
+  $('note-add-btn').onclick = () => {
+    const text = $('note-input').value.trim();
+    if (!text) return;
+    notes.unshift({
+      id: 'NOTE-' + Date.now().toString(36),
+      text,
+      operator: currentOperator,
+      time: new Date().toISOString()
+    });
+    localStorage.setItem('dvkr_notes', JSON.stringify(notes));
+    $('note-input').value = '';
+    renderNotes();
+  };
+
+  const renderNotes = () => {
+    const tl = $('note-timeline');
+    if (!notes.length) {
+      tl.innerHTML = '<div style="color:var(--fg-dim);font-size:11px;text-align:center;padding:12px">no notes yet</div>';
+      return;
+    }
+    tl.innerHTML = notes.map(n => `
+      <div class="note">
+        <div class="note-time">${new Date(n.time).toLocaleString()} · ${n.operator}</div>
+        <div class="note-text">${n.text.replace(/</g,'&lt;')}</div>
+      </div>
+    `).join('');
+    // also populate timeline panel
+    $('timeline-result').textContent = notes.map(n =>
+      `${new Date(n.time).toISOString()}\n  ${n.operator}: ${n.text}\n`
+    ).join('\n');
+  };
+
+  // If already authenticated this session, skip landing
+  if (sessionStorage.getItem('dvkr_operator')) {
+    const saved = sessionStorage.getItem('dvkr_operator');
+    if (WHITELIST.includes(saved)) {
+      currentOperator = saved;
+      landing.classList.add('hidden');
+      cove.classList.add('active');
+      welcomeMsg.innerHTML = `<span class="name">${saved}</span>, welcome to your cove.<div class="q">what case are we working on today?</div>`;
+      renderCases();
+      renderNotes();
+    }
+  }
+
+  // Save operator on successful auth
+  const origSubmit = submitName.onclick;
+  submitName.onclick = async (e) => {
+    await origSubmit.call(submitName, e);
+    if (currentOperator) {
+      sessionStorage.setItem('dvkr_operator', currentOperator);
+    }
+  };
+
+  renderCases();
+  renderNotes();
+})();
+</script>
+</body>
+</html>
