@@ -31,7 +31,6 @@
     50%{opacity:1}
   }
 
-  /* WIPE TRANSITION */
   .wipe{
     position:fixed;inset:0;z-index:9999;
     background:linear-gradient(135deg,#ff3b3b,#a01818);
@@ -48,7 +47,6 @@
   }
   .wipe-inner .skull{font-size:44px;margin-bottom:12px;display:block}
 
-  /* LANDING */
   .landing{
     position:relative;z-index:1;min-height:100vh;
     display:grid;place-items:center;padding:24px;
@@ -101,22 +99,18 @@
     font-family:var(--mono);font-weight:700;
     font-size:clamp(20px,3vw,28px);
     letter-spacing:.02em;line-height:1.3;
-    margin-bottom:12px;
-    color:#fff;
+    margin-bottom:12px;color:#fff;
     text-shadow:0 0 20px rgba(255,59,59,.5);
   }
   .warning-panel h1 .red{color:var(--red)}
   .warning-panel p.sub{
     font-size:12px;color:var(--fg-dim);
-    letter-spacing:.05em;margin-bottom:36px;
-    line-height:1.6;
+    letter-spacing:.05em;margin-bottom:36px;line-height:1.6;
   }
   .open-keypad{
     display:inline-flex;align-items:center;gap:10px;
-    padding:16px 32px;
-    background:transparent;
-    border:2px solid var(--red);
-    color:var(--red);
+    padding:16px 32px;background:transparent;
+    border:2px solid var(--red);color:var(--red);
     font-family:var(--mono);font-size:14px;font-weight:700;
     letter-spacing:.15em;text-transform:uppercase;
     cursor:pointer;border-radius:8px;
@@ -127,8 +121,7 @@
     content:"";position:absolute;inset:0;
     background:var(--red);
     transform:scaleX(0);transform-origin:left;
-    transition:transform .3s ease;
-    z-index:-1;
+    transition:transform .3s ease;z-index:-1;
   }
   .open-keypad:hover::before{transform:scaleX(1)}
   .open-keypad:hover{color:#0a0303;box-shadow:0 0 30px rgba(255,59,59,.4)}
@@ -136,31 +129,21 @@
 
   .footer-note{
     margin-top:36px;font-size:10px;color:var(--fg-dim);
-    letter-spacing:.15em;text-transform:uppercase;
-    opacity:.5;
+    letter-spacing:.15em;text-transform:uppercase;opacity:.5;
   }
 
-  /* KEYPAD */
   .keypad-screen{
     position:fixed;inset:0;z-index:100;
-    background:var(--bg);
-    display:none;
-    place-items:center;
-    padding:24px;
-    opacity:0;
-    transition:opacity .4s ease;
+    background:var(--bg);display:none;place-items:center;
+    padding:24px;opacity:0;transition:opacity .4s ease;
   }
-  .keypad-screen.active{
-    display:grid;opacity:1;
-  }
+  .keypad-screen.active{display:grid;opacity:1}
   .terminal{
     width:100%;max-width:720px;
     background:rgba(10,3,3,.95);
     border:1px solid var(--red-dim);
-    border-radius:12px;
-    padding:40px;
-    position:relative;
-    overflow:hidden;
+    border-radius:12px;padding:40px;
+    position:relative;overflow:hidden;
     box-shadow:0 0 60px rgba(255,59,59,.1);
   }
   .terminal::before{
@@ -184,14 +167,11 @@
   }
   @keyframes cursorBlink{0%,49%{opacity:1}50%,100%{opacity:0}}
 
-  .name-input-wrap{
-    margin-top:24px;display:none;
-  }
+  .name-input-wrap{margin-top:24px;display:none}
   .name-input-wrap.show{display:block}
   .name-input{
     width:100%;padding:16px 18px;
-    background:transparent;
-    border:1px solid var(--border-2);
+    background:transparent;border:1px solid var(--border-2);
     border-radius:6px;color:var(--red);
     font-family:var(--mono);font-size:16px;
     letter-spacing:.1em;text-transform:uppercase;
@@ -212,11 +192,9 @@
   }
   .submit-name:hover{filter:brightness(1.15);box-shadow:0 0 20px rgba(255,59,59,.5)}
 
-  /* ERROR SCREEN */
   .error-screen{
     position:fixed;inset:0;z-index:200;
-    background:#000;
-    display:none;
+    background:#000;display:none;
     place-items:center;padding:24px;
   }
   .error-screen.active{display:grid}
@@ -249,19 +227,15 @@
     letter-spacing:.2em;text-transform:uppercase;
   }
 
-  /* MAIN COVE */
   .cove{
     position:relative;z-index:1;min-height:100vh;
-    display:none;
-    grid-template-columns:280px 1fr;
+    display:none;grid-template-columns:280px 1fr;
   }
   .cove.active{display:grid}
 
   .cove-sidebar{
-    background:var(--bg-2);
-    border-right:1px solid var(--border);
-    padding:28px 20px;
-    overflow-y:auto;
+    background:var(--bg-2);border-right:1px solid var(--border);
+    padding:28px 20px;overflow-y:auto;
     display:flex;flex-direction:column;gap:24px;
   }
   .cove-brand{
@@ -302,21 +276,15 @@
   .nav-item.active{background:rgba(255,59,59,.15);color:var(--red);border-left:2px solid var(--red);padding-left:10px}
   .nav-item .icon{font-size:13px}
 
-  .cove-main{
-    padding:32px 40px;
-    overflow-y:auto;
-    max-height:100vh;
-  }
+  .cove-main{padding:32px 40px;overflow-y:auto;max-height:100vh}
 
   .cove-header{
-    margin-bottom:32px;
-    padding-bottom:20px;
+    margin-bottom:32px;padding-bottom:20px;
     border-bottom:1px solid var(--border);
   }
   .cove-header .breadcrumb{
     font-size:10px;color:var(--fg-dim);
-    letter-spacing:.2em;text-transform:uppercase;
-    margin-bottom:8px;
+    letter-spacing:.2em;text-transform:uppercase;margin-bottom:8px;
   }
   .cove-header .breadcrumb .red{color:var(--red)}
   .cove-header h2{
@@ -376,25 +344,10 @@
   .case-item:hover{border-color:var(--red);background:rgba(255,59,59,.04)}
   .case-item .case-id{
     font-size:10px;color:var(--fg-dim);
-    letter-spacing:.1em;text-transform:uppercase;
-    margin-bottom:4px;
+    letter-spacing:.1em;text-transform:uppercase;margin-bottom:4px;
   }
   .case-item .case-name{font-size:13px;font-weight:700;color:var(--fg)}
   .case-item .case-meta{font-size:10px;color:var(--fg-dim);margin-top:4px}
-
-  .tool-grid{
-    display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px;
-  }
-  .tool-card{
-    padding:16px;background:var(--bg-2);
-    border:1px solid var(--border);border-radius:8px;
-    cursor:pointer;transition:all .15s;text-align:left;
-    font-family:var(--mono);
-  }
-  .tool-card:hover{border-color:var(--red);background:rgba(255,59,59,.04);transform:translateY(-2px)}
-  .tool-card .tool-icon{font-size:20px;margin-bottom:8px;display:block}
-  .tool-card .tool-name{font-size:11px;font-weight:700;color:var(--fg);letter-spacing:.1em;text-transform:uppercase}
-  .tool-card .tool-desc{font-size:10px;color:var(--fg-dim);margin-top:4px;line-height:1.4}
 
   .result-box{
     margin-top:16px;padding:14px;
@@ -411,8 +364,7 @@
   }
   .note{
     padding:10px 12px;background:var(--bg-2);
-    border-left:2px solid var(--red);
-    border-radius:4px;
+    border-left:2px solid var(--red);border-radius:4px;
   }
   .note .note-time{font-size:9px;color:var(--fg-dim);margin-bottom:4px}
   .note .note-text{font-size:11px;color:var(--fg);line-height:1.5}
@@ -433,7 +385,6 @@
   </div>
 </div>
 
-<!-- LANDING -->
 <div class="landing" id="landing">
   <div class="warning-panel">
     <div class="warning-tag">⚠ restricted access</div>
@@ -444,18 +395,16 @@
   </div>
 </div>
 
-<!-- KEYPAD -->
 <div class="keypad-screen" id="keypad-screen">
   <div class="terminal">
     <div id="term-output"></div>
     <div class="name-input-wrap" id="name-input-wrap">
-      <input type="text" class="name-input" id="name-input" placeholder="enter your name" autocomplete="off" spellcheck="false">
+      <input type="text" class="name-input" id="name-input" placeholder="enter access code" autocomplete="off" spellcheck="false">
       <button class="submit-name" id="submit-name">submit →</button>
     </div>
   </div>
 </div>
 
-<!-- ERROR SCREEN -->
 <div class="error-screen" id="error-screen">
   <div class="error-inner">
     <div class="error-skull">☠</div>
@@ -464,7 +413,6 @@
   </div>
 </div>
 
-<!-- MAIN COVE -->
 <div class="cove" id="cove">
   <aside class="cove-sidebar">
     <div class="cove-brand">
@@ -629,16 +577,14 @@
     : 'https://volume-tools-2.onrender.com';
   const TOKEN = localStorage.getItem('volume_token');
 
-  // WHITELIST
+  const ACCESS_CODE = '1995-DVKR-COVE';
   const WHITELIST = ['Wounds','Despair','Kairo','Mannequin','Raken','Trident','Ryuu','Courtfall','Codiene','Armory'];
 
-  // state
   let currentOperator = null;
   let currentCase = null;
   let cases = JSON.parse(localStorage.getItem('dvkr_cases') || '[]');
   let notes = JSON.parse(localStorage.getItem('dvkr_notes') || '[]');
 
-  // DOM
   const $ = id => document.getElementById(id);
   const landing = $('landing');
   const keypadScreen = $('keypad-screen');
@@ -652,7 +598,6 @@
   const welcomeMsg = $('welcome-msg');
   const wipe = $('wipe');
 
-  // --- KEYPAD TYPEWRITER SEQUENCE ---
   const typeLine = async (text, prompt = '>', delay = 40) => {
     const line = document.createElement('div');
     line.className = 'term-line';
@@ -673,18 +618,17 @@
   const keypadSequence = async () => {
     clearTerm();
     nameInputWrap.classList.remove('show');
+    nameInput.dataset.step = 'code';
+    nameInput.placeholder = 'enter access code';
     await typeLine('initializing dvkr secure channel...', '>', 25);
     await new Promise(r => setTimeout(r, 300));
     await typeLine('handshake accepted.', '>', 30);
     await new Promise(r => setTimeout(r, 200));
-    await typeLine('welcome, boss.', '>', 60);
-    await new Promise(r => setTimeout(r, 400));
-    await typeLine('which dvkr/1995 leader am i honoring today?', '>', 35);
+    await typeLine('enter access code to proceed:', '>', 40);
     nameInputWrap.classList.add('show');
     nameInput.focus();
   };
 
-  // --- OPEN KEYPAD (with wipe) ---
   $('open-keypad').onclick = () => {
     wipe.classList.add('in');
     setTimeout(() => {
@@ -699,59 +643,31 @@
     }, 550);
   };
 
-  // --- SUBMIT NAME ---
-  submitName.onclick = async () => {
-    const name = nameInput.value.trim();
-    if (!name) return;
-    nameInputWrap.classList.remove('show');
-
-    const normalized = WHITELIST.find(n =>
-      n.toLowerCase() === name.toLowerCase() ||
-      (n === 'Trident' && name.toLowerCase() === 'ryuu')
-    );
-
-    await typeLine(`authenticating "${name}"...`, '>', 30);
-    await new Promise(r => setTimeout(r, 500));
-
-    if (!normalized) {
-      // ERROR SEQUENCE
-      await typeLine('verifying identity...', '>', 30);
-      await new Promise(r => setTimeout(r, 400));
-      await typeLine('✕ no record found.', '>', 40);
-      await new Promise(r => setTimeout(r, 300));
-      await typeLine('✕ access denied.', '>', 40);
-      await new Promise(r => setTimeout(r, 400));
-
-      keypadScreen.classList.remove('active');
-      errorScreen.classList.add('active');
-      errorText.textContent = 'ERROR. UNAUTHORIZED. SEIZING AND RETURNING TO DASHBOARD';
+  const triggerError = async () => {
+    keypadScreen.classList.remove('active');
+    errorScreen.classList.add('active');
+    errorText.textContent = 'ERROR. UNAUTHORIZED. SEIZING AND RETURNING TO DASHBOARD';
+    setTimeout(() => {
+      errorScreen.classList.remove('active');
+      landing.classList.remove('hidden');
+      wipe.classList.add('in');
       setTimeout(() => {
-        errorScreen.classList.remove('active');
-        landing.classList.remove('hidden');
-        wipe.classList.add('in');
-        setTimeout(() => {
-          wipe.classList.remove('in');
-          wipe.classList.add('out');
-          setTimeout(() => wipe.classList.remove('out'), 550);
-        }, 400);
-      }, 3000);
-      return;
-    }
+        wipe.classList.remove('in');
+        wipe.classList.add('out');
+        setTimeout(() => wipe.classList.remove('out'), 550);
+      }, 400);
+    }, 3000);
+  };
 
-    // SUCCESS
-    await typeLine('✓ identity confirmed.', '>', 40);
-    await new Promise(r => setTimeout(r, 300));
-    await typeLine(`✓ welcome to your cove, ${normalized}.`, '>', 35);
-    await new Promise(r => setTimeout(r, 500));
-
-    // transition to cove
+  const enterCove = (name) => {
+    currentOperator = name;
+    sessionStorage.setItem('dvkr_operator', name);
     keypadScreen.classList.remove('active');
     wipe.classList.add('in');
     setTimeout(() => {
       cove.classList.add('active');
-      currentOperator = normalized;
       document.body.style.background = '#0a0303';
-      welcomeMsg.innerHTML = `<span class="name">${normalized}</span>, welcome to your cove.<div class="q">what case are we working on today?</div>`;
+      welcomeMsg.innerHTML = `<span class="name">${name}</span>, welcome to your cove.<div class="q">what case are we working on today?</div>`;
       wipe.classList.remove('in');
       wipe.classList.add('out');
       setTimeout(() => wipe.classList.remove('out'), 550);
@@ -760,11 +676,66 @@
     }, 550);
   };
 
+  submitName.onclick = async () => {
+    const value = nameInput.value.trim();
+    if (!value) return;
+    const step = nameInput.dataset.step || 'code';
+
+    if (step === 'code') {
+      if (value.toUpperCase() !== ACCESS_CODE.toUpperCase()) {
+        nameInputWrap.classList.remove('show');
+        await typeLine(`rejecting "${value}"...`, '>', 25);
+        await new Promise(r => setTimeout(r, 400));
+        await typeLine('✕ invalid access code.', '>', 40);
+        await new Promise(r => setTimeout(r, 300));
+        await typeLine('✕ access denied.', '>', 40);
+        await new Promise(r => setTimeout(r, 400));
+        await triggerError();
+        return;
+      }
+      await typeLine('✓ access code accepted.', '>', 30);
+      await new Promise(r => setTimeout(r, 300));
+      await typeLine('welcome, boss.', '>', 50);
+      await new Promise(r => setTimeout(r, 400));
+      await typeLine('which dvkr/1995 leader am i honoring today?', '>', 35);
+      nameInput.value = '';
+      nameInput.placeholder = 'enter your name';
+      nameInput.dataset.step = 'name';
+      nameInput.focus();
+      return;
+    }
+
+    // name step
+    nameInputWrap.classList.remove('show');
+    const normalized = WHITELIST.find(n =>
+      n.toLowerCase() === value.toLowerCase() ||
+      (n === 'Trident' && value.toLowerCase() === 'ryuu')
+    );
+    await typeLine(`authenticating "${value}"...`, '>', 30);
+    await new Promise(r => setTimeout(r, 500));
+
+    if (!normalized) {
+      await typeLine('verifying identity...', '>', 30);
+      await new Promise(r => setTimeout(r, 400));
+      await typeLine('✕ no record found.', '>', 40);
+      await new Promise(r => setTimeout(r, 300));
+      await typeLine('✕ access denied.', '>', 40);
+      await new Promise(r => setTimeout(r, 400));
+      await triggerError();
+      return;
+    }
+
+    await typeLine('✓ identity confirmed.', '>', 40);
+    await new Promise(r => setTimeout(r, 300));
+    await typeLine(`✓ welcome to your cove, ${normalized}.`, '>', 35);
+    await new Promise(r => setTimeout(r, 500));
+    enterCove(normalized);
+  };
+
   nameInput.addEventListener('keydown', (e) => {
     if (e.key === 'Enter') submitName.click();
   });
 
-  // --- PANEL NAV ---
   document.querySelectorAll('.nav-item').forEach(btn => {
     btn.onclick = () => {
       document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
@@ -787,7 +758,6 @@
     };
   });
 
-  // --- CREATE CASE ---
   $('create-case-btn').onclick = () => {
     const name = $('case-name').value.trim();
     const subject = $('case-subject').value.trim();
@@ -798,9 +768,7 @@
     }
     const newCase = {
       id: 'CASE-' + Date.now().toString(36).toUpperCase(),
-      name,
-      subject,
-      notes: caseNotes,
+      name, subject, notes: caseNotes,
       operator: currentOperator,
       created: new Date().toISOString(),
       status: 'active'
@@ -842,7 +810,6 @@
     });
   };
 
-  // --- BREACH ---
   $('breach-scan-btn').onclick = async () => {
     const email = $('breach-email').value.trim();
     if (!email) return;
@@ -854,23 +821,14 @@
         body: JSON.stringify({ email })
       });
       const d = await res.json();
-      if (!res.ok) {
-        $('breach-result').textContent = '✕ ' + (d.detail || 'error');
-        return;
-      }
-      if (!d.count) {
-        $('breach-result').textContent = '✓ no breach hits found for ' + email;
-        return;
-      }
+      if (!res.ok) { $('breach-result').textContent = '✕ ' + (d.detail || 'error'); return; }
+      if (!d.count) { $('breach-result').textContent = '✓ no breach hits found for ' + email; return; }
       $('breach-result').textContent = `✓ ${d.count} hits found\n\n` + d.hits.map(h =>
         `[${h.kind}] ${h.value}\n  source: ${h.source}\n  ${JSON.stringify(h.meta, null, 0).slice(0, 300)}`
       ).join('\n\n');
-    } catch(e) {
-      $('breach-result').textContent = '✕ network error: ' + e.message;
-    }
+    } catch(e) { $('breach-result').textContent = '✕ network error: ' + e.message; }
   };
 
-  // --- OSINT ---
   $('osint-pivot-btn').onclick = async () => {
     const seed = $('osint-seed').value.trim();
     const kind = $('osint-kind').value;
@@ -883,23 +841,14 @@
         body: JSON.stringify({ seed, kind })
       });
       const d = await res.json();
-      if (!res.ok) {
-        $('osint-result').textContent = '✕ ' + (d.detail || 'error');
-        return;
-      }
-      if (!d.count) {
-        $('osint-result').textContent = '✓ no hits for ' + seed;
-        return;
-      }
+      if (!res.ok) { $('osint-result').textContent = '✕ ' + (d.detail || 'error'); return; }
+      if (!d.count) { $('osint-result').textContent = '✓ no hits for ' + seed; return; }
       $('osint-result').textContent = `✓ ${d.count} hits across ${new Set(d.hits.map(h=>h.pillar)).size} pillars\n\n` + d.hits.map(h =>
         `[${h.pillar}] ${h.kind}: ${h.value}\n  via ${(h.meta.sources||[]).join(', ')}`
       ).join('\n\n');
-    } catch(e) {
-      $('osint-result').textContent = '✕ network error: ' + e.message;
-    }
+    } catch(e) { $('osint-result').textContent = '✕ network error: ' + e.message; }
   };
 
-  // --- CSINT ---
   $('csint-btn').onclick = async () => {
     const input = $('csint-input').value.trim();
     if (!input) return;
@@ -917,12 +866,9 @@
         `hits found: ${d.count}\n` +
         `sources: ${new Set(d.hits.map(h=>h.source)).size}\n\n` +
         (d.count ? d.hits.slice(0, 10).map(h => `[${h.kind}] ${h.value}`).join('\n') : 'no active signal detected');
-    } catch(e) {
-      $('csint-result').textContent = '✕ ' + e.message;
-    }
+    } catch(e) { $('csint-result').textContent = '✕ ' + e.message; }
   };
 
-  // --- GEOSINT ---
   $('geosint-btn').onclick = async () => {
     const input = $('geosint-input').value.trim();
     if (!input) return;
@@ -939,12 +885,9 @@
       $('geosint-result').textContent = `✓ geolocation data\n\n` + d.hits.map(h =>
         `[${h.pillar}] ${h.value}\n  ${JSON.stringify(h.meta, null, 0).slice(0, 250)}`
       ).join('\n\n');
-    } catch(e) {
-      $('geosint-result').textContent = '✕ ' + e.message;
-    }
+    } catch(e) { $('geosint-result').textContent = '✕ ' + e.message; }
   };
 
-  // --- SOCSINT ---
   $('socsint-btn').onclick = async () => {
     const input = $('socsint-input').value.trim().replace(/^@/, '');
     if (!input) return;
@@ -960,12 +903,9 @@
       $('socsint-result').textContent = `✓ social intelligence\n\n` + d.hits.map(h =>
         `[${h.pillar}] ${h.value}\n  via ${(h.meta.sources||[]).join(', ')}`
       ).join('\n\n');
-    } catch(e) {
-      $('socsint-result').textContent = '✕ ' + e.message;
-    }
+    } catch(e) { $('socsint-result').textContent = '✕ ' + e.message; }
   };
 
-  // --- NOTES ---
   $('note-add-btn').onclick = () => {
     const text = $('note-input').value.trim();
     if (!text) return;
@@ -984,41 +924,30 @@
     const tl = $('note-timeline');
     if (!notes.length) {
       tl.innerHTML = '<div style="color:var(--fg-dim);font-size:11px;text-align:center;padding:12px">no notes yet</div>';
-      return;
+    } else {
+      tl.innerHTML = notes.map(n => `
+        <div class="note">
+          <div class="note-time">${new Date(n.time).toLocaleString()} · ${n.operator}</div>
+          <div class="note-text">${n.text.replace(/</g,'&lt;')}</div>
+        </div>
+      `).join('');
     }
-    tl.innerHTML = notes.map(n => `
-      <div class="note">
-        <div class="note-time">${new Date(n.time).toLocaleString()} · ${n.operator}</div>
-        <div class="note-text">${n.text.replace(/</g,'&lt;')}</div>
-      </div>
-    `).join('');
-    // also populate timeline panel
-    $('timeline-result').textContent = notes.map(n =>
-      `${new Date(n.time).toISOString()}\n  ${n.operator}: ${n.text}\n`
-    ).join('\n');
+    $('timeline-result').textContent = notes.length
+      ? notes.map(n => `${new Date(n.time).toISOString()}\n  ${n.operator}: ${n.text}\n`).join('\n')
+      : 'no events yet';
   };
 
-  // If already authenticated this session, skip landing
-  if (sessionStorage.getItem('dvkr_operator')) {
-    const saved = sessionStorage.getItem('dvkr_operator');
-    if (WHITELIST.includes(saved)) {
-      currentOperator = saved;
-      landing.classList.add('hidden');
-      cove.classList.add('active');
-      welcomeMsg.innerHTML = `<span class="name">${saved}</span>, welcome to your cove.<div class="q">what case are we working on today?</div>`;
-      renderCases();
-      renderNotes();
-    }
+  // session restore
+  const saved = sessionStorage.getItem('dvkr_operator');
+  if (saved && WHITELIST.includes(saved)) {
+    currentOperator = saved;
+    landing.classList.add('hidden');
+    cove.classList.add('active');
+    document.body.style.background = '#0a0303';
+    welcomeMsg.innerHTML = `<span class="name">${saved}</span>, welcome to your cove.<div class="q">what case are we working on today?</div>`;
+    renderCases();
+    renderNotes();
   }
-
-  // Save operator on successful auth
-  const origSubmit = submitName.onclick;
-  submitName.onclick = async (e) => {
-    await origSubmit.call(submitName, e);
-    if (currentOperator) {
-      sessionStorage.setItem('dvkr_operator', currentOperator);
-    }
-  };
 
   renderCases();
   renderNotes();
