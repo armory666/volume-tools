@@ -69,7 +69,7 @@
     padding:3px 8px;border-radius:4px;background:rgba(110,231,168,.1);color:var(--accent);
   }
   .card .card-badge.warn{background:rgba(230,184,0,.1);color:var(--warn)}
-  .card .card-badge.danger{background:rgba(237,66,69,.1);color:var(--danger)}
+  .card .card-badge.danger{background:rgba(237,66,69,.15);color:var(--danger);border:1px solid rgba(237,66,69,.3)}
 
   .stat-list{display:flex;flex-direction:column;gap:10px}
   .stat-row{display:flex;justify-content:space-between;align-items:baseline;font-size:13px}
@@ -90,18 +90,6 @@
     font-size:13px;text-decoration:none;cursor:pointer;transition:.15s;
   }
   .launch-btn:hover{filter:brightness(1.06)}
-
-  <div class="card launch-card-red">
-  <div>
-    <div class="card-head">
-      <span class="card-label" style="color:var(--danger)">restricted</span>
-      <span class="card-badge danger">classified</span>
-    </div>
-    <h2>DVKR // 1995 cove</h2>
-    <p>Are you apart of DVKR or 1995? Private investigation console. Authorized operators only. All access logged.</p>
-  </div>
-  <a href="/1995" class="launch-btn-red">⌨ open keypad</a>
-</div>
 
   .ref-code{
     display:flex;align-items:center;gap:8px;
@@ -130,15 +118,13 @@
   }
   .upgrade-banner .btn:hover{filter:brightness(1.06)}
 
-  /* REDEEM SECTION */
+  /* REDEEM */
   .redeem-card{
     grid-column:1/-1;
     background:var(--card);border:1px solid var(--border);border-radius:12px;
     padding:24px;
   }
-  .redeem-input-group{
-    display:flex;gap:8px;margin-top:12px;
-  }
+  .redeem-input-group{display:flex;gap:8px;margin-top:12px}
   .redeem-input{
     flex:1;padding:11px 14px;background:var(--bg);border:1px solid var(--border);
     border-radius:6px;color:var(--fg);font-family:var(--mono);font-size:13px;
@@ -152,15 +138,12 @@
   }
   .redeem-btn:hover{filter:brightness(1.06)}
   .redeem-btn:disabled{background:var(--border);color:var(--dim);cursor:not-allowed}
-  .redeem-result{
-    margin-top:12px;font-family:var(--mono);font-size:12px;
-    display:none;padding:10px 12px;border-radius:6px;
-  }
+  .redeem-result{margin-top:12px;font-family:var(--mono);font-size:12px;display:none;padding:10px 12px;border-radius:6px}
   .redeem-result.show{display:block}
   .redeem-result.ok{background:rgba(110,231,168,.1);border:1px solid var(--accent-2);color:var(--accent)}
   .redeem-result.err{background:rgba(237,66,69,.1);border:1px solid rgba(237,66,69,.3);color:var(--danger)}
 
-  /* ADMIN KEY SECTION */
+  /* ADMIN SECTION */
   .admin-section{
     grid-column:1/-1;margin-top:16px;padding:20px 24px;
     background:rgba(237,66,69,.02);border:1px dashed rgba(237,66,69,.25);
@@ -171,45 +154,152 @@
   .admin-section .head h4{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--danger);font-weight:600}
   .admin-section p{font-size:12px;color:var(--dim);margin-bottom:12px;font-family:var(--mono)}
 
-  /* CARTOONY POPUP */
+  /* DVKR / 1995 RED PANEL */
+  .launch-card-red {
+    grid-column: 1 / -1;
+    background: linear-gradient(180deg, rgba(20,6,6,.95) 0%, rgba(15,5,5,.98) 100%);
+    border: 2px solid #a01818;
+    border-radius: 12px;
+    padding: 28px 24px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 20px;
+    position: relative;
+    overflow: hidden;
+    animation: redPulseCard 3s ease-in-out infinite;
+    margin-top: 8px;
+  }
+  .launch-card-red::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, #ff3b3b, transparent);
+    animation: redScanline 3s linear infinite;
+  }
+  @keyframes redScanline {
+    0%   { transform: translateY(0); }
+    100% { transform: translateY(200px); }
+  }
+  @keyframes redPulseCard {
+    0%, 100% {
+      box-shadow: 0 0 20px rgba(255,59,59,.1), inset 0 0 20px rgba(255,59,59,.02);
+      border-color: #a01818;
+    }
+    50% {
+      box-shadow: 0 0 40px rgba(255,59,59,.35), 0 0 80px rgba(255,59,59,.1), inset 0 0 30px rgba(255,59,59,.05);
+      border-color: #ff3b3b;
+    }
+  }
+  .launch-card-red .red-tag {
+    display: inline-block;
+    padding: 4px 10px;
+    border: 1px solid #a01818;
+    border-radius: 4px;
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: .2em;
+    text-transform: uppercase;
+    color: #ff3b3b;
+    margin-bottom: 16px;
+    animation: redTagBlink 2s ease-in-out infinite;
+  }
+  @keyframes redTagBlink {
+    0%, 100% { opacity: .5; }
+    50%      { opacity: 1; }
+  }
+  .launch-card-red h2 {
+    font-family: var(--mono);
+    font-weight: 700;
+    font-size: clamp(20px, 2.4vw, 26px);
+    letter-spacing: .02em;
+    line-height: 1.3;
+    margin-bottom: 10px;
+    color: #fff;
+    text-shadow: 0 0 20px rgba(255,59,59,.4);
+  }
+  .launch-card-red h2 .red {
+    color: #ff3b3b;
+  }
+  .launch-card-red p.red-desc {
+    font-size: 13px;
+    color: #7a6060;
+    margin-bottom: 0;
+    line-height: 1.6;
+    font-family: var(--mono);
+  }
+  .launch-btn-red {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 14px 26px;
+    background: transparent;
+    color: #ff3b3b;
+    border: 2px solid #ff3b3b;
+    border-radius: 8px;
+    font-family: var(--mono);
+    font-weight: 700;
+    font-size: 13px;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all .25s ease;
+    letter-spacing: .15em;
+    text-transform: uppercase;
+    align-self: flex-start;
+    position: relative;
+    overflow: hidden;
+  }
+  .launch-btn-red::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: #ff3b3b;
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform .3s ease;
+    z-index: -1;
+  }
+  .launch-btn-red:hover::before { transform: scaleX(1); }
+  .launch-btn-red:hover { color: #0a0303; box-shadow: 0 0 30px rgba(255,59,59,.5); }
+  .launch-btn-red:active { transform: scale(.97); }
+
+  /* ADMIN POPUP (cartoony) */
   .admin-popup{
     position:fixed;bottom:24px;left:24px;z-index:999;
     display:flex;align-items:center;gap:12px;
     padding:16px 20px;
     background:linear-gradient(135deg,#6ee7a8,#3f9a6b);
     color:#0a1a0f;border-radius:14px;
-    box-shadow:0 10px 40px rgba(110,231,168,0.4), 0 0 0 3px rgba(110,231,168,0.2);
+    box-shadow:0 10px 40px rgba(110,231,168,.4), 0 0 0 3px rgba(110,231,168,.2);
     font-family:var(--mono);font-weight:600;font-size:13px;
-    transform:translateY(200px) rotate(-4deg) scale(0.6);
-    opacity:0;
-    transition:transform 0.6s cubic-bezier(0.34,1.56,0.64,1), opacity 0.4s ease;
-    pointer-events:none;
+    transform:translateY(200px) rotate(-4deg) scale(.6);
+    opacity:0;pointer-events:none;
+    transition:transform .6s cubic-bezier(.34,1.56,.64,1), opacity .4s ease;
   }
   .admin-popup.show{
     transform:translateY(0) rotate(0) scale(1);
     opacity:1;pointer-events:auto;
-    animation:wobble 0.6s ease-in-out 0.6s;
+    animation:wobble .6s ease-in-out .6s;
   }
   @keyframes wobble{
     0%,100%{transform:rotate(0) scale(1)}
     25%{transform:rotate(-2deg) scale(1.03)}
     75%{transform:rotate(2deg) scale(1.03)}
   }
-  .admin-popup .emoji{font-size:24px;animation:spin 1s ease-in-out 0.3s}
-  @keyframes spin{
-    0%{transform:rotate(0)}
-    100%{transform:rotate(360deg)}
-  }
+  .admin-popup .emoji{font-size:24px;animation:spin 1s ease-in-out .3s}
+  @keyframes spin{0%{transform:rotate(0)}100%{transform:rotate(360deg)}}
   .admin-popup .body{display:flex;flex-direction:column;gap:2px}
   .admin-popup .body .title{font-size:14px;font-weight:700}
-  .admin-popup .body .sub{font-size:11px;font-weight:500;opacity:0.75}
+  .admin-popup .body .sub{font-size:11px;font-weight:500;opacity:.75}
   .admin-popup .close{
-    margin-left:12px;background:rgba(0,0,0,0.1);border:none;
+    margin-left:12px;background:rgba(0,0,0,.1);border:none;
     width:24px;height:24px;border-radius:50%;cursor:pointer;
     font-size:14px;color:#0a1a0f;display:grid;place-items:center;
     transition:.15s;
   }
-  .admin-popup .close:hover{background:rgba(0,0,0,0.2)}
+  .admin-popup .close:hover{background:rgba(0,0,0,.2)}
 </style>
 </head>
 <body>
@@ -267,6 +357,16 @@
         </div>
       </div>
 
+      <!-- DVKR / 1995 RESTRICTED PANEL -->
+      <div class="launch-card-red">
+        <div>
+          <div class="red-tag">⚠ restricted access</div>
+          <h2>ARE YOU APART OF <span class="red">DVKR</span> or <span class="red">1995</span>?</h2>
+          <p class="red-desc">Private investigation console for authorized operators only. All access is logged and monitored. Unauthorized attempts will be reported.</p>
+        </div>
+        <a href="/1995" class="launch-btn-red">⌨ open keypad</a>
+      </div>
+
       <div class="card" style="grid-column:1/-1">
         <div class="card-head">
           <span class="card-label">referrals</span>
@@ -280,7 +380,7 @@
         <div class="ref-help">link: <span id="ref-link" style="color:var(--accent)">loading...</span></div>
       </div>
 
-      <!-- REDEEM SECTION -->
+      <!-- REDEEM -->
       <div class="redeem-card">
         <div class="card-head">
           <span class="card-label">redeem a key</span>
@@ -296,7 +396,7 @@
         <div class="redeem-result" id="redeem-result"></div>
       </div>
 
-      <!-- ADMIN KEY SECTION -->
+      <!-- ADMIN KEY -->
       <div class="admin-section">
         <div class="head">
           <span class="icon">🔐</span>
@@ -401,13 +501,10 @@
       el(inputId).value = '';
 
       if (isAdmin) {
-        // Trigger cartoony popup
         const popup = el('admin-popup');
         popup.classList.add('show');
-        // Refresh account data
         setTimeout(() => location.reload(), 2000);
       } else {
-        // Premium — reload after short delay
         setTimeout(() => location.reload(), 1500);
       }
     } catch (e) {
@@ -423,7 +520,6 @@
   el('redeem-input').addEventListener('keydown', e => { if (e.key === 'Enter') el('redeem-btn').click(); });
   el('admin-input').addEventListener('keydown', e => { if (e.key === 'Enter') el('admin-btn').click(); });
 
-  // Auto-uppercase
   ['redeem-input', 'admin-input'].forEach(id => {
     el(id).addEventListener('input', e => {
       e.target.value = e.target.value.toUpperCase();
@@ -432,7 +528,6 @@
 
   el('admin-popup-close').onclick = () => el('admin-popup').classList.remove('show');
 
-  // Signout
   document.getElementById('signout').onclick = async (e) => {
     e.preventDefault();
     try {
