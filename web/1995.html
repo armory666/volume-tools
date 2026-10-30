@@ -10,14 +10,12 @@
     --bg:#0a0303; --bg-2:#0f0505; --card:#140606; --border:#2a0808; --border-2:#4a0d0d;
     --fg:#e8d8d8; --fg-dim:#7a6060; --red:#ff3b3b; --red-dim:#a01818; --red-glow:rgba(255,59,59,.15);
     --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
-    --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
   }
   *{box-sizing:border-box;margin:0;padding:0}
-  html,body{height:100%}
+  html,body{height:100%;overflow:hidden}
   body{
     font-family:var(--mono);background:var(--bg);color:var(--fg);
-    overflow-x:hidden;-webkit-font-smoothing:antialiased;
-    min-height:100vh;
+    overflow-x:hidden;-webkit-font-smoothing:antialiased;min-height:100vh;
   }
   body::before{
     content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
@@ -26,10 +24,7 @@
       radial-gradient(ellipse 50% 35% at 100% 100%, rgba(160,24,24,.04), transparent 60%);
     animation:hudBreathe 6s ease-in-out infinite;
   }
-  @keyframes hudBreathe{
-    0%,100%{opacity:.6}
-    50%{opacity:1}
-  }
+  @keyframes hudBreathe{0%,100%{opacity:.6}50%{opacity:1}}
 
   .wipe{
     position:fixed;inset:0;z-index:9999;
@@ -42,337 +37,364 @@
   .wipe.out{transform:translateX(100%)}
   .wipe-inner{
     font-family:var(--mono);font-size:14px;font-weight:700;
-    letter-spacing:.3em;text-transform:uppercase;color:#0a0303;
-    text-align:center;
+    letter-spacing:.3em;text-transform:uppercase;color:#0a0303;text-align:center;
   }
   .wipe-inner .skull{font-size:44px;margin-bottom:12px;display:block}
 
+  /* LANDING */
   .landing{
     position:relative;z-index:1;min-height:100vh;
     display:grid;place-items:center;padding:24px;
     transition:opacity .4s ease;
   }
   .landing.hidden{opacity:0;pointer-events:none}
-
   .warning-panel{
     width:100%;max-width:640px;
     background:linear-gradient(180deg,rgba(20,6,6,.95) 0%,rgba(15,5,5,.98) 100%);
     border:2px solid var(--red-dim);
-    border-radius:16px;
-    padding:48px 40px;
-    text-align:center;
-    position:relative;
-    overflow:hidden;
+    border-radius:16px;padding:48px 40px;text-align:center;
+    position:relative;overflow:hidden;
     animation:redPulse 3s ease-in-out infinite;
   }
   @keyframes redPulse{
-    0%,100%{
-      box-shadow:0 0 30px rgba(255,59,59,.15), 0 0 60px rgba(255,59,59,.05), inset 0 0 20px rgba(255,59,59,.02);
-      border-color:var(--red-dim);
-    }
-    50%{
-      box-shadow:0 0 50px rgba(255,59,59,.35), 0 0 100px rgba(255,59,59,.12), inset 0 0 30px rgba(255,59,59,.05);
-      border-color:var(--red);
-    }
+    0%,100%{box-shadow:0 0 30px rgba(255,59,59,.15),0 0 60px rgba(255,59,59,.05),inset 0 0 20px rgba(255,59,59,.02);border-color:var(--red-dim)}
+    50%{box-shadow:0 0 50px rgba(255,59,59,.35),0 0 100px rgba(255,59,59,.12),inset 0 0 30px rgba(255,59,59,.05);border-color:var(--red)}
   }
   .warning-panel::before{
     content:"";position:absolute;top:0;left:0;right:0;height:1px;
     background:linear-gradient(90deg,transparent,var(--red),transparent);
     animation:scanline 3s linear infinite;
   }
-  @keyframes scanline{
-    0%{transform:translateY(0)}
-    100%{transform:translateY(400px)}
-  }
+  @keyframes scanline{0%{transform:translateY(0)}100%{transform:translateY(400px)}}
   .warning-tag{
-    display:inline-block;padding:5px 14px;
-    border:1px solid var(--red-dim);border-radius:4px;
-    font-size:10px;letter-spacing:.2em;text-transform:uppercase;
-    color:var(--red);margin-bottom:24px;
-    animation:tagBlink 2s ease-in-out infinite;
+    display:inline-block;padding:5px 14px;border:1px solid var(--red-dim);border-radius:4px;
+    font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--red);
+    margin-bottom:24px;animation:tagBlink 2s ease-in-out infinite;
   }
-  @keyframes tagBlink{
-    0%,100%{opacity:.5}
-    50%{opacity:1}
-  }
+  @keyframes tagBlink{0%,100%{opacity:.5}50%{opacity:1}}
   .warning-panel h1{
-    font-family:var(--mono);font-weight:700;
-    font-size:clamp(20px,3vw,28px);
-    letter-spacing:.02em;line-height:1.3;
-    margin-bottom:12px;color:#fff;
+    font-family:var(--mono);font-weight:700;font-size:clamp(20px,3vw,28px);
+    letter-spacing:.02em;line-height:1.3;margin-bottom:12px;color:#fff;
     text-shadow:0 0 20px rgba(255,59,59,.5);
   }
   .warning-panel h1 .red{color:var(--red)}
-  .warning-panel p.sub{
-    font-size:12px;color:var(--fg-dim);
-    letter-spacing:.05em;margin-bottom:36px;line-height:1.6;
-  }
+  .warning-panel p.sub{font-size:12px;color:var(--fg-dim);letter-spacing:.05em;margin-bottom:36px;line-height:1.6}
   .open-keypad{
     display:inline-flex;align-items:center;gap:10px;
-    padding:16px 32px;background:transparent;
-    border:2px solid var(--red);color:var(--red);
+    padding:16px 32px;background:transparent;border:2px solid var(--red);color:var(--red);
     font-family:var(--mono);font-size:14px;font-weight:700;
-    letter-spacing:.15em;text-transform:uppercase;
-    cursor:pointer;border-radius:8px;
-    transition:all .25s ease;
-    position:relative;overflow:hidden;
+    letter-spacing:.15em;text-transform:uppercase;cursor:pointer;border-radius:8px;
+    transition:all .25s ease;position:relative;overflow:hidden;
   }
   .open-keypad::before{
-    content:"";position:absolute;inset:0;
-    background:var(--red);
-    transform:scaleX(0);transform-origin:left;
-    transition:transform .3s ease;z-index:-1;
+    content:"";position:absolute;inset:0;background:var(--red);
+    transform:scaleX(0);transform-origin:left;transition:transform .3s ease;z-index:-1;
   }
   .open-keypad:hover::before{transform:scaleX(1)}
   .open-keypad:hover{color:#0a0303;box-shadow:0 0 30px rgba(255,59,59,.4)}
-  .open-keypad:active{transform:scale(.97)}
+  .footer-note{margin-top:36px;font-size:10px;color:var(--fg-dim);letter-spacing:.15em;text-transform:uppercase;opacity:.5}
 
-  .footer-note{
-    margin-top:36px;font-size:10px;color:var(--fg-dim);
-    letter-spacing:.15em;text-transform:uppercase;opacity:.5;
-  }
-
+  /* KEYPAD */
   .keypad-screen{
-    position:fixed;inset:0;z-index:100;
-    background:var(--bg);display:none;place-items:center;
-    padding:24px;opacity:0;transition:opacity .4s ease;
+    position:fixed;inset:0;z-index:100;background:var(--bg);
+    display:none;place-items:center;padding:24px;opacity:0;transition:opacity .4s ease;
   }
   .keypad-screen.active{display:grid;opacity:1}
   .terminal{
-    width:100%;max-width:720px;
-    background:rgba(10,3,3,.95);
-    border:1px solid var(--red-dim);
-    border-radius:12px;padding:40px;
-    position:relative;overflow:hidden;
-    box-shadow:0 0 60px rgba(255,59,59,.1);
+    width:100%;max-width:720px;background:rgba(10,3,3,.95);
+    border:1px solid var(--red-dim);border-radius:12px;padding:40px;
+    position:relative;overflow:hidden;box-shadow:0 0 60px rgba(255,59,59,.1);
   }
-  .terminal::before{
-    content:"● ● ●";position:absolute;top:12px;left:16px;
-    font-size:10px;color:var(--fg-dim);letter-spacing:3px;
-  }
-  .terminal::after{
-    content:"DVKR://1995/COVE";position:absolute;top:12px;right:16px;
-    font-size:10px;color:var(--red);letter-spacing:2px;text-transform:uppercase;
-  }
-  .term-line{
-    font-family:var(--mono);font-size:13px;line-height:1.9;
-    color:var(--fg-dim);margin-bottom:4px;
-  }
+  .terminal::before{content:"● ● ●";position:absolute;top:12px;left:16px;font-size:10px;color:var(--fg-dim);letter-spacing:3px}
+  .terminal::after{content:"DVKR://1995/COVE";position:absolute;top:12px;right:16px;font-size:10px;color:var(--red);letter-spacing:2px;text-transform:uppercase}
+  .term-line{font-family:var(--mono);font-size:13px;line-height:1.9;color:var(--fg-dim);margin-bottom:4px}
   .term-line .prompt{color:var(--red)}
   .term-line .typed{color:var(--fg)}
-  .term-line .cursor{
-    display:inline-block;width:8px;height:14px;
-    background:var(--red);vertical-align:middle;margin-left:2px;
-    animation:cursorBlink 1s step-end infinite;
-  }
+  .term-line .cursor{display:inline-block;width:8px;height:14px;background:var(--red);vertical-align:middle;margin-left:2px;animation:cursorBlink 1s step-end infinite}
   @keyframes cursorBlink{0%,49%{opacity:1}50%,100%{opacity:0}}
-
   .name-input-wrap{margin-top:24px;display:none}
   .name-input-wrap.show{display:block}
   .name-input{
-    width:100%;padding:16px 18px;
-    background:transparent;border:1px solid var(--border-2);
-    border-radius:6px;color:var(--red);
-    font-family:var(--mono);font-size:16px;
-    letter-spacing:.1em;text-transform:uppercase;
-    outline:none;transition:all .2s;
+    width:100%;padding:16px 18px;background:transparent;border:1px solid var(--border-2);
+    border-radius:6px;color:var(--red);font-family:var(--mono);font-size:16px;
+    letter-spacing:.1em;text-transform:uppercase;outline:none;transition:all .2s;
   }
-  .name-input:focus{
-    border-color:var(--red);
-    box-shadow:0 0 20px rgba(255,59,59,.3);
-  }
+  .name-input:focus{border-color:var(--red);box-shadow:0 0 20px rgba(255,59,59,.3)}
   .name-input::placeholder{color:var(--fg-dim);text-transform:none;letter-spacing:normal}
   .submit-name{
-    width:100%;margin-top:12px;padding:16px;
-    background:var(--red);color:#0a0303;
-    border:none;border-radius:6px;
-    font-family:var(--mono);font-size:13px;
-    font-weight:700;letter-spacing:.15em;text-transform:uppercase;
-    cursor:pointer;transition:all .2s;
+    width:100%;margin-top:12px;padding:16px;background:var(--red);color:#0a0303;
+    border:none;border-radius:6px;font-family:var(--mono);font-size:13px;
+    font-weight:700;letter-spacing:.15em;text-transform:uppercase;cursor:pointer;transition:all .2s;
   }
   .submit-name:hover{filter:brightness(1.15);box-shadow:0 0 20px rgba(255,59,59,.5)}
 
-  .error-screen{
+  /* HONOR SCREEN */
+  .honor-screen{
+    position:fixed;inset:0;z-index:150;
+    background:radial-gradient(ellipse at center, #2a0202 0%, #000 80%);
+    display:none;place-items:center;padding:24px;
+    opacity:0;transition:opacity 1.2s ease;
+  }
+  .honor-screen.active{display:grid;opacity:1}
+  .honor-screen::before{
+    content:"";position:absolute;inset:0;pointer-events:none;
+    background:radial-gradient(ellipse at center, transparent 30%, rgba(0,0,0,.9) 100%);
+    animation:honorBreathe 4s ease-in-out infinite;
+  }
+  @keyframes honorBreathe{
+    0%,100%{background:radial-gradient(ellipse at center, rgba(42,2,2,.3) 0%, #000 80%)}
+    50%{background:radial-gradient(ellipse at center, rgba(80,4,4,.5) 0%, #000 90%)}
+  }
+  .honor-inner{
+    position:relative;z-index:2;text-align:center;max-width:900px;width:100%;
+  }
+  .honor-title{
+    font-family:var(--mono);font-weight:700;
+    font-size:clamp(22px,3.5vw,40px);
+    color:#fff;letter-spacing:.04em;line-height:1.35;
+    text-shadow:0 0 40px rgba(255,59,59,.7), 0 0 80px rgba(255,59,59,.3);
+    margin-bottom:48px;
+    min-height:2.7em;
+    opacity:0;
+    transition:opacity .8s ease;
+  }
+  .honor-title.active{opacity:1}
+  .honor-title .caret{
+    display:inline-block;width:.55em;height:1em;
+    background:#ff3b3b;vertical-align:middle;margin-left:4px;
+    animation:cursorBlink 1s step-end infinite;
+  }
+  .honor-welcome{
+    font-family:var(--mono);font-size:clamp(16px,2.2vw,22px);
+    color:#ff3b3b;letter-spacing:.15em;text-transform:uppercase;
+    opacity:0;transform:translateY(20px);
+    transition:opacity 1s ease, transform 1s ease;
+    margin-bottom:32px;
+  }
+  .honor-welcome.active{opacity:1;transform:translateY(0)}
+  .honor-name-input{
+    width:100%;max-width:480px;margin:0 auto;
+    display:none;flex-direction:column;gap:12px;
+    opacity:0;transition:opacity .6s ease;
+  }
+  .honor-name-input.active{display:flex;opacity:1}
+  .honor-field{
+    padding:16px 20px;background:rgba(0,0,0,.6);
+    border:1px solid #4a0d0d;border-radius:6px;
+    color:#ff3b3b;font-family:var(--mono);font-size:18px;
+    letter-spacing:.2em;text-transform:uppercase;text-align:center;
+    outline:none;transition:all .2s;
+  }
+  .honor-field:focus{border-color:#ff3b3b;box-shadow:0 0 30px rgba(255,59,59,.4)}
+  .honor-field::placeholder{color:#7a6060;text-transform:none;letter-spacing:normal}
+  .honor-submit{
+    padding:16px;background:#ff3b3b;color:#0a0303;border:none;border-radius:6px;
+    font-family:var(--mono);font-size:14px;font-weight:700;
+    letter-spacing:.2em;text-transform:uppercase;cursor:pointer;transition:all .2s;
+  }
+  .honor-submit:hover{filter:brightness(1.15);box-shadow:0 0 30px rgba(255,59,59,.5)}
+
+  /* CINEMATIC REVEAL */
+  .cinema{
     position:fixed;inset:0;z-index:200;
-    background:#000;display:none;
-    place-items:center;padding:24px;
+    background:#000;display:none;place-items:center;
+    overflow:hidden;
   }
-  .error-screen.active{display:grid}
-  .error-inner{
-    text-align:center;max-width:640px;
-    animation:shake .5s ease-in-out;
+  .cinema.active{display:grid}
+
+  .cinema-logo{
+    position:absolute;font-family:var(--mono);font-weight:700;
+    font-size:clamp(80px,15vw,180px);
+    color:#ff3b3b;
+    text-shadow:0 0 60px rgba(255,59,59,.9), 0 0 120px rgba(255,59,59,.4);
+    opacity:0;letter-spacing:-.05em;
+    animation:logoFlash 1.2s cubic-bezier(.34,1.56,.64,1) forwards;
   }
-  @keyframes shake{
-    0%,100%{transform:translateX(0)}
-    10%,30%,50%,70%,90%{transform:translateX(-8px)}
-    20%,40%,60%,80%{transform:translateX(8px)}
+  @keyframes logoFlash{
+    0%{opacity:0;transform:scale(.3);filter:blur(20px)}
+    50%{opacity:1;transform:scale(1.1);filter:blur(0)}
+    100%{opacity:1;transform:scale(1)}
   }
-  .error-skull{
-    font-size:80px;margin-bottom:24px;
-    animation:skullPulse .8s ease-in-out infinite;
-    filter:drop-shadow(0 0 20px var(--red));
+  .cinema-logo.hidden{animation:logoOut .4s ease-in forwards}
+  @keyframes logoOut{to{opacity:0;transform:scale(1.3);filter:blur(10px)}}
+
+  .cinema-names{
+    position:absolute;inset:0;
+    display:grid;place-items:center;
+    padding:40px;
+    opacity:0;transition:opacity .3s ease;
   }
-  @keyframes skullPulse{
-    0%,100%{transform:scale(1);opacity:1}
-    50%{transform:scale(1.08);opacity:.7}
+  .cinema-names.active{opacity:1}
+  .name-stream{
+    font-family:var(--mono);font-weight:700;
+    font-size:clamp(28px,6vw,64px);
+    color:#fff;letter-spacing:.06em;line-height:1.4;
+    text-shadow:0 0 40px rgba(255,59,59,.8);
+    text-align:center;
   }
-  .error-text{
-    font-family:var(--mono);font-size:clamp(16px,2.5vw,22px);
-    color:var(--red);font-weight:700;letter-spacing:.15em;
-    line-height:1.5;
-    text-shadow:0 0 30px rgba(255,59,59,.8);
+  .name-stream .one{
+    display:block;
+    opacity:0;
+    animation:nameFlash .5s ease-in forwards;
   }
-  .error-sub{
-    margin-top:16px;font-size:12px;color:var(--fg-dim);
-    letter-spacing:.2em;text-transform:uppercase;
+  @keyframes nameFlash{
+    0%{opacity:0;transform:translateY(20px) scale(.8);filter:blur(10px)}
+    50%{opacity:1;transform:translateY(0) scale(1.05);filter:blur(0)}
+    100%{opacity:1;transform:translateY(0) scale(1)}
   }
 
+  .cinema-flash{
+    position:absolute;inset:0;background:#fff;
+    opacity:0;pointer-events:none;
+  }
+  .cinema-flash.burst{animation:flashBurst .4s ease-out forwards}
+  @keyframes flashBurst{0%{opacity:.9}100%{opacity:0}}
+
+  /* COVE */
   .cove{
-    position:relative;z-index:1;min-height:100vh;
-    display:none;grid-template-columns:280px 1fr;
+    position:relative;z-index:1;height:100vh;width:100vw;
+    display:none;grid-template-columns:260px 1fr;overflow:hidden;
   }
   .cove.active{display:grid}
 
   .cove-sidebar{
     background:var(--bg-2);border-right:1px solid var(--border);
-    padding:28px 20px;overflow-y:auto;
-    display:flex;flex-direction:column;gap:24px;
+    padding:20px 16px;overflow-y:auto;
+    display:flex;flex-direction:column;gap:18px;
+    height:100vh;
   }
+  .cove-sidebar::-webkit-scrollbar{width:4px}
+  .cove-sidebar::-webkit-scrollbar-thumb{background:var(--border-2);border-radius:2px}
   .cove-brand{
-    font-family:var(--mono);font-size:13px;font-weight:700;
+    font-family:var(--mono);font-size:12px;font-weight:700;
     color:var(--red);letter-spacing:.2em;text-transform:uppercase;
-    padding-bottom:20px;border-bottom:1px solid var(--border);
+    padding-bottom:16px;border-bottom:1px solid var(--border);
   }
   .cove-brand small{
     display:block;font-size:9px;color:var(--fg-dim);
     font-weight:400;letter-spacing:.1em;margin-top:4px;
   }
   .welcome-msg{
-    font-family:var(--mono);font-size:12px;
-    color:var(--fg);line-height:1.7;
-    padding:16px;background:rgba(255,59,59,.04);
+    font-family:var(--mono);font-size:11px;color:var(--fg);line-height:1.6;
+    padding:12px;background:rgba(255,59,59,.04);
     border-left:2px solid var(--red);border-radius:4px;
   }
   .welcome-msg .name{color:var(--red);font-weight:700}
-  .welcome-msg .q{color:var(--fg-dim);margin-top:8px;font-size:11px}
+  .welcome-msg .q{color:var(--fg-dim);margin-top:6px;font-size:10px}
 
-  .nav-section{margin-top:8px}
+  .nav-section{margin-top:4px}
   .nav-section h4{
     font-size:9px;letter-spacing:.2em;text-transform:uppercase;
-    color:var(--fg-dim);margin-bottom:12px;
-    padding-bottom:6px;border-bottom:1px solid var(--border);
+    color:var(--fg-dim);margin-bottom:8px;padding-bottom:6px;
+    border-bottom:1px solid var(--border);
   }
   .nav-item{
-    display:flex;align-items:center;gap:10px;
-    padding:10px 12px;margin-bottom:4px;
+    display:flex;align-items:center;gap:8px;
+    padding:8px 10px;margin-bottom:2px;
     background:transparent;border:none;
-    font-family:var(--mono);font-size:11px;
+    font-family:var(--mono);font-size:10px;
     color:var(--fg-dim);text-align:left;
-    cursor:pointer;border-radius:6px;
-    transition:all .15s;width:100%;
+    cursor:pointer;border-radius:5px;transition:all .15s;width:100%;
     letter-spacing:.05em;
   }
   .nav-item:hover{background:rgba(255,59,59,.08);color:var(--fg)}
-  .nav-item.active{background:rgba(255,59,59,.15);color:var(--red);border-left:2px solid var(--red);padding-left:10px}
-  .nav-item .icon{font-size:13px}
+  .nav-item.active{background:rgba(255,59,59,.15);color:var(--red);border-left:2px solid var(--red);padding-left:8px}
+  .nav-item .icon{font-size:12px}
 
-  .cove-main{padding:32px 40px;overflow-y:auto;max-height:100vh}
+  .cove-main{
+    padding:24px 32px;overflow-y:auto;height:100vh;
+  }
+  .cove-main::-webkit-scrollbar{width:6px}
+  .cove-main::-webkit-scrollbar-thumb{background:var(--border-2);border-radius:3px}
 
   .cove-header{
-    margin-bottom:32px;padding-bottom:20px;
+    margin-bottom:20px;padding-bottom:14px;
     border-bottom:1px solid var(--border);
   }
   .cove-header .breadcrumb{
     font-size:10px;color:var(--fg-dim);
-    letter-spacing:.2em;text-transform:uppercase;margin-bottom:8px;
+    letter-spacing:.2em;text-transform:uppercase;margin-bottom:6px;
   }
   .cove-header .breadcrumb .red{color:var(--red)}
   .cove-header h2{
-    font-family:var(--mono);font-size:22px;font-weight:700;
+    font-family:var(--mono);font-size:18px;font-weight:700;
     color:var(--fg);letter-spacing:.02em;
   }
-  .cove-header h2 .red{color:var(--red)}
 
   .panel{display:none}
   .panel.active{display:block}
 
   .card{
     background:var(--card);border:1px solid var(--border);
-    border-radius:10px;padding:20px;margin-bottom:16px;
+    border-radius:10px;padding:18px;
   }
   .card-head{
     display:flex;align-items:center;justify-content:space-between;
-    margin-bottom:16px;padding-bottom:12px;
+    margin-bottom:14px;padding-bottom:10px;
     border-bottom:1px solid var(--border);
   }
-  .card-head h3{font-size:12px;letter-spacing:.15em;text-transform:uppercase;color:var(--red)}
+  .card-head h3{font-size:11px;letter-spacing:.15em;text-transform:uppercase;color:var(--red)}
   .card-head .badge{
     font-size:9px;letter-spacing:.1em;text-transform:uppercase;
-    padding:3px 8px;background:rgba(255,59,59,.1);
+    padding:2px 7px;background:rgba(255,59,59,.1);
     border:1px solid var(--border-2);border-radius:4px;color:var(--red);
   }
 
-  .field-group{display:flex;flex-direction:column;gap:6px;margin-bottom:12px}
-  .field-group label{font-size:10px;color:var(--fg-dim);letter-spacing:.1em;text-transform:uppercase}
+  .field-group{display:flex;flex-direction:column;gap:5px;margin-bottom:10px}
+  .field-group label{font-size:9px;color:var(--fg-dim);letter-spacing:.1em;text-transform:uppercase}
   .field-group input, .field-group textarea, .field-group select{
-    padding:10px 12px;background:var(--bg);border:1px solid var(--border-2);
-    border-radius:6px;color:var(--fg);font-family:var(--mono);font-size:12px;
+    padding:9px 11px;background:var(--bg);border:1px solid var(--border-2);
+    border-radius:5px;color:var(--fg);font-family:var(--mono);font-size:11px;
     outline:none;transition:all .15s;width:100%;
   }
-  .field-group textarea{resize:vertical;min-height:80px;line-height:1.5}
+  .field-group textarea{resize:vertical;min-height:60px;line-height:1.4}
   .field-group input:focus, .field-group textarea:focus, .field-group select:focus{
     border-color:var(--red);box-shadow:0 0 0 2px var(--red-glow);
   }
 
   .btn{
-    padding:10px 20px;background:var(--red);color:#0a0303;
-    border:none;border-radius:6px;cursor:pointer;
-    font-family:var(--mono);font-size:11px;font-weight:700;
-    letter-spacing:.15em;text-transform:uppercase;
-    transition:all .15s;
+    padding:9px 18px;background:var(--red);color:#0a0303;
+    border:none;border-radius:5px;cursor:pointer;
+    font-family:var(--mono);font-size:10px;font-weight:700;
+    letter-spacing:.15em;text-transform:uppercase;transition:all .15s;
   }
-  .btn:hover{filter:brightness(1.15);box-shadow:0 0 20px rgba(255,59,59,.4)}
-  .btn.ghost{background:transparent;border:1px solid var(--border-2);color:var(--fg)}
-  .btn.ghost:hover{border-color:var(--red);color:var(--red);box-shadow:none}
+  .btn:hover{filter:brightness(1.15);box-shadow:0 0 15px rgba(255,59,59,.4)}
 
-  .case-list{display:flex;flex-direction:column;gap:8px}
+  .case-list{display:flex;flex-direction:column;gap:6px;max-height:300px;overflow-y:auto}
   .case-item{
-    padding:14px 16px;background:var(--bg-2);
-    border:1px solid var(--border);border-radius:8px;
+    padding:10px 12px;background:var(--bg-2);
+    border:1px solid var(--border);border-radius:6px;
     cursor:pointer;transition:all .15s;
   }
   .case-item:hover{border-color:var(--red);background:rgba(255,59,59,.04)}
-  .case-item .case-id{
-    font-size:10px;color:var(--fg-dim);
-    letter-spacing:.1em;text-transform:uppercase;margin-bottom:4px;
-  }
-  .case-item .case-name{font-size:13px;font-weight:700;color:var(--fg)}
-  .case-item .case-meta{font-size:10px;color:var(--fg-dim);margin-top:4px}
+  .case-item .case-id{font-size:9px;color:var(--fg-dim);letter-spacing:.1em;text-transform:uppercase;margin-bottom:3px}
+  .case-item .case-name{font-size:12px;font-weight:700;color:var(--fg)}
+  .case-item .case-meta{font-size:9px;color:var(--fg-dim);margin-top:3px}
 
   .result-box{
-    margin-top:16px;padding:14px;
+    margin-top:12px;padding:12px;
     background:var(--bg-2);border:1px solid var(--border);
-    border-radius:6px;font-size:11px;color:var(--fg-dim);
-    line-height:1.6;max-height:400px;overflow-y:auto;
+    border-radius:5px;font-size:10px;color:var(--fg-dim);
+    line-height:1.5;max-height:240px;overflow-y:auto;
     font-family:var(--mono);white-space:pre-wrap;word-break:break-word;
   }
   .result-box:empty{display:none}
 
-  .note-timeline{
-    display:flex;flex-direction:column;gap:8px;
-    max-height:300px;overflow-y:auto;
-  }
+  .note-timeline{display:flex;flex-direction:column;gap:6px;max-height:220px;overflow-y:auto}
   .note{
-    padding:10px 12px;background:var(--bg-2);
-    border-left:2px solid var(--red);border-radius:4px;
+    padding:8px 10px;background:var(--bg-2);
+    border-left:2px solid var(--red);border-radius:3px;
   }
-  .note .note-time{font-size:9px;color:var(--fg-dim);margin-bottom:4px}
-  .note .note-text{font-size:11px;color:var(--fg);line-height:1.5}
+  .note .note-time{font-size:9px;color:var(--fg-dim);margin-bottom:3px}
+  .note .note-text{font-size:10px;color:var(--fg);line-height:1.4}
 
   @media (max-width:900px){
-    .cove{grid-template-columns:1fr}
-    .cove-sidebar{flex-direction:row;overflow-x:auto;overflow-y:visible;padding:16px;border-right:none;border-bottom:1px solid var(--border)}
-    .cove-main{padding:24px 20px}
+    .cove{grid-template-columns:1fr;grid-template-rows:auto 1fr}
+    .cove-sidebar{flex-direction:row;overflow-x:auto;overflow-y:hidden;height:auto;padding:12px;border-right:none;border-bottom:1px solid var(--border);gap:8px;align-items:center}
+    .cove-brand,.welcome-msg{display:none}
+    .nav-section{display:flex;gap:4px;margin:0}
+    .nav-section h4{display:none}
+    .cove-main{padding:16px}
   }
 </style>
 </head>
@@ -405,20 +427,51 @@
   </div>
 </div>
 
-<div class="error-screen" id="error-screen">
-  <div class="error-inner">
-    <div class="error-skull">☠</div>
-    <div class="error-text" id="error-text"></div>
-    <div class="error-sub">connection terminated · returning</div>
+<!-- HONOR SCREEN -->
+<div class="honor-screen" id="honor-screen">
+  <div class="honor-inner">
+    <div class="honor-title" id="honor-title"></div>
+    <div class="honor-welcome" id="honor-welcome"></div>
+    <div class="honor-name-input" id="honor-name-input">
+      <input type="text" class="honor-field" id="honor-field" placeholder="enter your name" autocomplete="off" spellcheck="false">
+      <button class="honor-submit" id="honor-submit">identify →</button>
+    </div>
   </div>
 </div>
 
+<!-- CINEMA REVEAL -->
+<div class="cinema" id="cinema">
+  <div class="cinema-logo" id="cinema-logo">v</div>
+  <div class="cinema-names" id="cinema-names">
+    <div class="name-stream" id="name-stream"></div>
+  </div>
+  <div class="cinema-flash" id="cinema-flash"></div>
+</div>
+
+<!-- ERROR -->
+<div class="error-screen" id="error-screen" style="position:fixed;inset:0;z-index:300;background:#000;display:none;place-items:center;padding:24px">
+  <div style="text-align:center;max-width:640px;animation:shake .5s ease-in-out">
+    <div style="font-size:80px;margin-bottom:24px;animation:skullPulse .8s ease-in-out infinite;filter:drop-shadow(0 0 20px #ff3b3b)">☠</div>
+    <div style="font-family:var(--mono);font-size:clamp(16px,2.5vw,22px);color:#ff3b3b;font-weight:700;letter-spacing:.15em;line-height:1.5;text-shadow:0 0 30px rgba(255,59,59,.8)" id="error-text"></div>
+    <div style="margin-top:16px;font-size:12px;color:#7a6060;letter-spacing:.2em;text-transform:uppercase">connection terminated · returning</div>
+  </div>
+</div>
+
+<style>
+  @keyframes shake{
+    0%,100%{transform:translateX(0)}
+    10%,30%,50%,70%,90%{transform:translateX(-8px)}
+    20%,40%,60%,80%{transform:translateX(8px)}
+  }
+  @keyframes skullPulse{
+    0%,100%{transform:scale(1);opacity:1}
+    50%{transform:scale(1.08);opacity:.7}
+  }
+</style>
+
 <div class="cove" id="cove">
   <aside class="cove-sidebar">
-    <div class="cove-brand">
-      DVKR // 1995
-      <small>cove console · private</small>
-    </div>
+    <div class="cove-brand">DVKR // 1995<small>cove console · private</small></div>
     <div class="welcome-msg" id="welcome-msg"></div>
     <div class="nav-section">
       <h4>cases</h4>
@@ -449,18 +502,9 @@
     <div class="panel active" data-panel="create-case">
       <div class="card">
         <div class="card-head"><h3>case details</h3><span class="badge">new</span></div>
-        <div class="field-group">
-          <label>Case Name</label>
-          <input type="text" id="case-name" placeholder="e.g. Operation Nightfall" maxlength="60">
-        </div>
-        <div class="field-group">
-          <label>Subject / Target</label>
-          <input type="text" id="case-subject" placeholder="email, username, phone, IP, or name" maxlength="120">
-        </div>
-        <div class="field-group">
-          <label>Notes</label>
-          <textarea id="case-notes" placeholder="background, objectives, initial intel..."></textarea>
-        </div>
+        <div class="field-group"><label>Case Name</label><input type="text" id="case-name" placeholder="e.g. Operation Nightfall" maxlength="60"></div>
+        <div class="field-group"><label>Subject / Target</label><input type="text" id="case-subject" placeholder="email, username, phone, IP, or name" maxlength="120"></div>
+        <div class="field-group"><label>Notes</label><textarea id="case-notes" placeholder="background, objectives, initial intel..."></textarea></div>
         <button class="btn" id="create-case-btn">create case →</button>
         <div class="result-box" id="create-case-result"></div>
       </div>
@@ -469,19 +513,14 @@
     <div class="panel" data-panel="previous-cases">
       <div class="card">
         <div class="card-head"><h3>previous cases</h3><span class="badge" id="case-count">0</span></div>
-        <div class="case-list" id="case-list">
-          <div style="color:var(--fg-dim);font-size:11px;padding:20px;text-align:center">no cases yet</div>
-        </div>
+        <div class="case-list" id="case-list"><div style="color:var(--fg-dim);font-size:11px;padding:16px;text-align:center">no cases yet</div></div>
       </div>
     </div>
 
     <div class="panel" data-panel="breaches">
       <div class="card">
         <div class="card-head"><h3>breach intelligence</h3><span class="badge">premium</span></div>
-        <div class="field-group">
-          <label>Email address</label>
-          <input type="email" id="breach-email" placeholder="target@example.com">
-        </div>
+        <div class="field-group"><label>Email address</label><input type="email" id="breach-email" placeholder="target@example.com"></div>
         <button class="btn" id="breach-scan-btn">scan breach databases</button>
         <div class="result-box" id="breach-result"></div>
       </div>
@@ -501,10 +540,7 @@
             <option value="discord_id">discord id</option>
           </select>
         </div>
-        <div class="field-group">
-          <label>Seed</label>
-          <input type="text" id="osint-seed" placeholder="enter target...">
-        </div>
+        <div class="field-group"><label>Seed</label><input type="text" id="osint-seed" placeholder="enter target..."></div>
         <button class="btn" id="osint-pivot-btn">execute pivot</button>
         <div class="result-box" id="osint-result"></div>
       </div>
@@ -513,13 +549,8 @@
     <div class="panel" data-panel="csint">
       <div class="card">
         <div class="card-head"><h3>csint — cyber signal intelligence</h3><span class="badge">monitor</span></div>
-        <p style="font-size:11px;color:var(--fg-dim);margin-bottom:16px;line-height:1.6">
-          Track ongoing signal from breach feeds, stealer logs, and public incident data. Input an identifier to monitor.
-        </p>
-        <div class="field-group">
-          <label>Identifier to monitor</label>
-          <input type="text" id="csint-input" placeholder="email, domain, IP, or hash">
-        </div>
+        <p style="font-size:10px;color:var(--fg-dim);margin-bottom:12px;line-height:1.5">Track ongoing signal from breach feeds, stealer logs, and public incident data.</p>
+        <div class="field-group"><label>Identifier to monitor</label><input type="text" id="csint-input" placeholder="email, domain, IP, or hash"></div>
         <button class="btn" id="csint-btn">analyze signal</button>
         <div class="result-box" id="csint-result"></div>
       </div>
@@ -528,10 +559,7 @@
     <div class="panel" data-panel="geosint">
       <div class="card">
         <div class="card-head"><h3>geosint — geo signal intelligence</h3><span class="badge">location</span></div>
-        <div class="field-group">
-          <label>IP or address</label>
-          <input type="text" id="geosint-input" placeholder="IP, city, or address">
-        </div>
+        <div class="field-group"><label>IP or address</label><input type="text" id="geosint-input" placeholder="IP, city, or address"></div>
         <button class="btn" id="geosint-btn">locate</button>
         <div class="result-box" id="geosint-result"></div>
       </div>
@@ -540,10 +568,7 @@
     <div class="panel" data-panel="socsint">
       <div class="card">
         <div class="card-head"><h3>socsint — social intelligence</h3><span class="badge">social</span></div>
-        <div class="field-group">
-          <label>Username or handle</label>
-          <input type="text" id="socsint-input" placeholder="@username">
-        </div>
+        <div class="field-group"><label>Username or handle</label><input type="text" id="socsint-input" placeholder="@username"></div>
         <button class="btn" id="socsint-btn">find accounts</button>
         <div class="result-box" id="socsint-result"></div>
       </div>
@@ -552,12 +577,9 @@
     <div class="panel" data-panel="notes">
       <div class="card">
         <div class="card-head"><h3>case notes</h3><span class="badge">timeline</span></div>
-        <div class="field-group">
-          <label>Add note</label>
-          <textarea id="note-input" placeholder="observation, finding, next step..."></textarea>
-        </div>
+        <div class="field-group"><label>Add note</label><textarea id="note-input" placeholder="observation, finding, next step..."></textarea></div>
         <button class="btn" id="note-add-btn">add note</button>
-        <div class="note-timeline" id="note-timeline" style="margin-top:16px"></div>
+        <div class="note-timeline" id="note-timeline" style="margin-top:12px"></div>
       </div>
     </div>
 
@@ -598,6 +620,20 @@
   const welcomeMsg = $('welcome-msg');
   const wipe = $('wipe');
 
+  const honorScreen = $('honor-screen');
+  const honorTitle = $('honor-title');
+  const honorWelcome = $('honor-welcome');
+  const honorNameInput = $('honor-name-input');
+  const honorField = $('honor-field');
+  const honorSubmit = $('honor-submit');
+
+  const cinema = $('cinema');
+  const cinemaLogo = $('cinema-logo');
+  const cinemaNames = $('cinema-names');
+  const nameStream = $('name-stream');
+  const cinemaFlash = $('cinema-flash');
+
+  // ---- KEYPAD TYPEWRITER ----
   const typeLine = async (text, prompt = '>', delay = 40) => {
     const line = document.createElement('div');
     line.className = 'term-line';
@@ -610,10 +646,103 @@
       await new Promise(r => setTimeout(r, delay));
     }
     cursor.remove();
-    return line;
+  };
+  const clearTerm = () => termOutput.innerHTML = '';
+
+  // ---- HONOR SCREEN TYPEWRITER (big bold) ----
+  const honorType = async (text, el, delay = 60) => {
+    el.innerHTML = '';
+    for (let i = 0; i < text.length; i++) {
+      el.textContent += text[i];
+      await new Promise(r => setTimeout(r, delay));
+    }
   };
 
-  const clearTerm = () => termOutput.innerHTML = '';
+  const triggerError = async (msg = 'ERROR. UNAUTHORIZED. SEIZING AND RETURNING TO DASHBOARD') => {
+    honorScreen.classList.remove('active');
+    keypadScreen.classList.remove('active');
+    errorScreen.style.display = 'grid';
+    errorText.textContent = msg;
+    setTimeout(() => {
+      errorScreen.style.display = 'none';
+      landing.classList.remove('hidden');
+      wipe.classList.add('in');
+      setTimeout(() => {
+        wipe.classList.remove('in');
+        wipe.classList.add('out');
+        setTimeout(() => wipe.classList.remove('out'), 550);
+      }, 400);
+    }, 3000);
+  };
+
+  // ---- CINEMA SEQUENCE ----
+  const runCinema = async (name) => {
+    honorScreen.classList.remove('active');
+    cinema.classList.add('active');
+
+    // Phase 1: logo flash
+    cinemaLogo.classList.remove('hidden');
+    await new Promise(r => setTimeout(r, 1400));
+
+    // Phase 2: logo hides, names begin
+    cinemaLogo.classList.add('hidden');
+    await new Promise(r => setTimeout(r, 400));
+
+    cinemaNames.classList.add('active');
+    nameStream.innerHTML = '';
+
+    // Phase 3: flash each name quickly
+    for (const n of WHITELIST) {
+      const el = document.createElement('span');
+      el.className = 'one';
+      el.textContent = n;
+      el.style.animationDelay = '0s';
+      nameStream.appendChild(el);
+      await new Promise(r => setTimeout(r, 380));
+      el.style.animation = 'nameFlash .3s ease-out forwards';
+      await new Promise(r => setTimeout(r, 100));
+      el.remove();
+    }
+
+    // Phase 4: white burst
+    cinemaFlash.classList.add('burst');
+    await new Promise(r => setTimeout(r, 350));
+
+    // Phase 5: enter cove
+    cinema.classList.remove('active');
+    enterCove(name);
+  };
+
+  const enterCove = (name) => {
+    currentOperator = name;
+    sessionStorage.setItem('dvkr_operator', name);
+    wipe.classList.add('in');
+    setTimeout(() => {
+      cove.classList.add('active');
+      document.body.style.background = '#0a0303';
+      welcomeMsg.innerHTML = `<span class="name">${name}</span>, welcome to your cove.<div class="q">what case are we working on today?</div>`;
+      wipe.classList.remove('in');
+      wipe.classList.add('out');
+      setTimeout(() => wipe.classList.remove('out'), 550);
+      renderCases();
+      renderNotes();
+    }, 550);
+  };
+
+  // ---- INITIAL KEYPAD OPEN ----
+  $('open-keypad').onclick = () => {
+    wipe.classList.add('in');
+    setTimeout(() => {
+      landing.classList.add('hidden');
+      keypadScreen.classList.add('active');
+      wipe.classList.remove('in');
+      wipe.classList.add('out');
+      setTimeout(() => {
+        wipe.classList.remove('out');
+        keypadSequence();
+      }, 550);
+    }, 550);
+  };
 
   const keypadSequence = async () => {
     clearTerm();
@@ -629,53 +758,7 @@
     nameInput.focus();
   };
 
-  $('open-keypad').onclick = () => {
-    wipe.classList.add('in');
-    setTimeout(() => {
-      landing.classList.add('hidden');
-      keypadScreen.classList.add('active');
-      wipe.classList.remove('in');
-      wipe.classList.add('out');
-      setTimeout(() => {
-        wipe.classList.remove('out');
-        keypadSequence();
-      }, 550);
-    }, 550);
-  };
-
-  const triggerError = async () => {
-    keypadScreen.classList.remove('active');
-    errorScreen.classList.add('active');
-    errorText.textContent = 'ERROR. UNAUTHORIZED. SEIZING AND RETURNING TO DASHBOARD';
-    setTimeout(() => {
-      errorScreen.classList.remove('active');
-      landing.classList.remove('hidden');
-      wipe.classList.add('in');
-      setTimeout(() => {
-        wipe.classList.remove('in');
-        wipe.classList.add('out');
-        setTimeout(() => wipe.classList.remove('out'), 550);
-      }, 400);
-    }, 3000);
-  };
-
-  const enterCove = (name) => {
-    currentOperator = name;
-    sessionStorage.setItem('dvkr_operator', name);
-    keypadScreen.classList.remove('active');
-    wipe.classList.add('in');
-    setTimeout(() => {
-      cove.classList.add('active');
-      document.body.style.background = '#0a0303';
-      welcomeMsg.innerHTML = `<span class="name">${name}</span>, welcome to your cove.<div class="q">what case are we working on today?</div>`;
-      wipe.classList.remove('in');
-      wipe.classList.add('out');
-      setTimeout(() => wipe.classList.remove('out'), 550);
-      renderCases();
-      renderNotes();
-    }, 550);
-  };
-
+  // ---- SUBMIT (code first, then transition to honor screen) ----
   submitName.onclick = async () => {
     const value = nameInput.value.trim();
     if (!value) return;
@@ -695,47 +778,71 @@
       }
       await typeLine('✓ access code accepted.', '>', 30);
       await new Promise(r => setTimeout(r, 300));
-      await typeLine('welcome, boss.', '>', 50);
+      await typeLine('routing to honor console...', '>', 35);
       await new Promise(r => setTimeout(r, 400));
-      await typeLine('which dvkr/1995 leader am i honoring today?', '>', 35);
-      nameInput.value = '';
-      nameInput.placeholder = 'enter your name';
-      nameInput.dataset.step = 'name';
-      nameInput.focus();
+
+      // Wipe into honor screen
+      keypadScreen.classList.remove('active');
+      wipe.classList.add('in');
+      setTimeout(async () => {
+        honorScreen.classList.add('active');
+        wipe.classList.remove('in');
+        wipe.classList.add('out');
+        setTimeout(() => wipe.classList.remove('out'), 550);
+
+        // Typewriter the honor title
+        honorTitle.classList.add('active');
+        await honorType('Which DVKR/1995 Leader am I Honoring Today?', honorTitle, 55);
+        await new Promise(r => setTimeout(r, 500));
+
+        // Fade in "Welcome"
+        honorWelcome.textContent = 'Welcome';
+        honorWelcome.classList.add('active');
+        await new Promise(r => setTimeout(r, 500));
+
+        // Reveal name input
+        honorNameInput.classList.add('active');
+        honorField.focus();
+      }, 550);
       return;
     }
+  };
 
-    // name step
-    nameInputWrap.classList.remove('show');
+  nameInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') submitName.click(); });
+
+  // ---- HONOR SUBMIT ----
+  honorSubmit.onclick = async () => {
+    const value = honorField.value.trim();
+    if (!value) return;
+    honorNameInput.classList.remove('active');
+    honorWelcome.classList.remove('active');
+    honorField.value = '';
+
     const normalized = WHITELIST.find(n =>
       n.toLowerCase() === value.toLowerCase() ||
       (n === 'Trident' && value.toLowerCase() === 'ryuu')
     );
-    await typeLine(`authenticating "${value}"...`, '>', 30);
-    await new Promise(r => setTimeout(r, 500));
 
     if (!normalized) {
-      await typeLine('verifying identity...', '>', 30);
-      await new Promise(r => setTimeout(r, 400));
-      await typeLine('✕ no record found.', '>', 40);
+      honorTitle.classList.remove('active');
       await new Promise(r => setTimeout(r, 300));
-      await typeLine('✕ access denied.', '>', 40);
-      await new Promise(r => setTimeout(r, 400));
       await triggerError();
       return;
     }
 
-    await typeLine('✓ identity confirmed.', '>', 40);
-    await new Promise(r => setTimeout(r, 300));
-    await typeLine(`✓ welcome to your cove, ${normalized}.`, '>', 35);
-    await new Promise(r => setTimeout(r, 500));
-    enterCove(normalized);
+    // Update welcome text to personalized
+    honorWelcome.textContent = `Welcome, ${normalized}`;
+    honorWelcome.classList.add('active');
+    await new Promise(r => setTimeout(r, 1200));
+
+    // Run cinema sequence
+    honorTitle.classList.remove('active');
+    await runCinema(normalized);
   };
 
-  nameInput.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') submitName.click();
-  });
+  honorField.addEventListener('keydown', (e) => { if (e.key === 'Enter') honorSubmit.click(); });
 
+  // ---- PANEL NAV ----
   document.querySelectorAll('.nav-item').forEach(btn => {
     btn.onclick = () => {
       document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
@@ -758,14 +865,12 @@
     };
   });
 
+  // ---- CASES ----
   $('create-case-btn').onclick = () => {
     const name = $('case-name').value.trim();
     const subject = $('case-subject').value.trim();
     const caseNotes = $('case-notes').value.trim();
-    if (!name) {
-      $('create-case-result').textContent = '✕ case name required';
-      return;
-    }
+    if (!name) { $('create-case-result').textContent = '✕ case name required'; return; }
     const newCase = {
       id: 'CASE-' + Date.now().toString(36).toUpperCase(),
       name, subject, notes: caseNotes,
@@ -786,14 +891,14 @@
     const list = $('case-list');
     $('case-count').textContent = cases.length;
     if (!cases.length) {
-      list.innerHTML = '<div style="color:var(--fg-dim);font-size:11px;padding:20px;text-align:center">no cases yet</div>';
+      list.innerHTML = '<div style="color:var(--fg-dim);font-size:11px;padding:16px;text-align:center">no cases yet</div>';
       return;
     }
     list.innerHTML = cases.map(c => `
       <div class="case-item" data-case-id="${c.id}">
         <div class="case-id">${c.id} · ${c.status}</div>
         <div class="case-name">${c.name}</div>
-        <div class="case-meta">${c.subject ? 'target: ' + c.subject + ' · ' : ''}op: ${c.operator} · ${new Date(c.created).toLocaleString()}</div>
+        <div class="case-meta">${c.subject ? 'target: ' + c.subject + ' · ' : ''}op: ${c.operator}</div>
       </div>
     `).join('');
     list.querySelectorAll('.case-item').forEach(item => {
@@ -810,6 +915,7 @@
     });
   };
 
+  // ---- INTEL TOOLS ----
   $('breach-scan-btn').onclick = async () => {
     const email = $('breach-email').value.trim();
     if (!email) return;
@@ -824,7 +930,7 @@
       if (!res.ok) { $('breach-result').textContent = '✕ ' + (d.detail || 'error'); return; }
       if (!d.count) { $('breach-result').textContent = '✓ no breach hits found for ' + email; return; }
       $('breach-result').textContent = `✓ ${d.count} hits found\n\n` + d.hits.map(h =>
-        `[${h.kind}] ${h.value}\n  source: ${h.source}\n  ${JSON.stringify(h.meta, null, 0).slice(0, 300)}`
+        `[${h.kind}] ${h.value}\n  source: ${h.source}`
       ).join('\n\n');
     } catch(e) { $('breach-result').textContent = '✕ network error: ' + e.message; }
   };
@@ -852,7 +958,7 @@
   $('csint-btn').onclick = async () => {
     const input = $('csint-input').value.trim();
     if (!input) return;
-    $('csint-result').textContent = '⏳ analyzing signal across stealer logs and breach feeds...';
+    $('csint-result').textContent = '⏳ analyzing signal...';
     try {
       const res = await fetch(`${API}/api/breach`, {
         method: 'POST',
@@ -861,11 +967,8 @@
       });
       const d = await res.json();
       if (!res.ok) { $('csint-result').textContent = '✕ ' + (d.detail || 'no signal'); return; }
-      $('csint-result').textContent = `✓ signal analysis\n\n` +
-        `identifier: ${input}\n` +
-        `hits found: ${d.count}\n` +
-        `sources: ${new Set(d.hits.map(h=>h.source)).size}\n\n` +
-        (d.count ? d.hits.slice(0, 10).map(h => `[${h.kind}] ${h.value}`).join('\n') : 'no active signal detected');
+      $('csint-result').textContent = `✓ signal analysis\n\nidentifier: ${input}\nhits: ${d.count}\nsources: ${new Set(d.hits.map(h=>h.source)).size}\n\n` +
+        (d.count ? d.hits.slice(0, 10).map(h => `[${h.kind}] ${h.value}`).join('\n') : 'no active signal');
     } catch(e) { $('csint-result').textContent = '✕ ' + e.message; }
   };
 
@@ -883,7 +986,7 @@
       const d = await res.json();
       if (!res.ok) { $('geosint-result').textContent = '✕ ' + (d.detail || 'error'); return; }
       $('geosint-result').textContent = `✓ geolocation data\n\n` + d.hits.map(h =>
-        `[${h.pillar}] ${h.value}\n  ${JSON.stringify(h.meta, null, 0).slice(0, 250)}`
+        `[${h.pillar}] ${h.value}`
       ).join('\n\n');
     } catch(e) { $('geosint-result').textContent = '✕ ' + e.message; }
   };
@@ -901,7 +1004,7 @@
       const d = await res.json();
       if (!res.ok) { $('socsint-result').textContent = '✕ ' + (d.detail || 'error'); return; }
       $('socsint-result').textContent = `✓ social intelligence\n\n` + d.hits.map(h =>
-        `[${h.pillar}] ${h.value}\n  via ${(h.meta.sources||[]).join(', ')}`
+        `[${h.pillar}] ${h.value}`
       ).join('\n\n');
     } catch(e) { $('socsint-result').textContent = '✕ ' + e.message; }
   };
@@ -911,8 +1014,7 @@
     if (!text) return;
     notes.unshift({
       id: 'NOTE-' + Date.now().toString(36),
-      text,
-      operator: currentOperator,
+      text, operator: currentOperator,
       time: new Date().toISOString()
     });
     localStorage.setItem('dvkr_notes', JSON.stringify(notes));
@@ -937,7 +1039,7 @@
       : 'no events yet';
   };
 
-  // session restore
+  // Session restore
   const saved = sessionStorage.getItem('dvkr_operator');
   if (saved && WHITELIST.includes(saved)) {
     currentOperator = saved;
