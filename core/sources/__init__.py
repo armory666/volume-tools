@@ -1,5 +1,6 @@
 from .holehe import Holehe
 from .hudsonrock import HudsonRock
+from .hudsonrock_phone import HudsonRockPhone
 from .gravatar import Gravatar
 from .ipapi import IpApi
 from .internetdb import InternetDB
@@ -8,9 +9,23 @@ from .crtsh import Crtsh
 from .phonenumbers_lib import PhoneNumbers
 from .breach import BreachEngine
 from .h8mail import H8Mail
+from .discord_lookup import DiscordLookup
+from .wayback import Wayback
+from .subdomains import Subdomains
+from .hibp_web import HIBPWeb
+from .pgp import PGP
 
 REGISTRY = [
-    Holehe, HudsonRock, Gravatar,
+    # email
+    Holehe, HudsonRock, HudsonRockPhone, Gravatar, HIBPWeb, PGP,
+    # ip
     IpApi, InternetDB, BgpHe, Crtsh,
-    PhoneNumbers, BreachEngine, H8Mail,
+    # domain
+    Wayback, Subdomains,
+    # phone
+    PhoneNumbers,
+    # breach / stealer
+    BreachEngine, H8Mail,
+    # discord
+    DiscordLookup,
 ]
