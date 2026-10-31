@@ -36,7 +36,9 @@
     ::-webkit-scrollbar-thumb { background: var(--border-2); border-radius: 10px; }
     ::-webkit-scrollbar-thumb:hover { background: var(--accent-2); }
     
-    .gsap-fade { opacity: 0; transform: translateY(20px); }
+    /* SAFE ANIMATION WRAPPER */
+    .fade-in-up { animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; opacity: 0; transform: translateY(20px); }
+    @keyframes fadeInUp { to { opacity: 1; transform: translateY(0); } }
     
     /* FORCES FULL SCREEN NO GAPS */
     .app-container { 
@@ -70,7 +72,7 @@
     .status-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 8px var(--accent); animation: pulse 2s infinite; }
     @keyframes pulse { 0% { opacity: 1; box-shadow: 0 0 8px var(--accent); } 50% { opacity: 0.5; box-shadow: 0 0 2px var(--accent); } 100% { opacity: 1; box-shadow: 0 0 8px var(--accent); } }
 
-    /* MAIN CONTENT */
+    /* MAIN */
     .main-content { flex: 1; display: flex; flex-direction: column; min-width: 0; position: relative; z-index: 10; }
     .topbar { height: 60px; border-bottom: 1px solid var(--border); display: flex; align-items: center; padding: 0 32px; background: rgba(10, 14, 11, 0.6); backdrop-filter: blur(10px); }
     .breadcrumb { font-family: var(--mono); font-size: 11px; color: var(--dim); display: flex; align-items: center; gap: 8px; }
@@ -154,14 +156,14 @@
     #network { flex: 1; background: transparent; outline: none; }
   </style>
 </head>
-<body class="gsap-fade">
+<body>
 
 <script>
   if (!localStorage.getItem('volume_token')) window.location.href = '/login';
 </script>
 
-<div class="app-container">
-  <aside class="sidebar gsap-fade" id="sidebar">
+<div class="app-container fade-in-up">
+  <aside class="sidebar" id="sidebar">
     <div class="brand-area">
       <a href="/" class="brand">
         <div class="brand-logo">v</div>
@@ -245,7 +247,7 @@
     </div>
   </aside>
 
-  <main class="main-content gsap-fade" id="main-content">
+  <main class="main-content" id="main-content">
     <header class="topbar">
       <div class="breadcrumb">
         <span>Workspace</span>
@@ -340,19 +342,10 @@
 
 <script>
 (() => {
-  const forceVisible = () => { document.querySelectorAll('.gsap-fade').forEach(el => el.style.opacity = '1'); };
-  setTimeout(forceVisible, 1000); 
-
   const TOKEN = localStorage.getItem('volume_token');
   const API = window.location.hostname === 'localhost' ? 'http://localhost:8000' : 'https://volume-tools-2.onrender.com';
   
   let currentKind = 'email';
-
-  if (typeof gsap !== 'undefined') {
-    gsap.to('.gsap-fade', { opacity: 1, y: 0, duration: 0.8, stagger: 0.1, ease: 'power3.out', clearProps: 'transform' });
-  } else {
-    forceVisible();
-  }
 
   setInterval(() => { 
     const el = document.getElementById('clock');
@@ -369,12 +362,12 @@
         document.getElementById('user-name').textContent = name;
         document.getElementById('user-quota').textContent = `${tier} · ${quota} CREDITS`;
         document.getElementById('topbar-tier').textContent = `${tier} · ${quota}`;
-        document.getElementById('stat-plan').textContent = tier;
+        document.getElementById('stat-plan').
+                  document.getElementById('stat-plan').textContent = tier;
       }).catch(() => {});
   }
 
-  const titles
-    const titles = { email: 'Email intelligence', phone: 'Phone intelligence', username: 'Username intelligence', domain: 'Domain intelligence', ip: 'IP intelligence' };
+  const titles = { email: 'Email intelligence', phone: 'Phone intelligence', username: 'Username intelligence', domain: 'Domain intelligence', ip: 'IP intelligence' };
   const crumb = { email: 'Live Email Intel', phone: 'Live Phone Intel', username: 'Live Username Intel', domain: 'Domain Search', ip: 'IP Lookup' };
   const placeholders = { email: 'Enter an email address', phone: 'Enter a phone number', username: 'Enter a username', domain: 'Enter a domain name', ip: 'Enter an IP address' };
 
@@ -385,10 +378,6 @@
     
     document.querySelectorAll('.nav-item[data-type]').forEach(i => i.classList.toggle('active', i.dataset.type === currentKind));
     document.querySelectorAll('.chip').forEach(c => c.classList.toggle('active', c.dataset.type === currentKind));
-    
-    if (typeof gsap !== 'undefined') {
-      gsap.fromTo('#search-title', {opacity: 0, y: -5}, {opacity: 1, y: 0, duration: 0.3});
-    }
     
     typeIndex = 0;
     isDeleting = false;
@@ -424,22 +413,11 @@
   }
   setTimeout(() => { typeIndex = 0; isDeleting = false; typePlaceholder(); }, 1000);
 
-  if (typeof gsap !== 'undefined') {
-    const trail = document.createElement('div');
-    trail.style.cssText = 'position:fixed; top:0; left:0; width:6px; height:6px; background:var(--accent); border-radius:50%; pointer-events:none; z-index:9999; box-shadow:0 0 12px var(--accent); opacity:0.5; transform: translate(-50%, -50%);';
-    document.body.appendChild(trail);
-    document.addEventListener('mousemove', (e) => {
-      gsap.to(trail, { x: e.clientX, y: e.clientY, duration: 0.1, ease: 'power2.out' });
-    });
-  }
-
   window.openGraph = () => {
-    if (typeof gsap !== 'undefined') gsap.to('#graph-panel', { right: 0, duration: 0.5, ease: 'power3.out' });
-    else document.getElementById('graph-panel').style.right = '0';
+    document.getElementById('graph-panel').style.right = '0';
   };
   window.closeGraph = () => {
-    if (typeof gsap !== 'undefined') gsap.to('#graph-panel', { right: -450, duration: 0.5, ease: 'power3.in' });
-    else document.getElementById('graph-panel').style.right = '-450px';
+    document.getElementById('graph-panel').style.right = '-450px';
   };
 
   const nodes = new vis.DataSet([]);
@@ -478,19 +456,9 @@
     
     btn.disabled = true;
     btn.textContent = '...';
-    
-    if (typeof gsap !== 'undefined') {
-      gsap.to(btn, { boxShadow: '0 0 25px rgba(110,231,168,0.6)', borderColor: 'var(--accent)', duration: 0.5, yoyo: true, repeat: -1 });
-      gsap.to(emptyView, { opacity: 0, duration: 0.2, onComplete: () => {
-        emptyView.style.display = 'none';
-        feed.style.display = 'flex';
-        feed.innerHTML = '<div style="color: var(--dim); font-family: var(--mono); font-size: 11px;">Initializing fan-out...</div>';
-      }});
-    } else {
-      emptyView.style.display = 'none';
-      feed.style.display = 'flex';
-      feed.innerHTML = '<div style="color: var(--dim); font-family: var(--mono); font-size: 11px;">Initializing fan-out...</div>';
-    }
+    emptyView.style.display = 'none';
+    feed.style.display = 'flex';
+    feed.innerHTML = '<div style="color: var(--dim); font-family: var(--mono); font-size: 11px;">Initializing fan-out...</div>';
 
     document.getElementById('stat-stream').textContent = 'Active';
     document.getElementById('stat-stream-sub').textContent = 'Querying modules';
@@ -504,11 +472,6 @@
 
       const data = await res.json();
       
-      if (typeof gsap !== 'undefined') {
-        gsap.killTweensOf(btn);
-        gsap.to(btn, { boxShadow: 'none', borderColor: 'transparent', duration: 0.3 });
-      }
-
       if (!res.ok) {
         feed.innerHTML = `<div class="feed-item" style="border-color: var(--danger);">
           <div class="fi-header"><span class="fi-badge stealer">Error</span></div>
@@ -556,10 +519,6 @@
           `;
           feed.appendChild(el);
         });
-        
-        if (typeof gsap !== 'undefined') {
-          gsap.from('.feed-item', { opacity: 0, y: 20, duration: 0.5, stagger: 0.05, ease: 'power2.out' });
-        }
       }
     } catch (e) {
       feed.innerHTML = `<div style="color: var(--danger); font-family: var(--mono); font-size: 11px;">Network error: ${e.message}</div>`;
