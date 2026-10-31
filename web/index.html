@@ -543,6 +543,34 @@
     window.location.href = '/';
   });
 })();
+    // ==========================================
+  // GLOWING CURSOR TRAIL (Native JS)
+  // ==========================================
+  const cursorGlow = document.createElement('div');
+  cursorGlow.style.cssText = `
+    position: fixed;
+    top: 0; left: 0;
+    width: 8px; height: 8px;
+    background: var(--accent);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 9999;
+    box-shadow: 0 0 15px var(--accent), 0 0 30px var(--accent);
+    opacity: 0.6;
+    transform: translate(-50%, -50%);
+    transition: transform 0.08s ease-out, opacity 0.2s ease;
+  `;
+  document.body.appendChild(cursorGlow);
+
+  document.addEventListener('mousemove', (e) => {
+    cursorGlow.style.left = `${e.clientX}px`;
+    cursorGlow.style.top = `${e.clientY}px`;
+    cursorGlow.style.opacity = '0.8';
+  });
+
+  document.addEventListener('mouseleave', () => {
+    cursorGlow.style.opacity = '0';
+  });
 </script>
 </body>
 </html>
