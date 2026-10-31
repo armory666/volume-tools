@@ -86,14 +86,16 @@
 
     /* NAV */
         nav {
-      display: flex; align-items: center; gap: var(--s6);
-      padding: var(--s4) var(--s8);
-      border-bottom: 1px solid rgba(29, 39, 31, 0.5);
-      backdrop-filter: blur(14px);
       position: sticky; top: 0; z-index: 100;
-      background: rgba(5, 8, 7, 0.8);
       width: 100%;
-      box-sizing: border-box;
+      background: rgba(5, 8, 7, 0.85);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid rgba(29, 39, 31, 0.5);
+    }
+    nav .nav-inner {
+      display: flex; align-items: center; gap: var(--s6);
+      max-width: 1200px; margin: 0 auto;
+      padding: var(--s4) var(--s8);
     }
     .brand { display: flex; align-items: center; gap: var(--s2); font-weight: 500; font-size: 14px; color: var(--fg); text-decoration: none; }
     .brand-logo {
@@ -310,10 +312,6 @@
       max-width: 1200px;
       margin: 0 auto;
       padding: 0 var(--s8);
-      perspective: 1500px;
-      transform-style: preserve-3d;
-      transition: transform 0.1s ease-out;
-      will-change: transform;
     }
   </style>
 </head>
@@ -327,7 +325,8 @@
 
 <div class="wrap">
     <nav>
-    <a href="/" class="brand">
+    <a href="/" class="nav-inner">
+      <a href="/" class="brand">
       <div class="brand-logo">v</div>
       <div>volume<span>.tools</span></div>
     </a>
@@ -338,8 +337,9 @@
       <a href="#plans" class="nav-link">plans</a>
       <a href="#policies" class="nav-link">policies</a>
     </div>
-    <div class="spacer"></div>
-    <a href="/login" class="cta">enter console →</a>
+            <div class="spacer"></div>
+      <a href="/login" class="cta">enter console →</a>
+    </div>
   </nav>
 
   <section class="hero">
@@ -796,37 +796,35 @@
 </div>
 
 <script>
-    // ============ FULL PAGE MOUSE TILT ============
-  const pageWrap = document.querySelector('.wrap');
-  
-  document.addEventListener('mousemove', (e) => {
-    const x = e.clientX;
-    const y = e.clientY;
-    const centerX = window.innerWidth / 2;
-    const centerY = window.innerHeight / 2;
-    
-    // 3 degrees max tilt for subtle depth
-    const rotateX = ((y - centerY) / centerY) * -3;
-    const rotateY = ((x - centerX) / centerX) * 3;
-    
-    if (pageWrap) {
-      pageWrap.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
-    }
-  });
 
-  document.addEventListener('mouseleave', () => {
-    if (pageWrap) {
-      pageWrap.style.transition = 'transform 0.5s ease';
-      pageWrap.style.transform = 'rotateX(0) rotateY(0)';
-    }
-  });
+    // ============ GATEWAY BOX TILT ============
+  const tiltBox = document.getElementById('tilt-box');
+  const tiltContainer = document.getElementById('tilt-container');
 
-  document.addEventListener('mouseenter', () => {
-    if (pageWrap) {
-      pageWrap.style.transition = 'transform 0.1s ease-out';
-    }
-  });
+  if (tiltBox && tiltContainer) {
+    tiltContainer.addEventListener('mousemove', (e) => {
+      const rect = tiltContainer.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      const centerX = rect.width / 2;
+      const centerY = rect.height / 2;
+      
+      const rotateX = ((y - centerY) / centerY) * -10;
+      const rotateY = ((x - centerX) / centerX) * 10;
+      
+      tiltBox.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.02)`;
+    });
 
+    tiltContainer.addEventListener('mouseleave', () => {
+      tiltBox.style.transform = `rotateX(0) rotateY(0) scale(1)`;
+      tiltBox.style.transition = 'transform 0.5s ease';
+    });
+
+    tiltContainer.addEventListener('mouseenter', () => {
+      tiltBox.style.transition = 'transform 0.1s ease-out';
+    });
+  }
+ 
   // ============ ACCESS GATEWAY ============
   const gateKey = document.getElementById('gate-key');
   const gateBtn = document.getElementById('gate-continue');
