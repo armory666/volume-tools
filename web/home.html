@@ -892,7 +892,37 @@
     });
   });
 </script>
+<script>
+  // If user is already logged in, change the buttons to point straight to the console
+  document.addEventListener('DOMContentLoaded', () => {
+    if (localStorage.getItem('volume_token')) {
+      // Update the top nav CTA
+      const navCta = document.querySelector('nav .cta');
+      if (navCta) {
+        navCta.textContent = 'open console →';
+        navCta.href = '/app';
+      }
+      
+      // Update the hero button
+      const heroBtn = document.querySelector('.hero .btn-primary');
+      if (heroBtn) {
+        heroBtn.textContent = 'open console →';
+        heroBtn.href = '/app';
+      }
 
+      // If they are logged in, change the gateway text
+      const gateSub = document.querySelector('.gateway .gate-sub');
+      if (gateSub) gateSub.textContent = "You're signed in. You can launch the console directly.";
+      
+      // Change the gateway button
+      const gateBtn = document.getElementById('gate-continue');
+      if (gateBtn) {
+        gateBtn.textContent = 'open console →';
+        gateBtn.onclick = () => window.location.href = '/app';
+      }
+    }
+  });
+</script>
 </body>
 </html>
   
