@@ -1,8 +1,8 @@
 {
   "rewrites": [
     { "source": "/", "destination": "/home.html" },
+    { "source": "/dashboard", "destination": "/home.html" },
     { "source": "/login", "destination": "/login.html" },
-    { "source": "/dashboard", "destination": "/dashboard.html" },
     { "source": "/app", "destination": "/index.html" },
     { "source": "/1995", "destination": "/1995.html" },
     { "source": "/upgrade", "destination": "https://volume-tools-2.onrender.com/upgrade" },
