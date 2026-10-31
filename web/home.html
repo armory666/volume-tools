@@ -30,6 +30,7 @@
       --accent-glow: rgba(110, 231, 168, 0.12);
       --danger: #ed4245;
       --warn: #e8a24a;
+      --purple: #a855f7;
       --mono: 'JetBrains Mono', ui-monospace, Menlo, monospace;
       --sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
       --serif: 'Fraunces', Georgia, serif;
@@ -49,8 +50,10 @@
       line-height: 1.6;
       -webkit-font-smoothing: antialiased;
       overflow-x: hidden;
+      min-height: 100vh;
     }
 
+    /* JUNGLE BACKGROUND */
     .bg-layer {
       position: fixed; inset: 0; z-index: -2;
       background:
@@ -85,6 +88,7 @@
       padding: 0 var(--s8);
     }
 
+    /* NAV */
     nav {
       display: flex; align-items: center; gap: var(--s6);
       padding: var(--s5) 0;
@@ -123,6 +127,7 @@
     }
     nav .cta:hover { filter: brightness(1.08); }
 
+    /* HERO */
     .hero {
       padding: var(--s24) 0 var(--s16);
       display: grid;
@@ -148,6 +153,7 @@
       animation: tagPulse 2s ease-in-out infinite;
     }
     @keyframes tagPulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+    
     .hero h1 {
       font-family: var(--serif); font-weight: 500;
       font-size: clamp(44px, 6vw, 76px);
@@ -161,24 +167,7 @@
     }
     .hero .actions { display: flex; gap: var(--s3); flex-wrap: wrap; }
 
-    .btn {
-      display: inline-flex; align-items: center; justify-content: center; gap: var(--s2);
-      padding: 12px 24px;
-      border-radius: var(--r-sm);
-      font-family: var(--mono); font-size: 13px; font-weight: 600;
-      text-decoration: none; cursor: pointer; border: none;
-      transition: filter var(--t), transform var(--t), border-color var(--t);
-    }
-    .btn-primary { background: var(--accent); color: #062a17; }
-    .btn-primary:hover { filter: brightness(1.08); }
-    .btn-ghost {
-      background: transparent;
-      border: 1px solid var(--border-2);
-      color: var(--fg);
-    }
-    .btn-ghost:hover { border-color: var(--accent-2); }
-    .btn:active { transform: translateY(1px); }
-
+    /* GATEWAY */
     .gateway {
       background: linear-gradient(180deg, rgba(15, 20, 16, 0.95), rgba(10, 14, 11, 0.98));
       border: 1px solid var(--border-2);
@@ -187,11 +176,16 @@
       backdrop-filter: blur(20px);
       box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6), 0 0 60px rgba(110, 231, 168, 0.04);
       position: relative; overflow: hidden;
+      /* Tilt Effect Base */
+      transform-style: preserve-3d;
+      transition: transform 0.1s ease-out;
     }
     .gateway::before {
       content: ""; position: absolute; top: 0; left: 24px; right: 24px; height: 1px;
       background: linear-gradient(90deg, transparent, var(--accent), transparent);
     }
+    .gateway > * { transform: translateZ(20px); }
+    
     .gateway .gate-label {
       font-family: var(--mono); font-size: 10px;
       letter-spacing: 0.2em; text-transform: uppercase;
@@ -225,6 +219,7 @@
     .gateway .gate-footer a { color: var(--accent); text-decoration: none; }
     .gateway .gate-footer a:hover { text-decoration: underline; }
 
+    /* SECTIONS */
     .section { padding: var(--s24) 0; border-top: 1px solid rgba(29, 39, 31, 0.5); }
     .section-head {
       display: flex; align-items: baseline; gap: var(--s4);
@@ -245,49 +240,20 @@
       margin-bottom: var(--s12); font-size: 15px;
     }
 
-    .coverage-grid {
-      display: grid; grid-template-columns: repeat(3, 1fr);
-      gap: 1px; background: var(--border);
-      border: 1px solid var(--border);
-      border-radius: var(--r-lg); overflow: hidden;
+    /* BUTTONS */
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: var(--s2);
+      padding: 12px 24px;
+      border-radius: var(--r-sm);
+      font-family: var(--mono); font-size: 13px; font-weight: 600;
+      text-decoration: none; cursor: pointer; border: none;
+      transition: filter var(--t), transform var(--t), border-color var(--t);
     }
-    .coverage-card {
-      background: var(--card); padding: var(--s8) var(--s6);
-      transition: background var(--t);
-    }
-    .coverage-card:hover { background: var(--card-hover); }
-    .coverage-card .big-num {
-      font-family: var(--mono); font-size: clamp(32px, 4vw, 44px);
-      font-weight: 600; color: var(--accent);
-      letter-spacing: -0.03em; line-height: 1;
-      margin-bottom: var(--s2);
-    }
-    .coverage-card .big-num small {
-      font-size: 14px; color: var(--dim); font-weight: 400; margin-left: 4px;
-    }
-    .coverage-card h3 { font-size: 15px; font-weight: 600; margin-bottom: var(--s2); }
-    .coverage-card p {
-      font-size: 13px; color: var(--dim); margin-bottom: var(--s4); line-height: 1.5;
-    }
-    .coverage-card .tags { display: flex; flex-wrap: wrap; gap: 6px; }
-    .coverage-card .tag-pill {
-      font-family: var(--mono); font-size: 9px;
-      letter-spacing: 0.05em; padding: 3px 8px;
-      border: 1px solid var(--border-2); border-radius: 100px;
-      color: var(--dim);
-    }
-
-    /* remaining sections (demo, modules, testimonials, plans, policies, footer, responsive) continue in chunk 2 and 3 */
-
-    @media (max-width: 1024px) {
-      .hero { grid-template-columns: 1fr; gap: var(--s8); min-height: auto; padding: var(--s12) 0; }
-      .coverage-grid { grid-template-columns: 1fr; }
-    }
-    @media (max-width: 768px) {
-      .wrap { padding: 0 var(--s5); }
-      nav .links { display: none; }
-      .section { padding: var(--s16) 0; }
-    }
+    .btn-primary { background: var(--accent); color: #062a17; }
+    .btn-primary:hover { filter: brightness(1.08); }
+    .btn-ghost { background: transparent; border: 1px solid var(--border-2); color: var(--fg); }
+    .btn-ghost:hover { border-color: var(--accent-2); }
+    .btn:active { transform: translateY(1px); }
   </style>
 </head>
 <body>
@@ -327,18 +293,260 @@
       </div>
     </div>
 
-    <div class="gateway">
-      <div class="gate-label">access gateway</div>
-      <h2>Enter the console</h2>
-      <p class="gate-sub">New accounts start on Free — 15 searches, all sources, redacted results.</p>
-      <input type="text" id="gate-key" placeholder="paste your access key" autocomplete="off" spellcheck="false">
-      <button class="btn btn-primary" id="gate-continue">continue to console →</button>
-      <div class="gate-footer">
-        no key? <a href="/login">register for free</a> — takes 10 seconds
+    <!-- TILT EFFECT WRAPPER -->
+    <div id="tilt-container">
+      <div class="gateway">
+        <div class="gate-label">access gateway</div>
+        <h2>Enter the console</h2>
+        <p class="gate-sub">New accounts start on Free — 15 searches, all sources, redacted results.</p>
+        <input type="text" id="gate-key" placeholder="paste your access key" autocomplete="off" spellcheck="false">
+        <button class="btn btn-primary" id="gate-continue">continue to console →</button>
+        <div class="gate-footer">
+          no key? <a href="/login">register for free</a> — takes 10 seconds
+        </div>
+      </div>
+    </div>
+  </section>
+  
+  <!-- CHUNK 2 CONTINUES HERE (Coverage + Demo) -->
+
+      /* ============ COVERAGE ============ */
+    .coverage-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      gap: 1px; background: var(--border);
+      border: 1px solid var(--border);
+      border-radius: var(--r-lg); overflow: hidden;
+    }
+    .coverage-card {
+      background: var(--card); padding: var(--s8) var(--s6);
+      transition: background var(--t);
+    }
+    .coverage-card:hover { background: var(--card-hover); }
+    .coverage-card .big-num {
+      font-family: var(--mono); font-size: clamp(32px, 4vw, 44px);
+      font-weight: 600; color: var(--accent);
+      letter-spacing: -0.03em; line-height: 1;
+      margin-bottom: var(--s2);
+    }
+    .coverage-card .big-num small {
+      font-size: 14px; color: var(--dim); font-weight: 400; margin-left: 4px;
+    }
+    .coverage-card h3 { font-size: 15px; font-weight: 600; margin-bottom: var(--s2); }
+    .coverage-card p {
+      font-size: 13px; color: var(--dim); margin-bottom: var(--s4); line-height: 1.5;
+    }
+    .coverage-card .tags { display: flex; flex-wrap: wrap; gap: 6px; }
+    .coverage-card .tag-pill {
+      font-family: var(--mono); font-size: 9px;
+      letter-spacing: 0.05em; padding: 3px 8px;
+      border: 1px solid var(--border-2); border-radius: 100px;
+      color: var(--dim);
+    }
+
+    /* ============ DEMO BLACK GLASS ============ */
+    .demo-shell {
+      background: rgba(10, 14, 11, 0.85);
+      border: 1px solid var(--border-2);
+      border-radius: var(--r-lg);
+      overflow: hidden;
+      box-shadow: 0 30px 100px rgba(0, 0, 0, 0.8), inset 0 1px 0 rgba(255,255,255,0.05);
+      backdrop-filter: blur(20px);
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+
+    .demo-topbar {
+      display: flex; align-items: center; gap: var(--s3);
+      padding: 12px 16px;
+      background: rgba(0, 0, 0, 0.4);
+      border-bottom: 1px solid var(--border);
+      font-family: var(--mono); font-size: 11px; color: var(--dim);
+    }
+    .demo-topbar .dots { display: flex; gap: 6px; }
+    .demo-topbar .dots span {
+      width: 10px; height: 10px; border-radius: 50%; background: var(--border-2);
+    }
+    .demo-topbar .dots span:first-child { background: #ff5f57; }
+    .demo-topbar .dots span:nth-child(2) { background: #febc2e; }
+    .demo-topbar .dots span:last-child { background: #28c840; }
+    .demo-topbar .path { margin-left: 8px; }
+    .demo-topbar .live {
+      margin-left: auto; display: flex; align-items: center; gap: 6px;
+      color: var(--accent); border: 1px solid var(--accent-2);
+      padding: 2px 8px; border-radius: 100px;
+    }
+    .demo-topbar .live::before {
+      content: ""; width: 6px; height: 6px;
+      border-radius: 50%; background: var(--accent);
+      animation: livePulse 1.5s ease-in-out infinite;
+    }
+    @keyframes livePulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+
+    .demo-body {
+      display: grid;
+      grid-template-columns: 220px 1fr;
+      min-height: 420px;
+      background: radial-gradient(ellipse 80% 50% at 50% 0%, rgba(110, 231, 168, 0.03), transparent 60%);
+    }
+
+    .demo-sidebar {
+      border-right: 1px solid var(--border);
+      padding: var(--s4);
+      background: rgba(0,0,0,0.2);
+    }
+    .demo-sidebar .group-label {
+      font-family: var(--mono); font-size: 9px; color: var(--dim-2);
+      letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: var(--s2); margin-top: var(--s4);
+    }
+    .demo-sidebar .group-label:first-child { margin-top: 0; }
+    .demo-nav-item {
+      display: block; padding: 8px 12px; border-radius: var(--r-sm);
+      font-size: 12px; color: var(--fg-2); text-decoration: none;
+      margin-bottom: 2px;
+    }
+    .demo-nav-item.active {
+      background: rgba(110, 231, 168, 0.1); color: var(--accent);
+      border: 1px solid var(--border-2);
+    }
+
+    .demo-main { padding: var(--s6); }
+    .demo-search-bar {
+      display: flex; gap: var(--s2); margin-bottom: var(--s5);
+    }
+    .demo-search-bar input {
+      flex: 1; padding: 12px 16px; background: #000;
+      border: 1px solid var(--border-2); border-radius: var(--r-sm);
+      color: var(--fg); font-family: var(--mono); font-size: 13px;
+      outline: none;
+    }
+    .demo-search-bar button {
+      padding: 0 20px; background: var(--fg); color: #000;
+      border: none; border-radius: var(--r-sm); font-weight: 600; font-family: var(--mono);
+    }
+
+    .demo-stats {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--s2); margin-bottom: var(--s5);
+    }
+    .demo-stat {
+      background: rgba(0,0,0,0.4); border: 1px solid var(--border);
+      border-radius: var(--r-sm); padding: 10px 14px;
+    }
+    .demo-stat .label { font-family: var(--mono); font-size: 9px; color: var(--dim); text-transform: uppercase; letter-spacing: 0.1em; }
+    .demo-stat .val { font-family: var(--mono); font-size: 16px; color: var(--fg); margin-top: 4px; }
+    .demo-stat .val.green { color: var(--accent); }
+
+    .demo-result-card {
+      background: linear-gradient(180deg, rgba(30, 15, 35, 0.8) 0%, rgba(10, 5, 15, 0.9) 100%);
+      border: 1px solid rgba(100, 50, 150, 0.3);
+      border-radius: var(--r-md); padding: var(--s4); margin-bottom: var(--s3);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.05);
+      animation: slideIn 0.4s ease;
+    }
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .demo-result-card .head {
+      display: flex; align-items: center; gap: 10px; margin-bottom: var(--s3);
+      padding-bottom: var(--s3); border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    .demo-result-card .icon-box {
+      width: 28px; height: 28px; border-radius: var(--r-sm); background: rgba(110, 231, 168, 0.1);
+      display: grid; place-items: center; font-size: 14px;
+    }
+    .demo-result-card h4 { font-size: 13px; font-weight: 600; color: var(--fg); margin: 0; }
+    .demo-result-card .sub-head { font-family: var(--mono); font-size: 10px; color: var(--dim); margin-top: 2px; }
+    .demo-result-card .match-badge {
+      margin-left: auto; font-family: var(--mono); font-size: 9px; font-weight: 700;
+      color: var(--accent); border: 1px solid var(--accent-2); background: rgba(110,231,168,0.1);
+      padding: 3px 8px; border-radius: 100px; text-transform: uppercase;
+    }
+    .demo-result-card .data-row {
+      display: grid; grid-template-columns: 100px 1fr; gap: 10px; margin-bottom: 6px;
+      font-family: var(--mono); font-size: 11px;
+    }
+    .demo-result-card .data-row .k { color: var(--dim); }
+    .demo-result-card .data-row .v { color: var(--fg); }
+    
+    .demo-bar-wrap { display: flex; align-items: center; gap: 10px; margin-top: 6px; font-family: var(--mono); font-size: 10px; color: var(--dim); }
+    .demo-bar { flex: 1; height: 4px; background: rgba(255,255,255,0.1); border-radius: 2px; overflow: hidden; }
+    .demo-bar-inner { height: 100%; background: var(--accent); }
+
+    /* ============ MODULES ============ */
+    .modules-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--s4);
+    }
+    .module-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: var(--r-md); padding: var(--s6);
+      transition: border-color var(--t), transform var(--t);
+    }
+    .module-card:hover { border-color: var(--border-2); transform: translateY(-2px); }
+    .module-card .icon { font-size: 20px; margin-bottom: var(--s3); display: block; }
+    .module-card h3 { font-size: 14px; font-weight: 600; margin-bottom: var(--s2); }
+    .module-card p { font-size: 12px; color: var(--dim); line-height: 1.5; margin-bottom: var(--s3); }
+    .module-card .sub-tags { display: flex; flex-wrap: wrap; gap: 4px; }
+    .module-card .sub-tag {
+      font-family: var(--mono); font-size: 9px;
+      padding: 2px 6px; border: 1px solid var(--border-2);
+      border-radius: 3px; color: var(--dim);
+    }
+  </style>
+</head>
+<body>
+
+<video class="bg-video" autoplay muted loop playsinline>
+  <source src="https://videos.pexels.com/video-files/2169880/2169880-uhd_2560_1440_30fps.mp4" type="video/mp4">
+</video>
+<div class="bg-layer"></div>
+<div class="bg-vignette"></div>
+
+<div class="wrap">
+  <!-- CHUNK 3 CONTINUES HERE: Nav, Hero, Coverage, Demo, Modules, Testimonials, Plans, Policies, Scripts -->
+
+    <nav>
+    <a href="/" class="brand">
+      <div class="brand-logo">v</div>
+      <div>volume<span>.tools</span></div>
+    </a>
+    <div class="links">
+      <a href="#coverage" class="nav-link">coverage</a>
+      <a href="#demo" class="nav-link">console</a>
+      <a href="#modules" class="nav-link">modules</a>
+      <a href="#plans" class="nav-link">plans</a>
+      <a href="#policies" class="nav-link">policies</a>
+    </div>
+    <div class="spacer"></div>
+    <a href="/login" class="cta">enter console →</a>
+  </nav>
+
+  <section class="hero">
+    <div class="hero-copy">
+      <div class="tag">live coverage · all modules wired</div>
+      <h1>One identifier.<br><em>The whole trail.</em></h1>
+      <p class="lede">Email, phone, username, domain, IP, breach records, stealer logs, OSINT pivots and CNAME footprints — streaming into a single black-glass workspace with an entity graph, CSV export and per-account plans.</p>
+      <div class="actions">
+        <a href="/login" class="btn btn-primary">enter console →</a>
+        <a href="#demo" class="btn btn-ghost">watch a lookup</a>
+      </div>
+    </div>
+
+    <!-- TILT EFFECT WRAPPER -->
+    <div id="tilt-container" style="perspective: 1000px;">
+      <div class="gateway" id="tilt-box">
+        <div class="gate-label">access gateway</div>
+        <h2>Enter the console</h2>
+        <p class="gate-sub">New accounts start on Free — 15 searches, all sources, redacted results.</p>
+        <input type="text" id="gate-key" placeholder="paste your access key" autocomplete="off" spellcheck="false">
+        <button class="btn btn-primary" id="gate-continue">continue to console →</button>
+        <div class="gate-footer">
+          no key? <a href="/login">register for free</a> — takes 10 seconds
+        </div>
       </div>
     </div>
   </section>
 
+  <!-- 01 COVERAGE -->
   <section class="section" id="coverage">
     <div class="section-head">
       <span class="num">01 — Live Coverage</span>
@@ -356,7 +564,6 @@
           <span class="tag-pill">stealer logs</span>
           <span class="tag-pill">GHunt</span>
           <span class="tag-pill">Holehe</span>
-          <span class="tag-pill">social</span>
         </div>
       </div>
       <div class="coverage-card">
@@ -379,88 +586,94 @@
           <span class="tag-pill">gaming</span>
           <span class="tag-pill">streaming</span>
           <span class="tag-pill">messaging</span>
-          <span class="tag-pill">avatars</span>
         </div>
       </div>
     </div>
   </section>
+
   <!-- 02 DEMO -->
   <section class="section" id="demo">
-    <div class="section-head">
-      <span class="num">02 — Demo</span>
-      <h2>Watch a lookup <em>unfold.</em></h2>
+    <div class="section-head" style="justify-content: center; text-align: center; margin-bottom: var(--s2);">
+      <h2 style="font-size: clamp(36px, 5vw, 56px);">Watch a lookup <em>unfold.</em></h2>
     </div>
-    <p class="sub">Every query streams into a live terminal. No loading screens, no empty spinners, no fake progress bars. Results appear the moment they arrive.</p>
+    <p class="sub" style="text-align: center; margin: 0 auto var(--s8);">Every query streams into a live terminal. No loading screens, no fake progress bars. Results appear the moment they arrive.</p>
 
     <div class="demo-shell">
       <div class="demo-topbar">
         <div class="dots"><span></span><span></span><span></span></div>
-        <span class="path">volume.tools — console · live</span>
-        <div class="live">streaming</div>
+        <span class="path">volume.tools — console</span>
+        <div class="live">LIFETIME · ∞</div>
       </div>
+      
       <div class="demo-body">
-        <div class="demo-line">
-          <span class="demo-prompt">›</span>
-          <span class="demo-cmd">pivot email johnsmith@gmail.com</span>
-          <span class="demo-cursor"></span>
-        </div>
-        <div class="demo-line" style="color: var(--dim); font-size: 10px; margin-top: 4px;">
-          15 sources · parallel dispatch · dedupe active
-        </div>
-
-        <div class="demo-result">
-          <div class="res-head">
-            <span class="res-badge danger">stealer</span>
-            <span style="color: var(--dim)">REC 001 · 1.2s · 3 records</span>
-          </div>
-          <div class="res-data">
-            <span class="k">email</span><span class="v">johnsmith@gmail.com</span>
-            <span class="k">password</span><span class="v">••••••••••</span>
-            <span class="k">machine</span><span class="v">DESKTOP-8FJ2</span>
-            <span class="k">family</span><span class="v">redline · 2023-04-11</span>
-            <span class="k">source</span><span class="v">hudsonrock · h8mail</span>
-          </div>
+        <div class="demo-sidebar">
+          <div class="group-label">SEARCH</div>
+          <a href="#" class="demo-nav-item">Email</a>
+          <a href="#" class="demo-nav-item active">Phone</a>
+          <a href="#" class="demo-nav-item">Username</a>
+          <a href="#" class="demo-nav-item">Domain</a>
+          <div class="group-label">MODULES</div>
+          <a href="#" class="demo-nav-item">Stealer-Intel</a>
+          <a href="#" class="demo-nav-item">OSINT pivots</a>
+          <a href="#" class="demo-nav-item">Leaks</a>
+          <a href="#" class="demo-nav-item">CNAME lookup</a>
         </div>
 
-        <div class="demo-result">
-          <div class="res-head">
-            <span class="res-badge warn">breach</span>
-            <span style="color: var(--dim)">REC 002 · 2.8s · 6 breaches</span>
+        <div class="demo-main">
+          <div class="demo-search-bar">
+            <input type="text" value="+16094249593 |" readonly>
+            <button>Run</button>
           </div>
-          <div class="res-data">
-            <span class="k">breaches</span><span class="v">Collection #1, LinkedIn, Adobe, Dropbox, Canva, MyFitnessPal</span>
-            <span class="k">sources</span><span class="v">HIBP · intelx · h8mail</span>
-          </div>
-        </div>
 
-        <div class="demo-result">
-          <div class="res-head">
-            <span class="res-badge">account</span>
-            <span style="color: var(--dim)">REC 003 · 3.1s · 14 profiles</span>
+          <div class="demo-stats">
+            <div class="demo-stat"><div class="label">STATUS</div><div class="val">Complete</div></div>
+            <div class="demo-stat"><div class="label">RESULTS</div><div class="val green">2</div></div>
+            <div class="demo-stat"><div class="label">MATCHES</div><div class="val green">2</div></div>
+            <div class="demo-stat"><div class="label">ENTITIES</div><div class="val">9</div></div>
           </div>
-          <div class="res-data">
-            <span class="k">github</span><span class="v">github.com/johnsmith · 2014</span>
-            <span class="k">twitter</span><span class="v">@johnsmith · 2013</span>
-            <span class="k">steam</span><span class="v">steamcommunity.com/id/johnsmith</span>
-            <span class="k">spotify</span><span class="v">open.spotify.com/user/johnsmith</span>
-          </div>
-        </div>
 
-        <div class="demo-result">
-          <div class="res-head">
-            <span class="res-badge">iptrace</span>
-            <span style="color: var(--dim)">REC 004 · 4.2s · 5 linked</span>
+          <div class="demo-result-card">
+            <div class="head">
+              <div class="icon-box">📞</div>
+              <div>
+                <h4>Phone Intelligence</h4>
+                <div class="sub-head">REC 001 · 0.9s · VERIZON WIRELESS</div>
+              </div>
+              <div class="match-badge">Match</div>
+            </div>
+            <div class="data-row"><span class="k">CARRIER</span><span class="v">Verizon Wireless</span></div>
+            <div class="data-row"><span class="k">LINE TYPE</span><span class="v">Mobile · United States</span></div>
+            <div class="data-row"><span class="k">RISK</span><span class="v">Medium · 42 / 100</span></div>
           </div>
-          <div class="res-data">
-            <span class="k">ip</span><span class="v">91.212.xx.xx · Kyiv, UA</span>
-            <span class="k">asn</span><span class="v">AS15169 · Cloudflare</span>
-            <span class="k">ports</span><span class="v">22, 80, 443</span>
-            <span class="k">certs</span><span class="v">3 hostnames · 1 expired</span>
-          </div>
-        </div>
 
-        <div class="demo-line" style="margin-top: 20px; color: var(--dim); font-size: 11px;">
-          ─ ─ ─ completed in 4.2s · 28 entities · 15 sources · exported to graph
+          <div class="demo-result-card">
+            <div class="head">
+              <div class="icon-box">🕸</div>
+              <div>
+                <h4>CNAME lookup</h4>
+                <div class="sub-head">REC 002 · PARALLEL · 9 LINKED</div>
+              </div>
+              <div class="match-badge">Match</div>
+            </div>
+            <div class="demo-bar-wrap">
+              <span>Social media</span>
+              <div class="demo-bar"><div class="demo-bar-inner" style="width: 44%;"></div></div>
+              <span>4/9</span>
+            </div>
+            <div class="demo-bar-wrap">
+              <span>Messaging</span>
+              <div class="demo-bar"><div class="demo-bar-inner" style="width: 50%;"></div></div>
+              <span>3/6</span>
+            </div>
+            <div class="demo-bar-wrap">
+              <span>Dating</span>
+              <div class="demo-bar"><div class="demo-bar-inner" style="width: 66%;"></div></div>
+              <span>2/3</span>
+            </div>
+          </div>
+          <div class="demo-line" style="text-align: center; color: var(--dim-2); font-size: 10px; margin-top: 24px; font-family: var(--mono); letter-spacing: 0.1em;">
+            ONE WORKSPACE — COMPLETE
+          </div>
         </div>
       </div>
     </div>
@@ -479,89 +692,55 @@
         <div class="icon">⌕</div>
         <h3>Unified search</h3>
         <p>Email, phone, username, domain, IP, Discord ID. Auto-detect kind or specify explicitly.</p>
-        <div class="sub-tags">
-          <span class="sub-tag">parallel dispatch</span>
-          <span class="sub-tag">auto-detect</span>
-        </div>
+        <div class="sub-tags"><span class="sub-tag">parallel dispatch</span><span class="sub-tag">auto-detect</span></div>
       </div>
       <div class="module-card">
         <div class="icon">🦠</div>
         <h3>Stealer-Intel</h3>
         <p>Archived stealer logs, victim machines, credential dumps, file trees. Drill into the machine.</p>
-        <div class="sub-tags">
-          <span class="sub-tag">hudsonrock</span>
-          <span class="sub-tag">h8mail</span>
-          <span class="sub-tag">machine drill</span>
-        </div>
+        <div class="sub-tags"><span class="sub-tag">hudsonrock</span><span class="sub-tag">h8mail</span><span class="sub-tag">machine drill</span></div>
       </div>
       <div class="module-card">
         <div class="icon">🔓</div>
         <h3>Leaks</h3>
         <p>Cross-platform identity pivots and credential exposure. Breach names, dates, source attribution.</p>
-        <div class="sub-tags">
-          <span class="sub-tag">HIBP</span>
-          <span class="sub-tag">intelx</span>
-          <span class="sub-tag">leakcheck</span>
-        </div>
+        <div class="sub-tags"><span class="sub-tag">HIBP</span><span class="sub-tag">intelx</span><span class="sub-tag">leakcheck</span></div>
       </div>
       <div class="module-card">
         <div class="icon">🌐</div>
         <h3>OSINT pivots</h3>
         <p>IP info, ASN, reverse DNS, TLS certs, subdomains, Wayback. Point enrichment for infrastructure.</p>
-        <div class="sub-tags">
-          <span class="sub-tag">ipapi</span>
-          <span class="sub-tag">crt.sh</span>
-          <span class="sub-tag">wayback</span>
-          <span class="sub-tag">hackertarget</span>
-        </div>
+        <div class="sub-tags"><span class="sub-tag">ipapi</span><span class="sub-tag">crt.sh</span><span class="sub-tag">wayback</span></div>
       </div>
       <div class="module-card">
         <div class="icon">🕸</div>
         <h3>CNAME lookup</h3>
         <p>Reverse CNAME traversal — find every service a domain points to. Stripe, Shopify, Discord, more.</p>
-        <div class="sub-tags">
-          <span class="sub-tag">seon-style</span>
-          <span class="sub-tag">category tags</span>
-        </div>
+        <div class="sub-tags"><span class="sub-tag">seon-style</span><span class="sub-tag">category tags</span></div>
       </div>
       <div class="module-card">
         <div class="icon">🕵</div>
         <h3>Case workspace</h3>
         <p>Every investigation is a case. Pin hits, annotate timelines, export as JSON or CSV.</p>
-        <div class="sub-tags">
-          <span class="sub-tag">entity graph</span>
-          <span class="sub-tag">notes</span>
-          <span class="sub-tag">export</span>
-        </div>
+        <div class="sub-tags"><span class="sub-tag">entity graph</span><span class="sub-tag">notes</span><span class="sub-tag">export</span></div>
       </div>
       <div class="module-card">
         <div class="icon">🎮</div>
         <h3>Discord tooling</h3>
         <p>ID lookup, username availability, vanity checks, token validation. Bot-token or anonymous.</p>
-        <div class="sub-tags">
-          <span class="sub-tag">id lookup</span>
-          <span class="sub-tag">vanity</span>
-          <span class="sub-tag">token check</span>
-        </div>
+        <div class="sub-tags"><span class="sub-tag">id lookup</span><span class="sub-tag">vanity</span><span class="sub-tag">token check</span></div>
       </div>
       <div class="module-card">
         <div class="icon">📞</div>
         <h3>Phone intelligence</h3>
         <p>Carrier, line type, country, timezone, validity. Stealer log hits indexed by number.</p>
-        <div class="sub-tags">
-          <span class="sub-tag">phonenumbers</span>
-          <span class="sub-tag">stealer by phone</span>
-        </div>
+        <div class="sub-tags"><span class="sub-tag">phonenumbers</span><span class="sub-tag">stealer by phone</span></div>
       </div>
       <div class="module-card">
         <div class="icon">📊</div>
         <h3>Exports</h3>
         <p>JSON, CSV, markdown, PDF. Export one hit, one pillar, or the whole case with methodology.</p>
-        <div class="sub-tags">
-          <span class="sub-tag">json</span>
-          <span class="sub-tag">csv</span>
-          <span class="sub-tag">pdf report</span>
-        </div>
+        <div class="sub-tags"><span class="sub-tag">json</span><span class="sub-tag">csv</span><span class="sub-tag">pdf report</span></div>
       </div>
     </div>
   </section>
@@ -580,10 +759,7 @@
         <p class="quote">"The recursive pivot is the part that sold me. One email becomes a dozen linked accounts, all with source attribution. Stopped juggling five tabs."</p>
         <div class="author">
           <div class="avatar">MT</div>
-          <div>
-            <div class="name">Marcus T.</div>
-            <div class="handle">@marcus_t · investigator</div>
-          </div>
+          <div><div class="name">Marcus T.</div><div class="handle">@marcus_t · investigator</div></div>
           <div class="verified">verified</div>
         </div>
       </div>
@@ -592,10 +768,7 @@
         <p class="quote">"Breach table + stealer records in the same card view. The CSV export replaced half my weekly reporting."</p>
         <div class="author">
           <div class="avatar">AR</div>
-          <div>
-            <div class="name">Alex R.</div>
-            <div class="handle">@rivera_osint</div>
-          </div>
+          <div><div class="name">Alex R.</div><div class="handle">@rivera_osint</div></div>
           <div class="verified">verified</div>
         </div>
       </div>
@@ -604,10 +777,7 @@
         <p class="quote">"The entity graph makes co-occurrence obvious. I caught two linked accounts I would have missed reading rows by hand."</p>
         <div class="author">
           <div class="avatar">KC</div>
-          <div>
-            <div class="name">K. Chen</div>
-            <div class="handle">@kchen · security</div>
-          </div>
+          <div><div class="name">K. Chen</div><div class="handle">@kchen · security</div></div>
           <div class="verified">verified</div>
         </div>
       </div>
@@ -616,10 +786,7 @@
         <p class="quote">"Clean, fast, and the daily reset is fair. The stealer log drill-down is genuinely useful, not decoration."</p>
         <div class="author">
           <div class="avatar">SP</div>
-          <div>
-            <div class="name">Sam P.</div>
-            <div class="handle">@spatel</div>
-          </div>
+          <div><div class="name">Sam P.</div><div class="handle">@spatel</div></div>
           <div class="verified">verified</div>
         </div>
       </div>
@@ -628,10 +795,7 @@
         <p class="quote">"Looks like a product, not a script pile. The green-glass UI keeps long sessions readable at 2am."</p>
         <div class="author">
           <div class="avatar">JM</div>
-          <div>
-            <div class="name">Jordan M.</div>
-            <div class="handle">@jordanm</div>
-          </div>
+          <div><div class="name">Jordan M.</div><div class="handle">@jordanm</div></div>
           <div class="verified">verified</div>
         </div>
       </div>
@@ -640,17 +804,13 @@
         <p class="quote">"Keys are permanent, so no more re-logging every 30 days. That alone saved my workflow."</p>
         <div class="author">
           <div class="avatar">NR</div>
-          <div>
-            <div class="name">Nadia R.</div>
-            <div class="handle">@nadiar · team lead</div>
-          </div>
+          <div><div class="name">Nadia R.</div><div class="handle">@nadiar · team lead</div></div>
           <div class="verified">verified</div>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- CHUNK 3 CONTINUES HERE: sections 05 Plans, 06 Policies, footer, closing tags -->
   <!-- 05 PLANS -->
   <section class="section" id="plans">
     <div class="section-head">
@@ -674,7 +834,6 @@
         </ul>
         <a href="/login" class="btn btn-ghost">start free →</a>
       </div>
-
       <div class="plan">
         <div class="plan-tag">starter</div>
         <div class="plan-name">Starter</div>
@@ -689,7 +848,6 @@
         </ul>
         <a href="/upgrade" class="btn btn-ghost">upgrade →</a>
       </div>
-
       <div class="plan popular">
         <div class="plan-tag">popular</div>
         <div class="plan-name">Intermediate</div>
@@ -701,11 +859,9 @@
           <li>all 16 sources</li>
           <li>deep breach engine</li>
           <li>recursive pivots</li>
-          <li>case workspace</li>
         </ul>
         <a href="/upgrade" class="btn btn-primary">upgrade →</a>
       </div>
-
       <div class="plan">
         <div class="plan-tag">investigator</div>
         <div class="plan-name">Investigator</div>
@@ -720,7 +876,6 @@
         </ul>
         <a href="/upgrade" class="btn btn-ghost">upgrade →</a>
       </div>
-
       <div class="plan">
         <div class="plan-tag">lifetime</div>
         <div class="plan-name">Lifetime</div>
@@ -825,10 +980,37 @@
 </div>
 
 <script>
+  // ============ 3D TILT EFFECT ============
+  const tiltBox = document.getElementById('tilt-box');
+  const tiltContainer = document.getElementById('tilt-container');
+
+  if (tiltBox && tiltContainer) {
+    tiltContainer.addEventListener('mousemove', (e) => {
+      const rect = tiltContainer.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      
+      const centerX = rect.width / 2;
+      const centerY = rect.height / 2;
+      
+      // Calculate rotation (max 10 degrees)
+      const rotateX = ((y - centerY) / centerY) * -10;
+      const rotateY = ((x - centerX) / centerX) * 10;
+      
+      tiltBox.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.02)`;
+    });
+
+    tiltContainer.addEventListener('mouseleave', () => {
+      tiltBox.style.transform = `rotateX(0) rotateY(0) scale(1)`;
+      tiltBox.style.transition = 'transform 0.5s ease';
+    });
+
+    tiltContainer.addEventListener('mouseenter', () => {
+      tiltBox.style.transition = 'transform 0.1s ease-out';
+    });
+  }
+
   // ============ ACCESS GATEWAY ============
-  // The home page input is a shortcut to the console.
-  // If a key is entered, we validate it via /api/auth/key and
-  // create a session, then redirect. If not, we send them to /login.
   const gateKey = document.getElementById('gate-key');
   const gateBtn = document.getElementById('gate-continue');
 
@@ -854,12 +1036,9 @@
       });
 
       if (!res.ok) {
-        const err = await res.json().catch(() => ({}));
         gateBtn.disabled = false;
         gateBtn.textContent = 'invalid key · try again';
-        setTimeout(() => {
-          gateBtn.textContent = 'continue to console →';
-        }, 2000);
+        setTimeout(() => { gateBtn.textContent = 'continue to console →'; }, 2000);
         return;
       }
 
@@ -870,9 +1049,7 @@
     } catch (e) {
       gateBtn.disabled = false;
       gateBtn.textContent = 'connection error · retry';
-      setTimeout(() => {
-        gateBtn.textContent = 'continue to console →';
-      }, 2000);
+      setTimeout(() => { gateBtn.textContent = 'continue to console →'; }, 2000);
     }
   }
 
@@ -892,37 +1069,6 @@
     });
   });
 </script>
-<script>
-  // If user is already logged in, change the buttons to point straight to the console
-  document.addEventListener('DOMContentLoaded', () => {
-    if (localStorage.getItem('volume_token')) {
-      // Update the top nav CTA
-      const navCta = document.querySelector('nav .cta');
-      if (navCta) {
-        navCta.textContent = 'open console →';
-        navCta.href = '/app';
-      }
-      
-      // Update the hero button
-      const heroBtn = document.querySelector('.hero .btn-primary');
-      if (heroBtn) {
-        heroBtn.textContent = 'open console →';
-        heroBtn.href = '/app';
-      }
 
-      // If they are logged in, change the gateway text
-      const gateSub = document.querySelector('.gateway .gate-sub');
-      if (gateSub) gateSub.textContent = "You're signed in. You can launch the console directly.";
-      
-      // Change the gateway button
-      const gateBtn = document.getElementById('gate-continue');
-      if (gateBtn) {
-        gateBtn.textContent = 'open console →';
-        gateBtn.onclick = () => window.location.href = '/app';
-      }
-    }
-  });
-</script>
 </body>
 </html>
-  
