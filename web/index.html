@@ -36,14 +36,10 @@
     ::-webkit-scrollbar-thumb { background: var(--border-2); border-radius: 10px; }
     ::-webkit-scrollbar-thumb:hover { background: var(--accent-2); }
     
-    /* SAFE ANIMATION WRAPPER */
     .fade-in-up { animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; opacity: 0; transform: translateY(20px); }
     @keyframes fadeInUp { to { opacity: 1; transform: translateY(0); } }
     
-    /* FORCES FULL SCREEN NO GAPS */
-    .app-container { 
-      position: fixed; inset: 0; display: flex; background: var(--bg); z-index: 10;
-    }
+    .app-container { position: fixed; inset: 0; display: flex; background: var(--bg); z-index: 10; }
     
     /* SIDEBAR */
     .sidebar { width: 260px; background: var(--bg-glass); backdrop-filter: blur(20px); border-right: 1px solid var(--border); display: flex; flex-direction: column; flex-shrink: 0; z-index: 20; box-shadow: 5px 0 30px rgba(0,0,0,0.5); }
@@ -71,6 +67,9 @@
     .status-pill { display: inline-flex; align-items: center; gap: 6px; font-family: var(--mono); font-size: 9px; color: var(--accent); background: rgba(110,231,168,0.05); padding: 4px 8px; border-radius: 100px; border: 1px solid rgba(110,231,168,0.2); }
     .status-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 8px var(--accent); animation: pulse 2s infinite; }
     @keyframes pulse { 0% { opacity: 1; box-shadow: 0 0 8px var(--accent); } 50% { opacity: 0.5; box-shadow: 0 0 2px var(--accent); } 100% { opacity: 1; box-shadow: 0 0 8px var(--accent); } }
+
+    .home-btn { display: flex; align-items: center; justify-content: center; gap: 8px; padding: 10px 16px; margin-top: 16px; background: transparent; border: 1px solid var(--border-2); border-radius: 8px; color: var(--fg-2); font-family: var(--mono); font-size: 11px; text-decoration: none; text-transform: uppercase; letter-spacing: 0.05em; transition: all var(--t); }
+    .home-btn:hover { background: var(--card); color: var(--accent); border-color: var(--accent-2); transform: translateY(-1px); }
 
     /* MAIN */
     .main-content { flex: 1; display: flex; flex-direction: column; min-width: 0; position: relative; z-index: 10; }
@@ -244,6 +243,11 @@
         </div>
         <div class="status-pill"><div class="status-dot"></div> Online</div>
       </div>
+      
+      <a href="/" class="home-btn">
+        <span>←</span> Return to Home
+      </a>
+      
     </div>
   </aside>
 
@@ -356,14 +360,15 @@
     fetch(`${API}/api/me`, { headers: { 'authorization': `Bearer ${TOKEN}` } })
       .then(r => r.json())
       .then(d => {
-        const name = d.email ? d.email.split('@')[0] : 'operator';
+        const name = d.email ? d.email.split('@')[0
+                  const name = d.email ? d.email.split('@')[0] : 'operator';
         const tier = (d.tier || 'free').toUpperCase();
         const quota = d.quota ? (d.quota.daily_limit - d.quota.used_today) : 15;
+        
         document.getElementById('user-name').textContent = name;
         document.getElementById('user-quota').textContent = `${tier} · ${quota} CREDITS`;
         document.getElementById('topbar-tier').textContent = `${tier} · ${quota}`;
-        document.getElementById('stat-plan').
-                  document.getElementById('stat-plan').textContent = tier;
+        document.getElementById('stat-plan').textContent = tier;
       }).catch(() => {});
   }
 
@@ -412,6 +417,35 @@
     typeInterval = setTimeout(typePlaceholder, typeSpeed);
   }
   setTimeout(() => { typeIndex = 0; isDeleting = false; typePlaceholder(); }, 1000);
+
+  // ==========================================
+  // GLOWING CURSOR TRAIL (Native JS)
+  // ==========================================
+  const cursorGlow = document.createElement('div');
+  cursorGlow.style.cssText = `
+    position: fixed;
+    top: 0; left: 0;
+    width: 8px; height: 8px;
+    background: var(--accent);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 9999;
+    box-shadow: 0 0 15px var(--accent), 0 0 30px var(--accent);
+    opacity: 0.6;
+    transform: translate(-50%, -50%);
+    transition: transform 0.08s ease-out, opacity 0.2s ease;
+  `;
+  document.body.appendChild(cursorGlow);
+
+  document.addEventListener('mousemove', (e) => {
+    cursorGlow.style.left = `${e.clientX}px`;
+    cursorGlow.style.top = `${e.clientY}px`;
+    cursorGlow.style.opacity = '0.8';
+  });
+
+  document.addEventListener('mouseleave', () => {
+    cursorGlow.style.opacity = '0';
+  });
 
   window.openGraph = () => {
     document.getElementById('graph-panel').style.right = '0';
@@ -543,34 +577,6 @@
     window.location.href = '/';
   });
 })();
-    // ==========================================
-  // GLOWING CURSOR TRAIL (Native JS)
-  // ==========================================
-  const cursorGlow = document.createElement('div');
-  cursorGlow.style.cssText = `
-    position: fixed;
-    top: 0; left: 0;
-    width: 8px; height: 8px;
-    background: var(--accent);
-    border-radius: 50%;
-    pointer-events: none;
-    z-index: 9999;
-    box-shadow: 0 0 15px var(--accent), 0 0 30px var(--accent);
-    opacity: 0.6;
-    transform: translate(-50%, -50%);
-    transition: transform 0.08s ease-out, opacity 0.2s ease;
-  `;
-  document.body.appendChild(cursorGlow);
-
-  document.addEventListener('mousemove', (e) => {
-    cursorGlow.style.left = `${e.clientX}px`;
-    cursorGlow.style.top = `${e.clientY}px`;
-    cursorGlow.style.opacity = '0.8';
-  });
-
-  document.addEventListener('mouseleave', () => {
-    cursorGlow.style.opacity = '0';
-  });
 </script>
 </body>
 </html>
