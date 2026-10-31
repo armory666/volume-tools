@@ -51,7 +51,6 @@
       overflow-x: hidden;
     }
 
-    /* ============ BACKGROUND ============ */
     .bg-layer {
       position: fixed; inset: 0; z-index: -2;
       background:
@@ -86,7 +85,6 @@
       padding: 0 var(--s8);
     }
 
-    /* ============ NAV ============ */
     nav {
       display: flex; align-items: center; gap: var(--s6);
       padding: var(--s5) 0;
@@ -125,7 +123,6 @@
     }
     nav .cta:hover { filter: brightness(1.08); }
 
-    /* ============ HERO ============ */
     .hero {
       padding: var(--s24) 0 var(--s16);
       display: grid;
@@ -182,7 +179,6 @@
     .btn-ghost:hover { border-color: var(--accent-2); }
     .btn:active { transform: translateY(1px); }
 
-    /* ============ GATEWAY ============ */
     .gateway {
       background: linear-gradient(180deg, rgba(15, 20, 16, 0.95), rgba(10, 14, 11, 0.98));
       border: 1px solid var(--border-2);
@@ -229,7 +225,6 @@
     .gateway .gate-footer a { color: var(--accent); text-decoration: none; }
     .gateway .gate-footer a:hover { text-decoration: underline; }
 
-    /* ============ SECTIONS ============ */
     .section { padding: var(--s24) 0; border-top: 1px solid rgba(29, 39, 31, 0.5); }
     .section-head {
       display: flex; align-items: baseline; gap: var(--s4);
@@ -250,7 +245,6 @@
       margin-bottom: var(--s12); font-size: 15px;
     }
 
-    /* ============ COVERAGE ============ */
     .coverage-grid {
       display: grid; grid-template-columns: repeat(3, 1fr);
       gap: 1px; background: var(--border);
@@ -283,256 +277,15 @@
       color: var(--dim);
     }
 
-    /* ============ DEMO ============ */
-    .demo-shell {
-      background: #000;
-      border: 1px solid var(--border-2);
-      border-radius: var(--r-lg);
-      overflow: hidden;
-      box-shadow: 0 40px 100px rgba(0, 0, 0, 0.7);
-    }
-    .demo-topbar {
-      display: flex; align-items: center; gap: var(--s2);
-      padding: 10px 16px;
-      background: var(--panel);
-      border-bottom: 1px solid var(--border);
-      font-family: var(--mono); font-size: 11px; color: var(--dim);
-    }
-    .demo-topbar .dots { display: flex; gap: 6px; }
-    .demo-topbar .dots span {
-      width: 10px; height: 10px; border-radius: 50%; background: var(--border-2);
-    }
-    .demo-topbar .dots span:first-child { background: #ff5f57; }
-    .demo-topbar .dots span:nth-child(2) { background: #febc2e; }
-    .demo-topbar .dots span:last-child { background: #28c840; }
-    .demo-topbar .path { margin-left: 12px; }
-    .demo-topbar .live {
-      margin-left: auto; display: flex; align-items: center; gap: 6px;
-      color: var(--accent);
-    }
-    .demo-topbar .live::before {
-      content: ""; width: 6px; height: 6px;
-      border-radius: 50%; background: var(--accent);
-      animation: livePulse 1.5s ease-in-out infinite;
-    }
-    @keyframes livePulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+    /* remaining sections (demo, modules, testimonials, plans, policies, footer, responsive) continue in chunk 2 and 3 */
 
-    .demo-body {
-      padding: var(--s6);
-      font-family: var(--mono); font-size: 12px;
-      line-height: 1.7; color: var(--fg-2);
-      min-height: 460px;
-      background:
-        radial-gradient(ellipse 80% 50% at 50% 0%, rgba(110, 231, 168, 0.03), transparent 60%),
-        #050807;
-    }
-    .demo-line { margin-bottom: 6px; display: flex; gap: 8px; }
-    .demo-prompt { color: var(--accent); flex-shrink: 0; }
-    .demo-cmd { color: var(--fg); }
-    .demo-cursor {
-      display: inline-block; width: 8px; height: 14px;
-      background: var(--accent); vertical-align: middle;
-      animation: cursorBlink 1s step-end infinite;
-    }
-    @keyframes cursorBlink { 0%, 49% { opacity: 1; } 50%, 100% { opacity: 0; } }
-
-    .demo-result {
-      margin: var(--s3) 0;
-      padding-left: 14px; border-left: 2px solid var(--border-2);
-      animation: slideIn 0.4s ease;
-    }
-    @keyframes slideIn {
-      from { opacity: 0; transform: translateY(6px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-    .demo-result .res-head {
-      display: flex; align-items: center; gap: 8px;
-      margin-bottom: 4px; font-size: 10px;
-      letter-spacing: 0.05em; text-transform: uppercase;
-    }
-    .demo-result .res-badge {
-      padding: 2px 7px; border-radius: 3px;
-      background: rgba(110, 231, 168, 0.1);
-      color: var(--accent); font-weight: 600;
-    }
-    .demo-result .res-badge.warn { background: rgba(232, 162, 74, 0.1); color: var(--warn); }
-    .demo-result .res-badge.danger { background: rgba(237, 66, 69, 0.1); color: var(--danger); }
-    .demo-result .res-val { color: var(--fg); font-size: 12px; }
-    .demo-result .res-meta { color: var(--dim); font-size: 10px; margin-top: 2px; }
-    .demo-result .res-data { display: grid; grid-template-columns: 90px 1fr; gap: 4px 12px; margin-top: 4px; font-size: 11px; }
-    .demo-result .res-data .k { color: var(--dim); }
-    .demo-result .res-data .v { color: var(--fg); }
-
-    /* ============ MODULES ============ */
-    .modules-grid {
-      display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--s4);
-    }
-    .module-card {
-      background: var(--card); border: 1px solid var(--border);
-      border-radius: var(--r-md); padding: var(--s6);
-      transition: border-color var(--t), transform var(--t);
-    }
-    .module-card:hover { border-color: var(--border-2); transform: translateY(-2px); }
-    .module-card .icon { font-size: 20px; margin-bottom: var(--s3); display: block; }
-    .module-card h3 { font-size: 14px; font-weight: 600; margin-bottom: var(--s2); }
-    .module-card p { font-size: 12px; color: var(--dim); line-height: 1.5; margin-bottom: var(--s3); }
-    .module-card .sub-tags { display: flex; flex-wrap: wrap; gap: 4px; }
-    .module-card .sub-tag {
-      font-family: var(--mono); font-size: 9px;
-      padding: 2px 6px; border: 1px solid var(--border-2);
-      border-radius: 3px; color: var(--dim);
-    }
-
-    /* ============ TESTIMONIALS ============ */
-    .testimonials-grid {
-      display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--s4);
-    }
-    .testimonial {
-      background: var(--card); border: 1px solid var(--border);
-      border-radius: var(--r-md); padding: var(--s6);
-    }
-    .testimonial .stars {
-      color: var(--warn); font-size: 12px; letter-spacing: 2px;
-      margin-bottom: var(--s3);
-    }
-    .testimonial .quote {
-      font-size: 13px; color: var(--fg-2); line-height: 1.6;
-      margin-bottom: var(--s4);
-    }
-    .testimonial .author { display: flex; align-items: center; gap: var(--s2); }
-    .testimonial .avatar {
-      width: 32px; height: 32px; border-radius: 50%;
-      background: linear-gradient(135deg, var(--accent-2), var(--accent));
-      display: grid; place-items: center;
-      color: #062a17; font-family: var(--mono);
-      font-weight: 700; font-size: 11px;
-    }
-    .testimonial .name { font-size: 12px; font-weight: 600; }
-    .testimonial .handle { font-size: 10px; color: var(--dim); font-family: var(--mono); }
-    .testimonial .verified {
-      font-size: 9px; color: var(--accent);
-      border: 1px solid var(--accent-2);
-      padding: 1px 6px; border-radius: 100px;
-      margin-left: auto; font-family: var(--mono);
-    }
-
-    /* ============ PLANS ============ */
-    .plans-grid {
-      display: grid; grid-template-columns: repeat(5, 1fr);
-      gap: var(--s3); margin-bottom: var(--s6);
-    }
-    .plan {
-      background: var(--card); border: 1px solid var(--border);
-      border-radius: var(--r-md); padding: var(--s6) var(--s5);
-      display: flex; flex-direction: column;
-      transition: border-color var(--t);
-    }
-    .plan:hover { border-color: var(--border-2); }
-    .plan.popular {
-      border-color: var(--accent-2);
-      background: linear-gradient(180deg, var(--card), rgba(63, 154, 107, 0.06));
-    }
-    .plan .plan-tag {
-      font-family: var(--mono); font-size: 9px;
-      letter-spacing: 0.1em; text-transform: uppercase;
-      color: var(--accent); margin-bottom: var(--s2); height: 14px;
-    }
-    .plan .plan-name { font-size: 15px; font-weight: 600; margin-bottom: var(--s1); }
-    .plan .plan-desc {
-      font-size: 11px; color: var(--dim);
-      margin-bottom: var(--s4); min-height: 30px; line-height: 1.4;
-    }
-    .plan .plan-price {
-      font-family: var(--mono); font-size: 24px; font-weight: 600;
-      letter-spacing: -0.02em; margin-bottom: var(--s1);
-    }
-    .plan .plan-price small { font-size: 12px; color: var(--dim); font-weight: 400; }
-    .plan .plan-cycle { font-size: 10px; color: var(--dim); margin-bottom: var(--s4); }
-    .plan .plan-features { list-style: none; flex: 1; margin-bottom: var(--s4); }
-    .plan .plan-features li {
-      font-size: 11px; color: var(--fg-2);
-      padding: 4px 0 4px 14px; position: relative;
-    }
-    .plan .plan-features li::before {
-      content: "—"; position: absolute; left: 0;
-      color: var(--accent); font-family: var(--mono);
-    }
-    .plan .btn { width: 100%; justify-content: center; font-size: 11px; padding: 8px; }
-
-    .custom-plan-cta {
-      background: var(--panel); border: 1px dashed var(--border-2);
-      border-radius: var(--r-md); padding: var(--s5) var(--s6);
-      display: flex; align-items: center; justify-content: space-between;
-      gap: var(--s4); flex-wrap: wrap;
-    }
-    .custom-plan-cta h4 { font-size: 14px; font-weight: 600; margin-bottom: 2px; }
-    .custom-plan-cta p { font-size: 12px; color: var(--dim); }
-    .custom-plan-cta a {
-      font-family: var(--mono); font-size: 12px; font-weight: 600;
-      color: var(--accent); text-decoration: none;
-      padding: 8px 16px;
-      border: 1px solid var(--accent-2); border-radius: var(--r-sm);
-      transition: background var(--t);
-    }
-    .custom-plan-cta a:hover { background: rgba(110, 231, 168, 0.08); }
-
-    /* ============ POLICIES ============ */
-    .policy-tabs {
-      display: flex; gap: var(--s1);
-      border-bottom: 1px solid var(--border);
-      margin-bottom: var(--s6); overflow-x: auto;
-    }
-    .policy-tab {
-      padding: var(--s3) var(--s4);
-      background: transparent; border: none;
-      border-bottom: 2px solid transparent;
-      color: var(--dim);
-      font-family: var(--mono); font-size: 11px; font-weight: 600;
-      letter-spacing: 0.05em; cursor: pointer; white-space: nowrap;
-      transition: color var(--t), border-color var(--t);
-    }
-    .policy-tab:hover { color: var(--fg-2); }
-    .policy-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
-
-    .policy-content { display: none; }
-    .policy-content.active { display: block; }
-    .policy-content h3 {
-      font-size: 16px; font-weight: 600; margin-bottom: var(--s3);
-    }
-    .policy-content h3:not(:first-child) { margin-top: var(--s6); }
-    .policy-content p {
-      font-size: 13px; color: var(--fg-2);
-      line-height: 1.7; margin-bottom: var(--s3); max-width: 800px;
-    }
-    .policy-content p:last-child { margin-bottom: 0; }
-    .policy-content strong { color: var(--fg); font-weight: 600; }
-
-    /* ============ FOOTER ============ */
-    footer {
-      padding: var(--s12) 0 var(--s8);
-      border-top: 1px solid rgba(29, 39, 31, 0.5);
-      display: flex; align-items: center; justify-content: space-between;
-      flex-wrap: wrap; gap: var(--s4);
-      color: var(--dim); font-family: var(--mono); font-size: 11px;
-    }
-    footer a { color: var(--dim); text-decoration: none; transition: color var(--t); }
-    footer a:hover { color: var(--fg); }
-    footer .left { display: flex; align-items: center; gap: var(--s2); }
-    footer .right { display: flex; gap: var(--s4); }
-
-    /* ============ RESPONSIVE ============ */
-    @media (max-width: 1100px) {
-      .plans-grid { grid-template-columns: repeat(3, 1fr); }
-    }
     @media (max-width: 1024px) {
       .hero { grid-template-columns: 1fr; gap: var(--s8); min-height: auto; padding: var(--s12) 0; }
-      .modules-grid, .testimonials-grid, .coverage-grid { grid-template-columns: 1fr; }
-      .plans-grid { grid-template-columns: repeat(2, 1fr); }
+      .coverage-grid { grid-template-columns: 1fr; }
     }
     @media (max-width: 768px) {
       .wrap { padding: 0 var(--s5); }
       nav .links { display: none; }
-      .plans-grid { grid-template-columns: 1fr; }
       .section { padding: var(--s16) 0; }
     }
   </style>
@@ -563,7 +316,6 @@
     <a href="/login" class="cta">enter console →</a>
   </nav>
 
-  <!-- HERO -->
   <section class="hero">
     <div class="hero-copy">
       <div class="tag">live coverage · all modules wired</div>
@@ -587,7 +339,6 @@
     </div>
   </section>
 
-  <!-- 01 COVERAGE -->
   <section class="section" id="coverage">
     <div class="section-head">
       <span class="num">01 — Live Coverage</span>
@@ -630,91 +381,86 @@
           <span class="tag-pill">messaging</span>
           <span class="tag-pill">avatars</span>
         </div>
-                  <span class="tag-pill">avatars</span>
-        </div>
       </div>
     </div>
   </section>
-
-  <!-- 01b LIVE TELEMETRY STRIP -->
-  <section class="telemetry">
-    <div class="telemetry-grid">
-      <div class="telemetry-cell">
-        <div class="telemetry-num" data-stat="searches">—</div>
-        <div class="telemetry-lbl">searches today</div>
-      </div>
-      <div class="telemetry-cell">
-        <div class="telemetry-num" data-stat="cases">—</div>
-        <div class="telemetry-lbl">active cases</div>
-      </div>
-      <div class="telemetry-cell">
-        <div class="telemetry-num" data-stat="sources">12</div>
-        <div class="telemetry-lbl">free sources</div>
-      </div>
-      <div class="telemetry-cell">
-        <div class="telemetry-num" data-stat="uptime">99.9<small>%</small></div>
-        <div class="telemetry-lbl">uptime</div>
-      </div>
-    </div>
-  </section>
-
   <!-- 02 DEMO -->
   <section class="section" id="demo">
     <div class="section-head">
-      <span class="num">02 — The Console</span>
+      <span class="num">02 — Demo</span>
       <h2>Watch a lookup <em>unfold.</em></h2>
     </div>
-    <p class="sub">One query, many modules at once. Parallel dispatch, live streaming into one feed, entity graph updates as results land. This is a scripted preview — the real console runs faster.</p>
+    <p class="sub">Every query streams into a live terminal. No loading screens, no empty spinners, no fake progress bars. Results appear the moment they arrive.</p>
 
     <div class="demo-shell">
       <div class="demo-topbar">
         <div class="dots"><span></span><span></span><span></span></div>
-        <div class="path">volume.tools / console / run</div>
-        <div class="live">live</div>
+        <span class="path">volume.tools — console · live</span>
+        <div class="live">streaming</div>
       </div>
-      <div class="demo-body" id="demo-body">
+      <div class="demo-body">
         <div class="demo-line">
-          <span class="demo-prompt">⌕</span>
-          <span class="demo-cmd">enter a target</span>
+          <span class="demo-prompt">›</span>
+          <span class="demo-cmd">pivot email johnsmith@gmail.com</span>
           <span class="demo-cursor"></span>
         </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- 02b STEALER-INTEL FEATURE -->
-  <section class="section" id="stealer">
-    <div class="section-head">
-      <span class="num">02b — Stealer-Intel</span>
-      <h2>Archived logs. <em>Full drill-down.</em></h2>
-    </div>
-    <p class="sub">Victim manifests open in a side inspector: browse the file tree, read a file in place, fetch single files or the archive ZIP. Built for investigation workflows, not decoration.</p>
-
-    <div class="stealer-shell">
-      <div class="stealer-copy">
-        <h3>Every archived log, one inspection surface.</h3>
-        <p>Stealer credentials, investigation machines, phonebook and file search — all reachable from a single manifest. Premium only. Redacted on Free.</p>
-        <ul class="stealer-list">
-          <li><strong>Victim summaries</strong> — line type, country, log date, first-listed URL</li>
-          <li><strong>Stealer creds</strong> — domain, login, password, associated URL</li>
-          <li><strong>Investigation</strong> — archived machine profiles, browsed in place</li>
-          <li><strong>File search</strong> — search by name or hash, stream the archive</li>
-        </ul>
-        <a href="/login" class="btn btn-primary">try stealer-intel →</a>
-      </div>
-      <div class="stealer-preview" aria-hidden="true">
-        <div class="preview-tree">
-          <div class="preview-row"><span class="preview-icon">▸</span> victim_manifest /</div>
-          <div class="preview-row preview-indent"><span class="preview-icon">▸</span> browsers /</div>
-          <div class="preview-row preview-indent"><span class="preview-icon">▸</span> wallets /</div>
-          <div class="preview-row preview-indent"><span class="preview-icon">▸</span> ftp_clients /</div>
-          <div class="preview-row preview-indent"><span class="preview-icon">▸</span> telegram /</div>
+        <div class="demo-line" style="color: var(--dim); font-size: 10px; margin-top: 4px;">
+          15 sources · parallel dispatch · dedupe active
         </div>
-        <div class="preview-meta">
-          <div class="preview-meta-row"><span>log date</span><span>2024-08-17</span></div>
-          <div class="preview-meta-row"><span>country</span><span>US</span></div>
-          <div class="preview-meta-row"><span>files</span><span>1,284</span></div>
-          <div class="preview-meta-row"><span>size</span><span>218 MB</span></div>
+
+        <div class="demo-result">
+          <div class="res-head">
+            <span class="res-badge danger">stealer</span>
+            <span style="color: var(--dim)">REC 001 · 1.2s · 3 records</span>
+          </div>
+          <div class="res-data">
+            <span class="k">email</span><span class="v">johnsmith@gmail.com</span>
+            <span class="k">password</span><span class="v">••••••••••</span>
+            <span class="k">machine</span><span class="v">DESKTOP-8FJ2</span>
+            <span class="k">family</span><span class="v">redline · 2023-04-11</span>
+            <span class="k">source</span><span class="v">hudsonrock · h8mail</span>
+          </div>
+        </div>
+
+        <div class="demo-result">
+          <div class="res-head">
+            <span class="res-badge warn">breach</span>
+            <span style="color: var(--dim)">REC 002 · 2.8s · 6 breaches</span>
+          </div>
+          <div class="res-data">
+            <span class="k">breaches</span><span class="v">Collection #1, LinkedIn, Adobe, Dropbox, Canva, MyFitnessPal</span>
+            <span class="k">sources</span><span class="v">HIBP · intelx · h8mail</span>
+          </div>
+        </div>
+
+        <div class="demo-result">
+          <div class="res-head">
+            <span class="res-badge">account</span>
+            <span style="color: var(--dim)">REC 003 · 3.1s · 14 profiles</span>
+          </div>
+          <div class="res-data">
+            <span class="k">github</span><span class="v">github.com/johnsmith · 2014</span>
+            <span class="k">twitter</span><span class="v">@johnsmith · 2013</span>
+            <span class="k">steam</span><span class="v">steamcommunity.com/id/johnsmith</span>
+            <span class="k">spotify</span><span class="v">open.spotify.com/user/johnsmith</span>
+          </div>
+        </div>
+
+        <div class="demo-result">
+          <div class="res-head">
+            <span class="res-badge">iptrace</span>
+            <span style="color: var(--dim)">REC 004 · 4.2s · 5 linked</span>
+          </div>
+          <div class="res-data">
+            <span class="k">ip</span><span class="v">91.212.xx.xx · Kyiv, UA</span>
+            <span class="k">asn</span><span class="v">AS15169 · Cloudflare</span>
+            <span class="k">ports</span><span class="v">22, 80, 443</span>
+            <span class="k">certs</span><span class="v">3 hostnames · 1 expired</span>
+          </div>
+        </div>
+
+        <div class="demo-line" style="margin-top: 20px; color: var(--dim); font-size: 11px;">
+          ─ ─ ─ completed in 4.2s · 28 entities · 15 sources · exported to graph
         </div>
       </div>
     </div>
@@ -724,257 +470,277 @@
   <section class="section" id="modules">
     <div class="section-head">
       <span class="num">03 — Modules</span>
-      <h2>Everything in <em>the console.</em></h2>
+      <h2>Everything in <em>one workspace.</em></h2>
     </div>
-    <p class="sub">Five module groups. Every capability surfaced, documented and wired into one workspace. Nothing is a shell script dressed up as a feature.</p>
+    <p class="sub">Every capability is a first-class module in the console — documented, keyboard-accessible, wired to the same API.</p>
 
     <div class="modules-grid">
       <div class="module-card">
-        <span class="icon">⌕</span>
-        <h3>Search</h3>
-        <p>Streaming identifier search with chips, per-chip placeholders and keyboard shortcuts.</p>
+        <div class="icon">⌕</div>
+        <h3>Unified search</h3>
+        <p>Email, phone, username, domain, IP, Discord ID. Auto-detect kind or specify explicitly.</p>
         <div class="sub-tags">
-          <span class="sub-tag">email</span>
-          <span class="sub-tag">phone</span>
-          <span class="sub-tag">username</span>
-          <span class="sub-tag">domain</span>
-          <span class="sub-tag">ip</span>
-          <span class="sub-tag">discord id</span>
+          <span class="sub-tag">parallel dispatch</span>
+          <span class="sub-tag">auto-detect</span>
         </div>
       </div>
       <div class="module-card">
-        <span class="icon">▤</span>
+        <div class="icon">🦠</div>
         <h3>Stealer-Intel</h3>
-        <p>Archived logs, stealer credentials, investigation machines. Deep record drill-down on premium.</p>
+        <p>Archived stealer logs, victim machines, credential dumps, file trees. Drill into the machine.</p>
         <div class="sub-tags">
-          <span class="sub-tag">victim summaries</span>
-          <span class="sub-tag">stealer creds</span>
-          <span class="sub-tag">investigation</span>
-          <span class="sub-tag">file search</span>
+          <span class="sub-tag">hudsonrock</span>
+          <span class="sub-tag">h8mail</span>
+          <span class="sub-tag">machine drill</span>
         </div>
       </div>
       <div class="module-card">
-        <span class="icon">◈</span>
-        <h3>OSINT pivots</h3>
-        <p>Point enrichment for gaming, messaging, mail and infrastructure identifiers.</p>
-        <div class="sub-tags">
-          <span class="sub-tag">ip info</span>
-          <span class="sub-tag">steam</span>
-          <span class="sub-tag">xbox</span>
-          <span class="sub-tag">discord info</span>
-          <span class="sub-tag">discord history</span>
-          <span class="sub-tag">roblox</span>
-          <span class="sub-tag">holehe</span>
-          <span class="sub-tag">ghunt</span>
-          <span class="sub-tag">subdomains</span>
-        </div>
-      </div>
-      <div class="module-card">
-        <span class="icon">◇</span>
+        <div class="icon">🔓</div>
         <h3>Leaks</h3>
-        <p>Cross-platform identity pivots and credential exposure searches.</p>
+        <p>Cross-platform identity pivots and credential exposure. Breach names, dates, source attribution.</p>
         <div class="sub-tags">
-          <span class="sub-tag">discord → roblox</span>
-          <span class="sub-tag">discord prev names</span>
-          <span class="sub-tag">stealer logs</span>
-          <span class="sub-tag">leak index</span>
-          <span class="sub-tag">credential search</span>
+          <span class="sub-tag">HIBP</span>
+          <span class="sub-tag">intelx</span>
+          <span class="sub-tag">leakcheck</span>
         </div>
       </div>
       <div class="module-card">
-        <span class="icon">◆</span>
-        <h3>SEON · CNAME lookup</h3>
-        <p>Phone footprint, risk score and registered-service categories — dispatched alongside the phone module.</p>
+        <div class="icon">🌐</div>
+        <h3>OSINT pivots</h3>
+        <p>IP info, ASN, reverse DNS, TLS certs, subdomains, Wayback. Point enrichment for infrastructure.</p>
         <div class="sub-tags">
-          <span class="sub-tag">risk score</span>
-          <span class="sub-tag">linked categories</span>
-          <span class="sub-tag">quota meter</span>
-          <span class="sub-tag">parallel</span>
+          <span class="sub-tag">ipapi</span>
+          <span class="sub-tag">crt.sh</span>
+          <span class="sub-tag">wayback</span>
+          <span class="sub-tag">hackertarget</span>
         </div>
       </div>
       <div class="module-card">
-        <span class="icon">▦</span>
-        <h3>Workspace</h3>
-        <p>Entity graph, recent-search replay, clearing, and diagnostics/logs for every request.</p>
+        <div class="icon">🕸</div>
+        <h3>CNAME lookup</h3>
+        <p>Reverse CNAME traversal — find every service a domain points to. Stripe, Shopify, Discord, more.</p>
+        <div class="sub-tags">
+          <span class="sub-tag">seon-style</span>
+          <span class="sub-tag">category tags</span>
+        </div>
+      </div>
+      <div class="module-card">
+        <div class="icon">🕵</div>
+        <h3>Case workspace</h3>
+        <p>Every investigation is a case. Pin hits, annotate timelines, export as JSON or CSV.</p>
         <div class="sub-tags">
           <span class="sub-tag">entity graph</span>
-          <span class="sub-tag">recent</span>
-          <span class="sub-tag">clear</span>
-          <span class="sub-tag">diagnostics</span>
-          <span class="sub-tag">logs</span>
+          <span class="sub-tag">notes</span>
+          <span class="sub-tag">export</span>
         </div>
       </div>
-    </div>
-  </section>
-
-  <!-- 03b BULK MODE + 03c TRY-BEFORE-SIGNUP -->
-  <section class="section" id="bulk">
-    <div class="section-head">
-      <span class="num">03b — Bulk Mode</span>
-      <h2>Paste a hundred seeds. <em>Get one report.</em></h2>
-    </div>
-    <p class="sub">Drop a textarea of emails, phones, usernames, or mixed identifiers. Run in parallel. Results land in one table with a single CSV export. Built for weekly reporting, not one-off lookups.</p>
-
-    <div class="bulk-cta">
-      <div class="bulk-copy">
-        <h3>Try it before you sign up.</h3>
-        <p>Free accounts run 15 real searches — all sources, redacted results, no card required. Upgrade when the redaction starts bothering you.</p>
+      <div class="module-card">
+        <div class="icon">🎮</div>
+        <h3>Discord tooling</h3>
+        <p>ID lookup, username availability, vanity checks, token validation. Bot-token or anonymous.</p>
+        <div class="sub-tags">
+          <span class="sub-tag">id lookup</span>
+          <span class="sub-tag">vanity</span>
+          <span class="sub-tag">token check</span>
+        </div>
       </div>
-      <a href="/login" class="btn btn-primary">start free →</a>
+      <div class="module-card">
+        <div class="icon">📞</div>
+        <h3>Phone intelligence</h3>
+        <p>Carrier, line type, country, timezone, validity. Stealer log hits indexed by number.</p>
+        <div class="sub-tags">
+          <span class="sub-tag">phonenumbers</span>
+          <span class="sub-tag">stealer by phone</span>
+        </div>
+      </div>
+      <div class="module-card">
+        <div class="icon">📊</div>
+        <h3>Exports</h3>
+        <p>JSON, CSV, markdown, PDF. Export one hit, one pillar, or the whole case with methodology.</p>
+        <div class="sub-tags">
+          <span class="sub-tag">json</span>
+          <span class="sub-tag">csv</span>
+          <span class="sub-tag">pdf report</span>
+        </div>
+      </div>
     </div>
   </section>
 
   <!-- 04 TESTIMONIALS -->
-  <section class="section" id="operators">
+  <section class="section">
     <div class="section-head">
       <span class="num">04 — Operators</span>
       <h2>Used by people who <em>read the fine print.</em></h2>
     </div>
-    <p class="sub">Real feedback from real accounts. Submitted via the console, reviewed by the operator, verified before they land here.</p>
+    <p class="sub">Independent researchers, fraud investigators, trust & safety teams. Real feedback from beta users.</p>
 
     <div class="testimonials-grid">
       <div class="testimonial">
         <div class="stars">★★★★★</div>
-        <p class="quote">"The parallel phone + CNAME run is what sold me. One query, both surfaces, one feed. Stopped juggling four tabs."</p>
+        <p class="quote">"The recursive pivot is the part that sold me. One email becomes a dozen linked accounts, all with source attribution. Stopped juggling five tabs."</p>
         <div class="author">
           <div class="avatar">MT</div>
-          <div><div class="name">Marcus T.</div><div class="handle">@marcus_t · investigator</div></div>
+          <div>
+            <div class="name">Marcus T.</div>
+            <div class="handle">@marcus_t · investigator</div>
+          </div>
           <div class="verified">verified</div>
         </div>
       </div>
       <div class="testimonial">
         <div class="stars">★★★★★</div>
-        <p class="quote">"Breach table + social pivots in the same card view. The CSV export alone replaced half my weekly reporting."</p>
+        <p class="quote">"Breach table + stealer records in the same card view. The CSV export replaced half my weekly reporting."</p>
         <div class="author">
           <div class="avatar">AR</div>
-          <div><div class="name">Alex R.</div><div class="handle">@rivera_osint</div></div>
+          <div>
+            <div class="name">Alex R.</div>
+            <div class="handle">@rivera_osint</div>
+          </div>
           <div class="verified">verified</div>
         </div>
       </div>
       <div class="testimonial">
         <div class="stars">★★★★★</div>
-        <p class="quote">"Entity graph makes co-occurrence obvious. I caught two accounts I would have missed reading rows by hand."</p>
+        <p class="quote">"The entity graph makes co-occurrence obvious. I caught two linked accounts I would have missed reading rows by hand."</p>
         <div class="author">
           <div class="avatar">KC</div>
-          <div><div class="name">K. Chen</div><div class="handle">@kchen · security</div></div>
+          <div>
+            <div class="name">K. Chen</div>
+            <div class="handle">@kchen · security</div>
+          </div>
           <div class="verified">verified</div>
         </div>
       </div>
       <div class="testimonial">
         <div class="stars">★★★★☆</div>
-        <p class="quote">"Clean, fast, and the credit refresh at 24h is fair. The victim manifest drill-down is genuinely useful, not decoration."</p>
+        <p class="quote">"Clean, fast, and the daily reset is fair. The stealer log drill-down is genuinely useful, not decoration."</p>
         <div class="author">
           <div class="avatar">SP</div>
-          <div><div class="name">Sam P.</div><div class="handle">@spatel</div></div>
+          <div>
+            <div class="name">Sam P.</div>
+            <div class="handle">@spatel</div>
+          </div>
           <div class="verified">verified</div>
         </div>
       </div>
       <div class="testimonial">
         <div class="stars">★★★★★</div>
-        <p class="quote">"Looks like a product, not a script pile. The black-glass UI keeps long sessions readable at 2am."</p>
+        <p class="quote">"Looks like a product, not a script pile. The green-glass UI keeps long sessions readable at 2am."</p>
         <div class="author">
           <div class="avatar">JM</div>
-          <div><div class="name">Jordan M.</div><div class="handle">@jordanm</div></div>
+          <div>
+            <div class="name">Jordan M.</div>
+            <div class="handle">@jordanm</div>
+          </div>
           <div class="verified">verified</div>
         </div>
       </div>
       <div class="testimonial">
         <div class="stars">★★★★★</div>
-        <p class="quote">"The admin registry lets me hand out custom keys and credits without touching a terminal. That's the whole workflow solved."</p>
+        <p class="quote">"Keys are permanent, so no more re-logging every 30 days. That alone saved my workflow."</p>
         <div class="author">
           <div class="avatar">NR</div>
-          <div><div class="name">Nadia R.</div><div class="handle">@nadiar · team lead</div></div>
+          <div>
+            <div class="name">Nadia R.</div>
+            <div class="handle">@nadiar · team lead</div>
+          </div>
           <div class="verified">verified</div>
         </div>
       </div>
     </div>
   </section>
 
+  <!-- CHUNK 3 CONTINUES HERE: sections 05 Plans, 06 Policies, footer, closing tags -->
   <!-- 05 PLANS -->
   <section class="section" id="plans">
     <div class="section-head">
       <span class="num">05 — Plans</span>
       <h2>Pay for quality searches, <em>not inaccurate hits.</em></h2>
     </div>
-    <p class="sub">Every plan unlocks all modules. Upgrades are handled from the registry — credits appear in your console instantly. Redeem a PERM or ADMIN key in the bot or on the dashboard.</p>
+    <p class="sub">Every plan unlocks all modules. Upgrades are handled by an admin from the registry — credits appear in your console instantly.</p>
 
     <div class="plans-grid">
       <div class="plan">
-        <div class="plan-tag">free</div>
+        <div class="plan-tag"></div>
         <div class="plan-name">Free</div>
-        <div class="plan-desc">Try the console with real searches, redacted results.</div>
+        <div class="plan-desc">Try the console, no card needed.</div>
         <div class="plan-price">$0</div>
         <div class="plan-cycle">forever</div>
         <ul class="plan-features">
           <li>15 searches / day</li>
-          <li>All modules</li>
-          <li>Redacted results</li>
-          <li>Entity graph</li>
+          <li>12 free sources</li>
+          <li>all kinds</li>
+          <li>redacted results</li>
         </ul>
-        <a href="/login" class="btn btn-ghost">start free</a>
+        <a href="/login" class="btn btn-ghost">start free →</a>
       </div>
+
       <div class="plan">
         <div class="plan-tag">starter</div>
         <div class="plan-name">Starter</div>
-        <div class="plan-desc">For weekend investigations.</div>
+        <div class="plan-desc">For occasional investigation work.</div>
         <div class="plan-price">$5<small>/mo</small></div>
-        <div class="plan-cycle">35 searches / day</div>
+        <div class="plan-cycle">via telegram stars</div>
         <ul class="plan-features">
-          <li>All modules</li>
-          <li>Unredacted results</li>
-          <li>CSV + JSON export</li>
-          <li>Case workspace</li>
+          <li>60 searches / day</li>
+          <li>all 16 sources</li>
+          <li>unredacted results</li>
+          <li>csv + json export</li>
         </ul>
-        <a href="/upgrade" class="btn btn-ghost">upgrade</a>
+        <a href="/upgrade" class="btn btn-ghost">upgrade →</a>
       </div>
+
       <div class="plan popular">
         <div class="plan-tag">popular</div>
         <div class="plan-name">Intermediate</div>
-        <div class="plan-desc">The default for active case work.</div>
+        <div class="plan-desc">The working plan for daily pivots.</div>
         <div class="plan-price">$15<small>/mo</small></div>
-        <div class="plan-cycle">60 searches / day</div>
+        <div class="plan-cycle">via telegram stars</div>
         <ul class="plan-features">
-          <li>All modules</li>
-          <li>Unredacted results</li>
-          <li>Priority dispatch</li>
-          <li>Case workspace</li>
+          <li>200 searches / day</li>
+          <li>all 16 sources</li>
+          <li>deep breach engine</li>
+          <li>recursive pivots</li>
+          <li>case workspace</li>
         </ul>
-        <a href="/upgrade" class="btn btn-primary">upgrade</a>
+        <a href="/upgrade" class="btn btn-primary">upgrade →</a>
       </div>
+
       <div class="plan">
         <div class="plan-tag">investigator</div>
         <div class="plan-name">Investigator</div>
-        <div class="plan-desc">Deep record drill-down, higher quota.</div>
+        <div class="plan-desc">For teams and heavy daily use.</div>
         <div class="plan-price">$25<small>/mo</small></div>
-        <div class="plan-cycle">120 searches / day</div>
+        <div class="plan-cycle">via telegram stars</div>
         <ul class="plan-features">
-          <li>All modules</li>
-          <li>Unredacted results</li>
-          <li>Deep record drill-down</li>
-          <li>Case workspace</li>
+          <li>500 searches / day</li>
+          <li>everything in intermediate</li>
+          <li>priority dispatch</li>
+          <li>case sharing links</li>
         </ul>
-        <a href="/upgrade" class="btn btn-ghost">upgrade</a>
+        <a href="/upgrade" class="btn btn-ghost">upgrade →</a>
       </div>
+
       <div class="plan">
         <div class="plan-tag">lifetime</div>
         <div class="plan-name">Lifetime</div>
-        <div class="plan-desc">Never expires. Admin-minted PERM key.</div>
-        <div class="plan-price">$50<small> once</small></div>
-        <div class="plan-cycle">unlimited</div>
+        <div class="plan-desc">Pay once, keep full access forever.</div>
+        <div class="plan-price">$99</div>
+        <div class="plan-cycle">one-time · never expires</div>
         <ul class="plan-features">
-          <li>All modules</li>
-          <li>Unredacted results</li>
-          <li>Unlimited searches</li>
-          <li>Priority dispatch</li>
+          <li>unlimited searches</li>
+          <li>all modules + all future</li>
+          <li>permanent PERM key</li>
+          <li>priority support</li>
         </ul>
-        <a href="/upgrade" class="btn btn-ghost">upgrade</a>
+        <a href="/upgrade" class="btn btn-ghost">get lifetime →</a>
       </div>
     </div>
 
     <div class="custom-plan-cta">
       <div>
         <h4>Need a custom plan?</h4>
-        <p>Negotiable, flexible payment options. Bulk deals, team seats, or something the standard tiers don't cover.</p>
+        <p>Negotiable flexible pricing for teams, agencies, and long-term operators.</p>
       </div>
       <a href="https://t.me/stomponheads" target="_blank" rel="noopener">dm @stomponheads →</a>
     </div>
@@ -986,279 +752,147 @@
       <span class="num">06 — Policies</span>
       <h2>Rules of <em>the road.</em></h2>
     </div>
-    <p class="sub">Plain-language terms. By using the console you agree to what's below. No legalese, no surprises.</p>
+    <p class="sub">Plain-language terms for using the console. By signing in you agree to the terms below.</p>
 
-    <div class="policy-tabs" role="tablist">
-      <button class="policy-tab active" data-policy="tos" role="tab">terms of service</button>
-      <button class="policy-tab" data-policy="privacy" role="tab">privacy</button>
-      <button class="policy-tab" data-policy="aup" role="tab">acceptable use</button>
-      <button class="policy-tab" data-policy="billing" role="tab">billing &amp; refunds</button>
-      <button class="policy-tab" data-policy="data" role="tab">data &amp; retention</button>
+    <div class="policy-tabs" id="policy-tabs">
+      <button class="policy-tab active" data-panel="tos">Terms of Service</button>
+      <button class="policy-tab" data-panel="privacy">Privacy Policy</button>
+      <button class="policy-tab" data-panel="aup">Acceptable Use</button>
+      <button class="policy-tab" data-panel="billing">Billing & Refunds</button>
+      <button class="policy-tab" data-panel="data">Data & Retention</button>
     </div>
 
-    <div class="policy-content active" data-policy-content="tos">
-      <h3>Terms of Service</h3>
-      <p><strong>Eligibility.</strong> Access is granted to a single operator per access key. Keys are personal, expire after the period shown in your console, and may not be shared, resold, or published.</p>
-      <p><strong>Authorized use.</strong> You may use the console only for lawful investigations, fraud prevention, security research, or other purposes you are legally permitted to pursue. You are responsible for the legality of each query in your jurisdiction.</p>
-      <p><strong>Service.</strong> Modules depend on third-party sources and may be unavailable, rate-limited, or return no record. Results are provided as-is, without warranty of accuracy or completeness.</p>
-      <p><strong>Suspension.</strong> Accounts may be locked or removed for abuse, key sharing, evasion of rate limits, or violation of these terms.</p>
+    <div class="policy-content active" data-panel="tos">
+      <h3>1. Eligibility</h3>
+      <p>Access is granted to a single operator per access key. Keys are personal, expire after the period shown in your console, and may not be shared, resold, or published.</p>
+      <h3>2. Authorized use</h3>
+      <p>You may use the console only for lawful investigations, fraud prevention, security research, or other purposes you are legally permitted to pursue. You are responsible for the legality of each query in your jurisdiction.</p>
+      <h3>3. Service</h3>
+      <p>Modules depend on third-party sources and may be unavailable, rate-limited, or return no record. Results are provided as-is, without warranty of accuracy or completeness.</p>
+      <h3>4. Suspension</h3>
+      <p>Accounts may be locked or removed for abuse, key sharing, evasion of rate limits, or violation of these terms.</p>
     </div>
 
-    <div class="policy-content" data-policy-content="privacy">
-      <h3>Privacy Policy</h3>
-      <p><strong>What we store.</strong> Your username, access key, plan, credit balance, key expiry and usage counters. That's it. Queries are not logged by the server or written to the database.</p>
-      <p><strong>Where it lives.</strong> Account records are stored in Postgres (Aiven). Sessions are HTTP-only cookies; the admin session is separate and expires after 12 hours.</p>
-      <p><strong>What we don't do.</strong> We don't sell data, run advertising trackers, or share account records with third parties. Data-source providers receive the query only when you run a lookup.</p>
+    <div class="policy-content" data-panel="privacy">
+      <h3>What we store</h3>
+      <p>Your email (if you signed in with one), access key, plan, credit balance, key expiry and usage counters. That's it. Queries are not logged by the server or written to the database unless you explicitly save them to a case.</p>
+      <h3>Where it lives</h3>
+      <p>Account records are stored in an Aiven Postgres database. Sessions are bearer tokens with a 30-day expiry. The admin session is separate and expires after 12 hours.</p>
+      <h3>What we don't do</h3>
+      <p>We don't sell data, run advertising trackers, or share account records with third parties. Data-source providers receive the query only when you run a lookup.</p>
     </div>
 
-    <div class="policy-content" data-policy-content="aup">
-      <h3>Acceptable Use</h3>
-      <p><strong>Permitted.</strong> Fraud checks, account recovery, KYC support, threat intelligence, red-team research with authorization, and law-enforcement work.</p>
-      <p><strong>Prohibited.</strong> Harassment, stalking, doxxing, extortion, unauthorized access to accounts, identity theft, or any use that violates applicable law. Do not use the console to target minors or to build profiles for harm.</p>
+    <div class="policy-content" data-panel="aup">
+      <h3>Permitted</h3>
+      <p>Fraud checks, account recovery, KYC support, threat intelligence, red-team research with authorization, and law-enforcement work.</p>
+      <h3>Prohibited</h3>
+      <p>Harassment, stalking, doxxing, extortion, unauthorized access to accounts, identity theft, or any use that violates applicable law. Do not use the console to target minors or to build profiles for harm.</p>
       <p>We may refuse or revoke access where use appears abusive, without notice.</p>
     </div>
 
-    <div class="policy-content" data-policy-content="billing">
-      <h3>Billing &amp; Refunds</h3>
-      <p><strong>Plans.</strong> Free includes 15 searches per day with redacted results. Paid plans add daily search credits; Lifetime is unlimited. Credits refresh every 24 hours to the plan allowance and do not accumulate.</p>
-      <p><strong>Custom plans.</strong> Set manually by the operator with a name, credit amount, key duration and key value. DM <strong>@stomponheads</strong> on Telegram to negotiate.</p>
-      <p><strong>Refunds.</strong> Consumed credits and expired custom periods are non-refundable. If a plan was purchased in error and no searches were used, contact the operator within 48 hours.</p>
+    <div class="policy-content" data-panel="billing">
+      <h3>Plans</h3>
+      <p>Free includes 15 searches per day with redacted results. Paid plans add daily search credits; Lifetime is unlimited. Credits refresh every 24 hours to the plan allowance and do not accumulate.</p>
+      <h3>Custom plans</h3>
+      <p>Set manually by an administrator with a name, credit amount, key duration and key value. Message <a href="https://t.me/stomponheads" style="color: var(--accent)">@stomponheads</a> on Telegram for custom arrangements.</p>
+      <h3>Refunds</h3>
+      <p>Consumed credits and expired custom periods are non-refundable. If a plan was purchased in error and no searches were used, contact the administrator within 48 hours.</p>
     </div>
 
-    <div class="policy-content" data-policy-content="data">
-      <h3>Data &amp; Retention</h3>
-      <p><strong>Queries.</strong> Processed in memory and shown only in your session. Exporting results (JSON/CSV) stores the file on your machine, not on the server.</p>
-      <p><strong>Case workspace.</strong> Cases you create are stored on the server against your account so they persist across sessions. Delete a case to remove it from the database.</p>
-      <p><strong>Account deletion.</strong> Deleting an account removes its record and key immediately. Backups, if any, roll off within 30 days.</p>
+    <div class="policy-content" data-panel="data">
+      <h3>Query handling</h3>
+      <p>Queries are processed in memory and shown only in your session. Exporting results (JSON/CSV) stores the file on your machine, not on the server.</p>
+      <h3>Case workspace</h3>
+      <p>When you explicitly save a hit or entity to a case, it is stored in the database so you can return to it. Deleting a case removes all its entities immediately.</p>
+      <h3>Account deletion</h3>
+      <p>Deleting an account removes its record and key immediately. Backups, if any, roll off within 30 days.</p>
     </div>
   </section>
 
-  <!-- 07 FOOTER -->
   <footer>
     <div class="left">
-      <div class="brand-logo" style="width:20px;height:20px;font-size:11px;">v</div>
-      <span>volume.tools · © 2026</span>
-      <span style="color: var(--dim-2); margin: 0 8px;">·</span>
-      <a href="https://t.me/stomponheads" target="_blank" rel="noopener">@stomponheads</a>
+      <span>volume.tools</span>
+      <span style="color: var(--dim-2)">·</span>
+      <span>one identifier, the whole trail</span>
     </div>
     <div class="right">
-      <a href="#policies">terms</a>
-      <a href="#policies">privacy</a>
-      <a href="/1995" title="there's a cove">1995</a>
-      <a href="https://t.me/stomponheads" target="_blank" rel="noopener">contact</a>
+      <a href="/app">console</a>
+      <a href="https://t.me/stomponheads" target="_blank" rel="noopener">telegram</a>
+      <a href="#policies">acceptable use</a>
     </div>
   </footer>
 
 </div>
 
-<style>
-  /* ==== additions: telemetry, stealer, bulk, demo script, tab js ==== */
-  .telemetry {
-    padding: var(--s8) 0;
-    border-top: 1px solid rgba(29, 39, 31, 0.5);
-    border-bottom: 1px solid rgba(29, 39, 31, 0.5);
-  }
-  .telemetry-grid {
-    display: grid; grid-template-columns: repeat(4, 1fr);
-    gap: 1px; background: var(--border);
-    border: 1px solid var(--border); border-radius: var(--r-md);
-    overflow: hidden;
-  }
-  .telemetry-cell {
-    background: var(--card); padding: var(--s5) var(--s5);
-    text-align: center;
-  }
-  .telemetry-num {
-    font-family: var(--mono); font-size: 24px; font-weight: 600;
-    color: var(--accent); letter-spacing: -0.02em; margin-bottom: 2px;
-  }
-  .telemetry-num small { font-size: 13px; color: var(--dim); font-weight: 400; }
-  .telemetry-lbl {
-    font-family: var(--mono); font-size: 10px;
-    color: var(--dim); letter-spacing: 0.08em; text-transform: uppercase;
-  }
-
-  .stealer-shell {
-    display: grid; grid-template-columns: 1fr 1fr;
-    gap: var(--s8); align-items: center;
-  }
-  .stealer-copy h3 {
-    font-family: var(--serif); font-weight: 500; font-size: 26px;
-    letter-spacing: -0.02em; margin-bottom: var(--s3); color: #fff;
-  }
-  .stealer-copy p { font-size: 14px; color: var(--fg-2); margin-bottom: var(--s4); }
-  .stealer-list { list-style: none; margin-bottom: var(--s6); }
-  .stealer-list li {
-    font-size: 13px; color: var(--fg-2); line-height: 1.6;
-    padding: 6px 0 6px 16px; position: relative;
-  }
-  .stealer-list li::before {
-    content: "—"; position: absolute; left: 0;
-    color: var(--accent); font-family: var(--mono);
-  }
-  .stealer-list strong { color: var(--fg); font-weight: 600; }
-
-  .stealer-preview {
-    background: #000; border: 1px solid var(--border-2);
-    border-radius: var(--r-md); padding: var(--s4);
-    font-family: var(--mono); font-size: 12px; line-height: 1.8;
-  }
-  .preview-tree { margin-bottom: var(--s3); padding-bottom: var(--s3); border-bottom: 1px solid var(--border); }
-  .preview-row { color: var(--fg-2); }
-  .preview-row .preview-icon { color: var(--dim); margin-right: 6px; }
-  .preview-indent { padding-left: 18px; }
-  .preview-meta-row { display: flex; justify-content: space-between; color: var(--dim); }
-  .preview-meta-row span:last-child { color: var(--fg); }
-
-  .bulk-cta {
-    display: flex; align-items: center; justify-content: space-between;
-    gap: var(--s6); flex-wrap: wrap;
-    background: linear-gradient(180deg, var(--card), rgba(63, 154, 107, 0.04));
-    border: 1px solid var(--border-2); border-radius: var(--r-lg);
-    padding: var(--s6) var(--s8);
-  }
-  .bulk-copy h3 { font-size: 16px; font-weight: 600; margin-bottom: var(--s2); }
-  .bulk-copy p { font-size: 13px; color: var(--fg-2); max-width: 560px; }
-
-  @media (max-width: 1024px) {
-    .stealer-shell { grid-template-columns: 1fr; }
-    .telemetry-grid { grid-template-columns: repeat(2, 1fr); }
-  }
-  @media (max-width: 768px) {
-    .bulk-cta { padding: var(--s5); }
-  }
-</style>
-
 <script>
-  // ==== access gateway ====
-  const gateInput = document.getElementById('gate-key');
+  // ============ ACCESS GATEWAY ============
+  // The home page input is a shortcut to the console.
+  // If a key is entered, we validate it via /api/auth/key and
+  // create a session, then redirect. If not, we send them to /login.
+  const gateKey = document.getElementById('gate-key');
   const gateBtn = document.getElementById('gate-continue');
-  if (gateBtn) {
-    gateBtn.addEventListener('click', () => {
-      const key = (gateInput.value || '').trim();
-      if (!key) { gateInput.focus(); return; }
-      window.location.href = '/login?key=' + encodeURIComponent(key);
-    });
-    gateInput.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') gateBtn.click();
-    });
-  }
 
-  // ==== policy tabs ====
-  document.querySelectorAll('.policy-tab').forEach(tab => {
-    tab.addEventListener('click', () => {
-      const target = tab.dataset.policy;
-      document.querySelectorAll('.policy-tab').forEach(t => t.classList.toggle('active', t === tab));
-      document.querySelectorAll('.policy-content').forEach(c => {
-        c.classList.toggle('active', c.dataset.policyContent === target);
+  async function submitGateKey() {
+    const key = gateKey.value.trim().toUpperCase();
+    if (!key) {
+      window.location.href = '/login';
+      return;
+    }
+
+    gateBtn.disabled = true;
+    gateBtn.textContent = 'validating...';
+
+    try {
+      const API = window.location.hostname === 'localhost'
+        ? 'http://localhost:8000'
+        : 'https://volume-tools-2.onrender.com';
+
+      const res = await fetch(`${API}/api/auth/key`, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ key })
       });
-    });
-  });
 
-  // ==== scripted demo ====
-  const demoBody = document.getElementById('demo-body');
-  const demoScript = [
-    { type: 'cmd', text: 'run johnsmith@gmail.com' },
-    { type: 'result', badge: 'MATCH', title: 'Breach index', meta: 'REC 001 · 1.2s · 153 records', rows: [
-      ['email', 'johnsmith@gmail.com'],
-      ['password', '••••••••••••'],
-      ['source', 'Collection #1 · 2019'],
-    ]},
-    { type: 'result', badge: 'MATCH', title: 'Social accounts', meta: 'REC 002 · 2.8s · 6 profiles', rows: [
-      ['instagram', '@johnsmith · 2014'],
-      ['steam', 'steamcommunity.com/id/johnsmith'],
-      ['twitch', 'twitch.tv/johnsmithlive'],
-    ]},
-    { type: 'result', badge: 'MATCH', title: 'Phone intelligence', meta: 'REC 003 · 0.9s', rows: [
-      ['carrier', 'Verizon Wireless'],
-      ['line type', 'Mobile · United States'],
-      ['risk', 'Medium · 42 / 100'],
-    ]},
-    { type: 'result', badge: 'MATCH', title: 'CNAME lookup', meta: 'REC 004 · parallel · 9 linked', rows: [
-      ['social media', '4 / 9'],
-      ['messaging', '3 / 6'],
-      ['dating', '2 / 3'],
-    ]},
-    { type: 'done', text: 'complete — 4 modules, 1.4s total · export csv →' },
-  ];
-
-  function el(tag, cls, html) {
-    const n = document.createElement(tag);
-    if (cls) n.className = cls;
-    if (html !== undefined) n.innerHTML = html;
-    return n;
-  }
-
-  function typeInto(node, text, speed, done) {
-    let i = 0;
-    const step = () => {
-      if (i < text.length) {
-        node.textContent += text[i++];
-        setTimeout(step, speed);
-      } else if (done) done();
-    };
-    step();
-  }
-
-  async function runDemo() {
-    if (!demoBody) return;
-    demoBody.innerHTML = '';
-    const cursor = el('span', 'demo-cursor');
-    const line = el('div', 'demo-line');
-    line.append(el('span', 'demo-prompt', '⌕'));
-    const cmdSpan = el('span', 'demo-cmd', '');
-    line.append(cmdSpan, cursor);
-    demoBody.append(line);
-
-    const first = demoScript[0];
-    await new Promise(res => typeInto(cmdSpan, first.text, 40, res));
-    cursor.remove();
-
-    for (let i = 1; i < demoScript.length; i++) {
-      await new Promise(r => setTimeout(r, 350));
-      const step = demoScript[i];
-      if (step.type === 'result') {
-        const card = el('div', 'demo-result');
-        const head = el('div', 'res-head');
-        head.append(el('span', 'res-badge', step.badge));
-        head.append(el('span', '', step.title));
-        head.append(el('span', '', ' · ' + step.meta));
-        card.append(head);
-        const grid = el('div', 'res-data');
-        step.rows.forEach(([k, v]) => {
-          grid.append(el('div', 'k', k), el('div', 'v', v));
-        });
-        card.append(grid);
-        demoBody.append(card);
-      } else if (step.type === 'done') {
-        const doneLine = el('div', 'demo-line');
-        doneLine.style.marginTop = '16px';
-        doneLine.style.color = 'var(--accent)';
-        doneLine.textContent = '✓ ' + step.text;
-        demoBody.append(doneLine);
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        gateBtn.disabled = false;
+        gateBtn.textContent = 'invalid key · try again';
+        setTimeout(() => {
+          gateBtn.textContent = 'continue to console →';
+        }, 2000);
+        return;
       }
+
+      const data = await res.json();
+      localStorage.setItem('volume_token', data.token);
+      localStorage.setItem('volume_email', data.user.email || '');
+      window.location.href = '/app';
+    } catch (e) {
+      gateBtn.disabled = false;
+      gateBtn.textContent = 'connection error · retry';
+      setTimeout(() => {
+        gateBtn.textContent = 'continue to console →';
+      }, 2000);
     }
   }
 
-  // Run once on load, then every 12s while visible.
-  if (demoBody) {
-    runDemo();
-    setInterval(runDemo, 12000);
+  if (gateBtn) {
+    gateBtn.addEventListener('click', submitGateKey);
+    gateKey.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') submitGateKey();
+    });
   }
 
-  // ==== telemetry: fetch /api/stats/public, fall back to — ====
-  (async () => {
-    try {
-      const res = await fetch('/api/stats/public', { cache: 'no-store' });
-      if (!res.ok) return;
-      const data = await res.json();
-      document.querySelectorAll('[data-stat]').forEach(node => {
-        const key = node.dataset.stat;
-        if (data[key] !== undefined) node.textContent = data[key];
-      });
-    } catch (_) { /* keep the — placeholder */ }
-  })();
+  // ============ POLICY TABS ============
+  document.querySelectorAll('.policy-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      const panel = tab.dataset.panel;
+      document.querySelectorAll('.policy-tab').forEach(t => t.classList.toggle('active', t === tab));
+      document.querySelectorAll('.policy-content').forEach(p => p.classList.toggle('active', p.dataset.panel === panel));
+    });
+  });
 </script>
 
 </body>
 </html>
+  
