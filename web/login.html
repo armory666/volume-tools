@@ -1,332 +1,483 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>volume.tools — sign in</title>
-<meta name="theme-color" content="#0a0e0b">
-<style>
-  :root{
-    --bg:#0a0e0b; --card:#121914; --border:#1d271f; --border-2:#2a3a2c;
-    --fg:#e8ece8; --fg-2:#b8c0b9; --dim:#6e7a70; --accent:#6ee7a8; --accent-2:#3f9a6b;
-    --danger:#ed4245;
-    --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
-    --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
-    --serif:Georgia,"Times New Roman",serif;
-  }
-  *{box-sizing:border-box;margin:0;padding:0}
-  body{
-    font-family:var(--sans);background:var(--bg);color:var(--fg);
-    min-height:100vh;display:grid;place-items:center;padding:24px;
-    -webkit-font-smoothing:antialiased;overflow:hidden;
-  }
-  body::before{
-    content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
-    background:radial-gradient(ellipse 60% 40% at 50% 0%, rgba(110,231,168,.06), transparent 60%);
-  }
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#050807">
+  <title>volume.tools — sign in</title>
 
-  /* SWIPE TRANSITION */
-  .swipe-overlay{
-    position:fixed;inset:0;z-index:100;
-    background:linear-gradient(135deg,var(--accent),var(--accent-2));
-    display:flex;align-items:center;justify-content:center;
-    transform:translateX(100%);
-    transition:transform 0.6s cubic-bezier(0.7,0,0.3,1);
-    pointer-events:none;
-  }
-  .swipe-overlay.active{transform:translateX(0);pointer-events:auto}
-  .swipe-overlay.done{transform:translateX(-100%)}
-  .swipe-inner{text-align:center;color:#0a1a0f}
-  .swipe-logo{
-    width:64px;height:64px;border-radius:16px;
-    background:#0a1a0f;color:var(--accent);
-    display:grid;place-items:center;margin:0 auto 20px;
-    font-family:var(--mono);font-weight:700;font-size:28px;
-    animation:pulseLogo 1.2s ease-in-out infinite;
-  }
-  @keyframes pulseLogo{
-    0%,100%{transform:scale(1)}
-    50%{transform:scale(1.08)}
-  }
-  .swipe-text{
-    font-family:var(--mono);font-size:13px;font-weight:600;
-    letter-spacing:0.2em;text-transform:uppercase;
-    animation:fadeText 1.2s ease-in-out infinite;
-  }
-  @keyframes fadeText{
-    0%,100%{opacity:0.5}
-    50%{opacity:1}
-  }
-  .swipe-dots{display:flex;gap:6px;justify-content:center;margin-top:20px}
-  .swipe-dots span{
-    width:6px;height:6px;border-radius:50%;background:#0a1a0f;
-    animation:dotBounce 1.2s ease-in-out infinite;
-  }
-  .swipe-dots span:nth-child(2){animation-delay:0.15s}
-  .swipe-dots span:nth-child(3){animation-delay:0.3s}
-  @keyframes dotBounce{
-    0%,80%,100%{transform:translateY(0);opacity:0.4}
-    40%{transform:translateY(-8px);opacity:1}
-  }
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
 
-  .shell{position:relative;z-index:1;width:100%;max-width:420px}
-  .brand{
-    display:flex;align-items:center;gap:10px;justify-content:center;
-    margin-bottom:32px;font-size:14px;font-weight:500;
-  }
-  .brand .logo{
-    width:26px;height:26px;border-radius:7px;
-    background:linear-gradient(135deg,var(--accent),var(--accent-2));
-    display:grid;place-items:center;color:#0a1a0f;font-weight:700;font-size:13px;
-    font-family:var(--mono);
-  }
-  .brand span{color:var(--accent);font-weight:400}
-  .card{
-    background:var(--card);border:1px solid var(--border);
-    border-radius:12px;padding:32px 28px;
-  }
-  h1{
-    font-family:var(--serif);font-weight:500;font-size:28px;
-    letter-spacing:-.02em;margin-bottom:8px;line-height:1.15;
-  }
-  h1 em{font-style:italic;color:var(--accent)}
-  p.lede{font-size:13px;color:var(--dim);margin-bottom:24px;line-height:1.5}
-  .field{margin-bottom:14px}
-  label{
-    display:block;font-family:var(--mono);font-size:10px;
-    text-transform:uppercase;letter-spacing:.08em;
-    color:var(--dim);margin-bottom:6px;font-weight:600;
-  }
-  input{
-    width:100%;padding:11px 14px;background:var(--bg);
-    border:1px solid var(--border);border-radius:6px;
-    color:var(--fg);font-family:var(--sans);font-size:13px;
-    outline:none;transition:.15s;
-  }
-  input:focus{border-color:var(--accent-2);box-shadow:0 0 0 2px rgba(110,231,168,.1)}
-  input.code-input{
-    font-family:var(--mono);font-size:18px;letter-spacing:.4em;
-    text-align:center;padding:14px;
-  }
-  button{
-    width:100%;padding:11px;background:var(--accent);color:#062a17;
-    border:none;border-radius:6px;cursor:pointer;font-weight:600;
-    font-family:var(--mono);font-size:13px;transition:.15s;margin-top:4px;
-  }
-  button:hover{filter:brightness(1.05)}
-  button:disabled{background:var(--border);color:var(--dim);cursor:not-allowed}
-  .error{
-    background:rgba(237,66,69,.1);border:1px solid rgba(237,66,69,.3);
-    color:var(--danger);padding:10px 12px;border-radius:6px;
-    font-size:12px;margin-bottom:14px;font-family:var(--mono);
-    display:none;
-  }
-  .error.show{display:block}
-  .hidden{display:none !important}
-  .hint{
-    font-size:11px;color:var(--dim);margin-top:16px;
-    font-family:var(--mono);text-align:center;line-height:1.5;
-  }
-  .hint a{color:var(--accent);text-decoration:none}
-  .code-display{
-    background:rgba(110,231,168,.08);border:1px solid var(--accent-2);
-    border-radius:6px;padding:14px;margin:16px 0;
-    text-align:center;font-family:var(--mono);
-  }
-  .code-display .label{font-size:10px;color:var(--dim);letter-spacing:.06em;text-transform:uppercase;margin-bottom:6px}
-  .code-display .value{font-size:24px;color:var(--accent);letter-spacing:.3em;font-weight:500}
-  .code-display .note{font-size:10px;color:var(--dim);margin-top:6px}
-  .ref-banner{
-    background:rgba(110,231,168,.06);border:1px solid var(--accent-2);
-    border-radius:6px;padding:10px 12px;margin-bottom:16px;
-    font-family:var(--mono);font-size:11px;color:var(--accent);
-    display:none;
-  }
-  .ref-banner.show{display:block}
-</style>
+  <style>
+    :root {
+      --bg: #050807;
+      --bg-glass: rgba(10, 14, 11, 0.85);
+      --card: #0f1410;
+      --border: #1d271f;
+      --border-2: #2a3a2c;
+      --fg: #eef1ee;
+      --fg-2: #b8c0b9;
+      --dim: #6e7a70;
+      --accent: #6ee7a8;
+      --accent-2: #3f9a6b;
+      --danger: #ed4245;
+      --mono: 'JetBrains Mono', monospace;
+      --sans: 'Inter', sans-serif;
+      --t: 250ms cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; }
+    
+    body {
+      font-family: var(--sans);
+      background: var(--bg);
+      color: var(--fg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      overflow: hidden;
+      -webkit-font-smoothing: antialiased;
+      background-image: 
+        radial-gradient(circle at 10% 20%, rgba(30, 70, 45, 0.2) 0%, transparent 50%),
+        radial-gradient(circle at 90% 80%, rgba(20, 50, 30, 0.15) 0%, transparent 50%);
+    }
+
+    /* Glass Panel */
+    .login-panel {
+      width: 100%;
+      max-width: 420px;
+      background: var(--bg-glass);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid var(--border-2);
+      border-radius: 16px;
+      padding: 48px;
+      box-shadow: 0 30px 80px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(110, 231, 168, 0.05);
+      position: relative;
+      overflow: hidden;
+      opacity: 0;
+      transform: translateY(20px);
+    }
+
+    /* Top ambient light line */
+    .login-panel::before {
+      content: "";
+      position: absolute;
+      top: 0; left: 20%; right: 20%; height: 1px;
+      background: linear-gradient(90deg, transparent, var(--accent), transparent);
+      opacity: 0.6;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 600;
+      font-size: 16px;
+      color: var(--fg);
+      text-decoration: none;
+      margin-bottom: 32px;
+      justify-content: center;
+    }
+    .brand-logo {
+      width: 32px; height: 32px; border-radius: 8px;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      display: grid; place-items: center;
+      color: #062a17; font-family: var(--mono);
+      font-weight: 700; font-size: 14px;
+      box-shadow: 0 0 20px rgba(110, 231, 168, 0.4);
+    }
+    .brand span { color: var(--accent); font-weight: 400; }
+
+    h1 {
+      font-family: var(--sans);
+      font-weight: 600;
+      font-size: 24px;
+      letter-spacing: -0.02em;
+      margin-bottom: 8px;
+      color: #fff;
+      text-align: center;
+    }
+    
+    p.lede {
+      font-size: 13px;
+      color: var(--dim);
+      text-align: center;
+      margin-bottom: 32px;
+      line-height: 1.6;
+    }
+
+    .field-group {
+      margin-bottom: 20px;
+    }
+    
+    label {
+      display: block;
+      font-family: var(--mono);
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--fg-2);
+      margin-bottom: 8px;
+      font-weight: 600;
+    }
+
+    input {
+      width: 100%;
+      padding: 14px 16px;
+      background: rgba(0, 0, 0, 0.6);
+      border: 1px solid var(--border-2);
+      border-radius: 8px;
+      color: var(--accent);
+      font-family: var(--mono);
+      font-size: 14px;
+      outline: none;
+      transition: all var(--t);
+    }
+    
+    input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(110, 231, 168, 0.1);
+      background: #000;
+    }
+    
+    input::placeholder {
+      color: var(--dim);
+      font-family: var(--sans);
+    }
+
+    input.code-input {
+      font-family: var(--mono);
+      font-size: 24px;
+      letter-spacing: 0.3em;
+      text-align: center;
+      padding: 18px;
+      text-transform: uppercase;
+    }
+
+    button {
+      width: 100%;
+      padding: 16px;
+      background: var(--fg);
+      color: #000;
+      border: none;
+      border-radius: 8px;
+      font-family: var(--mono);
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all var(--t);
+      position: relative;
+      overflow: hidden;
+    }
+
+    button::after {
+      content: "";
+      position: absolute;
+      top: 0; left: -100%; width: 100%; height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+      transition: left 0.5s ease;
+    }
+
+    button:hover {
+      background: var(--accent);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 15px rgba(110, 231, 168, 0.3);
+    }
+
+    button:hover::after {
+      left: 100%;
+    }
+
+    button:active {
+      transform: translateY(1px);
+    }
+
+    button:disabled {
+      opacity: 0.5;
+      cursor: wait;
+      transform: none;
+    }
+
+    .error-msg {
+      background: rgba(237, 66, 69, 0.1);
+      border: 1px solid rgba(237, 66, 69, 0.3);
+      color: var(--danger);
+      padding: 12px;
+      border-radius: 8px;
+      font-family: var(--mono);
+      font-size: 11px;
+      margin-bottom: 20px;
+      text-align: center;
+      display: none;
+    }
+
+    .error-msg.show {
+      display: block;
+    }
+
+    .footer-note {
+      margin-top: 24px;
+      text-align: center;
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--dim);
+    }
+
+    .footer-note a {
+      color: var(--accent);
+      text-decoration: none;
+      transition: opacity var(--t);
+    }
+
+    .footer-note a:hover {
+      opacity: 0.8;
+      text-decoration: underline;
+    }
+
+    /* Beta Code Display */
+    .beta-code-box {
+      background: rgba(110, 231, 168, 0.05);
+      border: 1px dashed var(--accent-2);
+      border-radius: 8px;
+      padding: 16px;
+      margin: 16px 0 24px;
+      text-align: center;
+      display: none;
+    }
+    .beta-code-box .label {
+      font-family: var(--mono);
+      font-size: 9px;
+      color: var(--dim);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 8px;
+    }
+    .beta-code-box .code {
+      font-family: var(--mono);
+      font-size: 24px;
+      font-weight: 600;
+      color: var(--accent);
+      letter-spacing: 0.2em;
+    }
+  </style>
 </head>
 <body>
 
-<div class="swipe-overlay" id="swipe-overlay">
-  <div class="swipe-inner">
-    <div class="swipe-logo">v</div>
-    <div class="swipe-text">initializing console</div>
-    <div class="swipe-dots"><span></span><span></span><span></span></div>
-  </div>
-</div>
-
-<div class="shell">
-  <div class="brand">
-    <div class="logo">v</div>
+<div class="login-panel" id="panel">
+  <a href="/" class="brand">
+    <div class="brand-logo">v</div>
     <div>volume<span>.tools</span></div>
+  </a>
+
+  <div class="error-msg" id="error-msg"></div>
+
+  <!-- STEP 1: EMAIL -->
+  <div id="step-email">
+    <h1>Sign in.</h1>
+    <p class="lede">Enter your email address to access the intelligence console.</p>
+    
+    <div class="field-group">
+      <label>Email Address</label>
+      <input type="email" id="email-input" placeholder="operator@domain.com" autocomplete="email" autofocus>
+    </div>
+    
+    <button id="email-btn">Send Code →</button>
+    
+    <div class="footer-note">
+      No account? <a href="/">Register for free</a>
+    </div>
   </div>
 
-  <div class="card">
-    <div class="error" id="error"></div>
-    <div class="ref-banner" id="ref-banner"></div>
-
-    <div id="step-email">
-      <h1>Sign in.<br><em>No passwords.</em></h1>
-      <p class="lede">Enter your email. We'll send a 6-digit code to verify it's you.</p>
-      <div class="field">
-        <label>Email address</label>
-        <input id="email-input" type="email" placeholder="you@example.com" autocomplete="email" autofocus>
-      </div>
-      <button id="email-btn">send code →</button>
-      <div class="hint">By signing in you agree to the acceptable use policy.</div>
+  <!-- STEP 2: CODE -->
+  <div id="step-code" style="display: none;">
+    <h1>Check your inbox.</h1>
+    <p class="lede">We sent a 6-digit code to <br><span id="email-display" style="color: var(--fg);"></span></p>
+    
+    <div class="beta-code-box" id="beta-code-box">
+      <div class="label">Beta Mode · Code</div>
+      <div class="code" id="beta-code">------</div>
     </div>
 
-    <div id="step-code" class="hidden">
-      <h1>Check your code.</h1>
-      <p class="lede">Enter the 6-digit code sent to <span id="email-display" style="color:var(--fg)"></span>.</p>
-      <div class="code-display" id="code-display">
-        <div class="label">beta mode · code</div>
-        <div class="value" id="beta-code">------</div>
-        <div class="note">in production this is emailed, not shown</div>
-      </div>
-      <div class="field">
-        <label>Verification code</label>
-        <input id="code-input" type="text" class="code-input" placeholder="000000" maxlength="6" autocomplete="one-time-code">
-      </div>
-      <button id="code-btn">verify →</button>
-      <div class="hint"><a href="#" id="back-btn">← use a different email</a></div>
+    <div class="field-group">
+      <label>Verification Code</label>
+      <input type="text" id="code-input" class="code-input" placeholder="000000" maxlength="6" autocomplete="one-time-code">
+    </div>
+    
+    <button id="code-btn">Verify & Enter →</button>
+    
+    <div class="footer-note">
+      <a href="#" id="back-btn">← use a different email</a>
     </div>
   </div>
 </div>
 
 <script>
 (() => {
-  const API = window.location.hostname === 'localhost'
-    ? 'http://localhost:8000'
-    : 'https://volume-tools-2.onrender.com';
+  const API = window.location.hostname === 'localhost' ? 'http://localhost:8000' : 'https://volume-tools-2.onrender.com';
   let currentEmail = '';
-  const urlRef = new URLSearchParams(window.location.search).get('ref');
 
-  const el = id => document.getElementById(id);
-  const showError = (msg) => {
-    const e = el('error');
-    e.textContent = msg;
-    e.classList.add('show');
-  };
-  const clearError = () => el('error').classList.remove('show');
-  const setLoading = (btn, loading) => {
-    btn.disabled = loading;
-    btn.textContent = loading ? '...' : btn.dataset.label;
-  };
+  const panel = document.getElementById('panel');
+  const emailBtn = document.getElementById('email-btn');
+  const codeBtn = document.getElementById('code-btn');
+  const errorMsg = document.getElementById('error-msg');
+  
+  // Initial GSAP Entrance Animation
+  gsap.to(panel, { opacity: 1, y: 0, duration: 0.8, ease: 'power3.out' });
+  gsap.from('.brand', { opacity: 0, y: -10, duration: 0.6, delay: 0.2 });
+  gsap.from('#step-email h1', { opacity: 0, y: -10, duration: 0.6, delay: 0.3 });
+  gsap.from('#step-email .lede', { opacity: 0, y: -10, duration: 0.6, delay: 0.4 });
+  gsap.from('#step-email .field-group', { opacity: 0, y: -10, duration: 0.6, delay: 0.5 });
+  gsap.from('#email-btn', { opacity: 0, y: -10, duration: 0.6, delay: 0.6 });
 
-  el('email-btn').dataset.label = el('email-btn').textContent;
-  el('code-btn').dataset.label = el('code-btn').textContent;
-
-  if (urlRef) {
-    const b = el('ref-banner');
-    b.textContent = 'Referral code applied: ' + urlRef;
-    b.classList.add('show');
+  function showError(msg) {
+    errorMsg.textContent = msg;
+    errorMsg.classList.add('show');
+    gsap.fromTo(errorMsg, { height: 0, opacity: 0 }, { height: 'auto', opacity: 1, duration: 0.3 });
   }
 
-  el('email-btn').onclick = async () => {
+  function clearError() {
+    errorMsg.classList.remove('show');
+  }
+
+  // Step 1: Request Code
+  emailBtn.addEventListener('click', async () => {
     clearError();
-    const email = el('email-input').value.trim().toLowerCase();
+    const email = document.getElementById('email-input').value.trim().toLowerCase();
     if (!email || !email.includes('@')) {
-      showError('enter a valid email address');
+      showError('Please enter a valid email address');
       return;
     }
-    setLoading(el('email-btn'), true);
+
+    emailBtn.disabled = true;
+    emailBtn.textContent = 'Sending...';
+
     try {
-      const r = await fetch(`${API}/api/auth/request`, {
+      const res = await fetch(`${API}/api/auth/request`, {
         method: 'POST',
-        headers: {'content-type': 'application/json'},
+        headers: { 'content-type': 'application/json' },
         body: JSON.stringify({ email })
       });
-      const d = await r.json();
-      if (!r.ok) {
-        showError(d.detail || 'could not send code');
-        setLoading(el('email-btn'), false);
+      const data = await res.json();
+
+      if (!res.ok) {
+        showError(data.detail || 'Failed to send code');
+        emailBtn.disabled = false;
+        emailBtn.textContent = 'Send Code →';
         return;
       }
-      currentEmail = email;
-      el('email-display').textContent = email;
-      el('step-email').classList.add('hidden');
-      el('step-code').classList.remove('hidden');
-      el('beta-code').textContent = d.code || '------';
-      el('code-input').focus();
-      setLoading(el('email-btn'), false);
-    } catch (e) {
-      showError('network error · ' + e.message);
-      setLoading(el('email-btn'), false);
-    }
-  };
 
-  el('code-btn').onclick = async () => {
+      currentEmail = email;
+      document.getElementById('email-display').textContent = email;
+      
+      // Show beta code if present
+      if (data.code) {
+        document.getElementById('beta-code').textContent = data.code;
+        document.getElementById('beta-code-box').style.display = 'block';
+      }
+
+      // GSAP Transition to Step 2
+      gsap.to('#step-email', { opacity: 0, y: -20, duration: 0.3, onComplete: () => {
+        document.getElementById('step-email').style.display = 'none';
+        document.getElementById('step-code').style.display = 'block';
+        
+        gsap.fromTo('#step-code', { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.4 });
+        gsap.fromTo('#step-code h1', { opacity: 0, y: -10 }, { opacity: 1, y: 0, duration: 0.4, delay: 0.1 });
+        gsap.fromTo('#step-code .lede', { opacity: 0, y: -10 }, { opacity: 1, y: 0, duration: 0.4, delay: 0.15 });
+        gsap.fromTo('#beta-code-box', { opacity: 0, scale: 0.9 }, { opacity: 1, scale: 1, duration: 0.4, delay: 0.2 });
+        gsap.fromTo('#step-code .field-group', { opacity: 0, y: -10 }, { opacity: 1, y: 0, duration: 0.4, delay: 0.25 });
+        gsap.fromTo('#code-btn', { opacity: 0, y: -10 }, { opacity: 1, y: 0, duration: 0.4, delay: 0.3 });
+        gsap.fromTo('#back-btn', { opacity: 0 }, { opacity: 1, duration: 0.4, delay: 0.4 });
+      }});
+
+    } catch (e) {
+      showError('Network error: ' + e.message);
+      emailBtn.disabled = false;
+      emailBtn.textContent = 'Send Code →';
+    }
+  });
+
+  // Step 2: Verify Code
+  codeBtn.addEventListener('click', async () => {
     clearError();
-    const code = el('code-input').value.trim();
+    const code = document.getElementById('code-input').value.trim();
     if (code.length !== 6) {
-      showError('enter the 6-digit code');
+      showError('Please enter the 6-digit code');
       return;
     }
-    setLoading(el('code-btn'), true);
+
+    codeBtn.disabled = true;
+    codeBtn.textContent = 'Verifying...';
+
     try {
-      const r = await fetch(`${API}/api/auth/verify`, {
+      const res = await fetch(`${API}/api/auth/verify`, {
         method: 'POST',
-        headers: {'content-type': 'application/json'},
+        headers: { 'content-type': 'application/json' },
         body: JSON.stringify({ email: currentEmail, code })
       });
-      const d = await r.json();
-      if (!r.ok) {
-        showError(d.detail || 'invalid code');
-        setLoading(el('code-btn'), false);
+      const data = await res.json();
+
+      if (!res.ok) {
+        showError(data.detail || 'Invalid code');
+        codeBtn.disabled = false;
+        codeBtn.textContent = 'Verify & Enter →';
         return;
       }
-      localStorage.setItem('volume_token', d.token);
+
+      localStorage.setItem('volume_token', data.token);
       localStorage.setItem('volume_email', currentEmail);
-      localStorage.setItem('volume_tier', d.user.tier);
+      localStorage.setItem('volume_tier', data.user.tier);
 
-      // SWIPE TRANSITION
-      const overlay = el('swipe-overlay');
-      overlay.classList.add('active');
+      // GSAP Success Transition
+      codeBtn.textContent = 'Success ✓';
+      codeBtn.style.background = 'var(--accent)';
+      codeBtn.style.color = '#000';
+      codeBtn.style.boxShadow = '0 0 30px rgba(110, 231, 168, 0.6)';
 
-      // Claim referral if present (non-blocking)
-      if (urlRef) {
-        try {
-          await fetch(`${API}/api/referrals/claim`, {
-            method: 'POST',
-            headers: {
-              'content-type': 'application/json',
-              'authorization': `Bearer ${d.token}`
-            },
-            body: JSON.stringify({ code: urlRef })
-          });
-        } catch (err) {}
-      }
+      gsap.to(panel, { scale: 1.05, opacity: 0, duration: 0.6, delay: 0.4, ease: 'power3.in', onComplete: () => {
+        window.location.href = '/app';
+      }});
 
-      // Hold the swipe for 1.4 seconds, then swipe out and redirect
-      setTimeout(() => {
-        overlay.classList.add('done');
-        setTimeout(() => {
-          window.location.href = '/';
-        }, 550);
-      }, 1400);
     } catch (e) {
-      showError('network error · ' + e.message);
-      setLoading(el('code-btn'), false);
+      showError('Network error: ' + e.message);
+      codeBtn.disabled = false;
+      codeBtn.textContent = 'Verify & Enter →';
     }
-  };
+  });
 
-  el('back-btn').onclick = (e) => {
+  // Back button
+  document.getElementById('back-btn').addEventListener('click', (e) => {
     e.preventDefault();
-    el('step-code').classList.add('hidden');
-    el('step-email').classList.remove('hidden');
-    el('code-input').value = '';
     clearError();
-  };
+    gsap.to('#step-code', { opacity: 0, y: 20, duration: 0.3, onComplete: () => {
+      document.getElementById('step-code').style.display = 'none';
+      document.getElementById('step-email').style.display = 'block';
+      gsap.fromTo('#step-email', { opacity: 0, y: -20 }, { opacity: 1, y: 0, duration: 0.4 });
+      document.getElementById('email-input').value = '';
+      emailBtn.disabled = false;
+      emailBtn.textContent = 'Send Code →';
+    }});
+  });
 
-  el('code-input').addEventListener('input', (e) => {
-    e.target.value = e.target.value.replace(/\D/g, '');
+  // Auto-format code input
+  document.getElementById('code-input').addEventListener('input', (e) => {
+    e.target.value = e.target.value.replace(/[^0-9]/g, '');
   });
-  el('email-input').addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') el('email-btn').click();
+
+  // Enter key support
+  document.getElementById('email-input').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') emailBtn.click();
   });
-  el('code-input').addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') el('code-btn').click();
+  document.getElementById('code-input').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') codeBtn.click();
   });
 })();
 </script>
