@@ -85,13 +85,15 @@
     .wrap { position: relative; z-index: 1; max-width: 1200px; margin: 0 auto; padding: 0 var(--s8); }
 
     /* NAV */
-    nav {
+        nav {
       display: flex; align-items: center; gap: var(--s6);
-      padding: var(--s5) 0;
+      padding: var(--s4) var(--s8);
       border-bottom: 1px solid rgba(29, 39, 31, 0.5);
       backdrop-filter: blur(14px);
       position: sticky; top: 0; z-index: 100;
-      background: rgba(5, 8, 7, 0.7);
+      background: rgba(5, 8, 7, 0.8);
+      width: 100%;
+      box-sizing: border-box;
     }
     .brand { display: flex; align-items: center; gap: var(--s2); font-weight: 500; font-size: 14px; color: var(--fg); text-decoration: none; }
     .brand-logo {
@@ -303,10 +305,15 @@
       .plans-grid { grid-template-columns: repeat(2, 1fr); }
     }
     @media (max-width: 768px) {
-      .wrap { padding: 0 var(--s5); }
-      nav .links { display: none; }
-      .plans-grid { grid-template-columns: 1fr; }
-      .section { padding: var(--s16) 0; }
+          .wrap {
+      position: relative; z-index: 1;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 var(--s8);
+      perspective: 1500px;
+      transform-style: preserve-3d;
+      transition: transform 0.1s ease-out;
+      will-change: transform;
     }
   </style>
 </head>
@@ -789,31 +796,36 @@
 </div>
 
 <script>
-  // ============ 3D TILT EFFECT ============
-  const tiltBox = document.getElementById('tilt-box');
-  const tiltContainer = document.getElementById('tilt-container');
+    // ============ FULL PAGE MOUSE TILT ============
+  const pageWrap = document.querySelector('.wrap');
+  
+  document.addEventListener('mousemove', (e) => {
+    const x = e.clientX;
+    const y = e.clientY;
+    const centerX = window.innerWidth / 2;
+    const centerY = window.innerHeight / 2;
+    
+    // 3 degrees max tilt for subtle depth
+    const rotateX = ((y - centerY) / centerY) * -3;
+    const rotateY = ((x - centerX) / centerX) * 3;
+    
+    if (pageWrap) {
+      pageWrap.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+    }
+  });
 
-  if (tiltBox && tiltContainer) {
-    tiltContainer.addEventListener('mousemove', (e) => {
-      const rect = tiltContainer.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const y = e.clientY - rect.top;
-      const centerX = rect.width / 2;
-      const centerY = rect.height / 2;
-      const rotateX = ((y - centerY) / centerY) * -10;
-      const rotateY = ((x - centerX) / centerX) * 10;
-      tiltBox.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.02)`;
-    });
+  document.addEventListener('mouseleave', () => {
+    if (pageWrap) {
+      pageWrap.style.transition = 'transform 0.5s ease';
+      pageWrap.style.transform = 'rotateX(0) rotateY(0)';
+    }
+  });
 
-    tiltContainer.addEventListener('mouseleave', () => {
-      tiltBox.style.transform = `rotateX(0) rotateY(0) scale(1)`;
-      tiltBox.style.transition = 'transform 0.5s ease';
-    });
-
-    tiltContainer.addEventListener('mouseenter', () => {
-      tiltBox.style.transition = 'transform 0.1s ease-out';
-    });
-  }
+  document.addEventListener('mouseenter', () => {
+    if (pageWrap) {
+      pageWrap.style.transition = 'transform 0.1s ease-out';
+    }
+  });
 
   // ============ ACCESS GATEWAY ============
   const gateKey = document.getElementById('gate-key');
