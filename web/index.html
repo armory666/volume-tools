@@ -8,7 +8,8 @@
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  
   <script src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
 
   <style>
@@ -16,13 +17,11 @@
       --bg: #050807;
       --panel: #0a0e0b;
       --card: #0f1410;
-      --card-hover: #1a241f;
       --border: #1d271f;
       --border-2: #2a3a2c;
       --fg: #eef1ee;
       --fg-2: #b8c0b9;
       --dim: #6e7a70;
-      --dim-2: #455048;
       --accent: #6ee7a8;
       --accent-2: #3f9a6b;
       --danger: #ed4245;
@@ -30,8 +29,8 @@
       --mono: 'JetBrains Mono', ui-monospace, Menlo, monospace;
       --sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
       --s1: 4px; --s2: 8px; --s3: 12px; --s4: 16px; --s5: 20px; --s6: 24px;
-      --r-sm: 6px; --r-md: 10px;
-      --t: 180ms cubic-bezier(0.4, 0, 0.2, 1);
+      --r-sm: 6px; --r-md: 10px; --r-lg: 14px;
+      --t: 200ms cubic-bezier(0.4, 0, 0.2, 1);
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -43,8 +42,12 @@
       font-size: 13px;
       line-height: 1.5;
       display: flex;
-      overflow: hidden; /* App layout, no page scroll */
+      overflow: hidden;
       -webkit-font-smoothing: antialiased;
+      /* Subtle green ambient glow in background */
+      background-image: 
+        radial-gradient(ellipse 60% 40% at 10% 0%, rgba(30, 70, 45, 0.15), transparent 60%),
+        radial-gradient(ellipse 50% 50% at 100% 100%, rgba(20, 50, 30, 0.1), transparent 60%);
     }
 
     /* ============ LEFT SIDEBAR ============ */
@@ -55,44 +58,37 @@
       display: flex;
       flex-direction: column;
       flex-shrink: 0;
+      z-index: 10;
     }
 
     .brand-area {
-      padding: var(--s5) var(--s5) var(--s4);
+      padding: var(--s5);
       border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
     }
     .brand {
-      display: flex; align-items: center; gap: var(--s2);
-      font-weight: 500; font-size: 14px; color: var(--fg); text-decoration: none;
-      margin-bottom: var(--s5);
+      display: flex; align-items: center; gap: var(--s3);
+      font-weight: 600; font-size: 14px; color: var(--fg); text-decoration: none;
     }
     .brand-logo {
-      width: 24px; height: 24px; border-radius: var(--r-sm);
+      width: 28px; height: 28px; border-radius: var(--r-sm);
       background: linear-gradient(135deg, var(--accent), var(--accent-2));
       display: grid; place-items: center; color: #062a17; font-family: var(--mono);
-      font-weight: 700; font-size: 12px;
+      font-weight: 700; font-size: 13px;
     }
-    .brand span { color: var(--accent); font-weight: 400; }
-
-    .case-selector {
-      background: var(--card); border: 1px solid var(--border-2);
-      padding: var(--s2) var(--s3); border-radius: var(--r-sm);
-      font-family: var(--mono); font-size: 11px; color: var(--fg-2);
-      display: flex; align-items: center; justify-content: space-between;
-      cursor: pointer; transition: border-color var(--t);
-    }
-    .case-selector:hover { border-color: var(--accent-2); }
-    .case-selector .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--dim); }
-    .case-selector.active .dot { background: var(--accent); }
+    .brand-text { display: flex; flex-direction: column; line-height: 1.2; }
+    .brand-text span { color: var(--accent); font-size: 10px; font-weight: 500; font-family: var(--mono); letter-spacing: 0.1em; text-transform: uppercase; }
+    .close-btn { background: none; border: none; color: var(--dim); font-size: 16px; cursor: pointer; }
 
     .nav-group {
       padding: var(--s4) 0;
-      border-bottom: 1px solid var(--border);
     }
     .nav-label {
       padding: 0 var(--s5); margin-bottom: var(--s2);
       font-family: var(--mono); font-size: 9px; font-weight: 600;
-      text-transform: uppercase; letter-spacing: 0.1em; color: var(--dim-2);
+      text-transform: uppercase; letter-spacing: 0.1em; color: var(--dim);
     }
     .nav-item {
       display: flex; align-items: center; gap: var(--s3);
@@ -106,346 +102,437 @@
       background: rgba(110, 231, 168, 0.05); color: var(--accent);
       border-left-color: var(--accent);
     }
-    .nav-item .icon { font-size: 14px; width: 16px; text-align: center; }
+    .nav-item .icon { font-size: 14px; width: 18px; text-align: center; opacity: 0.7; }
+    .nav-item.active .icon { opacity: 1; }
 
     .sidebar-footer {
       margin-top: auto; padding: var(--s4) var(--s5);
       border-top: 1px solid var(--border);
-      display: flex; flex-direction: column; gap: var(--s3);
+      background: var(--card);
     }
-    .user-pill {
+    .user-card { display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--s2); }
+    .user-info { font-family: var(--mono); font-size: 11px; }
+    .user-info .name { color: var(--fg); font-weight: 600; }
+    .user-info .quota { color: var(--dim); font-size: 9px; margin-top: 2px; }
+    .sign-out { font-size: 10px; color: var(--dim); text-decoration: none; text-transform: uppercase; font-family: var(--mono); letter-spacing: 0.05em; }
+    .sign-out:hover { color: var(--danger); }
+    
+    .status-bar {
+      margin-top: var(--s3); padding-top: var(--s3); border-top: 1px solid var(--border-2);
       display: flex; align-items: center; gap: var(--s2);
-      font-family: var(--mono); font-size: 11px; color: var(--fg-2);
+      font-family: var(--mono); font-size: 9px; color: var(--accent);
     }
-    .tier-badge {
-      padding: 2px 6px; border-radius: 4px; font-size: 9px; font-weight: 700;
-      background: rgba(110, 231, 168, 0.1); color: var(--accent); margin-left: auto;
-    }
-    .sign-out {
-      font-size: 11px; color: var(--danger); text-decoration: none; font-family: var(--mono);
-    }
-    .sign-out:hover { text-decoration: underline; }
+    .status-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 8px var(--accent); }
 
-    /* ============ CENTER WORKSPACE ============ */
-    .workspace {
+    /* ============ MAIN CONTENT ============ */
+    .main-content {
       flex: 1;
       display: flex;
       flex-direction: column;
-      min-width: 0; /* Prevents flex blowout */
+      min-width: 0;
     }
 
+    /* Topbar */
     .topbar {
-      height: 48px; border-bottom: 1px solid var(--border);
+      height: 52px; border-bottom: 1px solid var(--border);
       display: flex; align-items: center; padding: 0 var(--s6);
-      background: var(--panel);
+      background: rgba(10, 14, 11, 0.8);
+      backdrop-filter: blur(10px);
+    }
+    .breadcrumb {
       font-family: var(--mono); font-size: 11px; color: var(--dim);
+      display: flex; align-items: center; gap: var(--s2);
     }
-    .topbar .crumb { color: var(--accent); margin-right: var(--s2); }
-    .topbar .spacer { flex: 1; }
-    .topbar .shortcut { border: 1px solid var(--border-2); padding: 2px 6px; border-radius: 4px; }
+    .breadcrumb .sep { color: var(--border-2); }
+    .breadcrumb .current { color: var(--fg); font-weight: 500; }
+    
+    .topbar-right { margin-left: auto; display: flex; gap: var(--s2); }
+    .topbar-pill {
+      padding: 4px 10px; border: 1px solid var(--border-2); border-radius: 4px;
+      font-family: var(--mono); font-size: 10px; color: var(--fg-2);
+    }
+    .topbar-pill.green { border-color: var(--accent-2); color: var(--accent); }
 
-    .search-header {
+    /* Search Area */
+    .search-section {
       padding: var(--s6);
-      border-bottom: 1px solid var(--border);
+      background: linear-gradient(180deg, rgba(15, 20, 16, 0.6) 0%, transparent 100%);
     }
-    .search-box {
-      display: flex; gap: var(--s2); max-width: 800px;
+    .search-title { font-size: 22px; font-weight: 600; margin-bottom: var(--s4); letter-spacing: -0.02em; }
+    
+    .search-bar {
+      display: flex; gap: var(--s2);
+      background: var(--card); border: 1px solid var(--border-2);
+      border-radius: var(--r-md); padding: var(--s2);
+      box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+      margin-bottom: var(--s4);
     }
     .search-input {
-      flex: 1; padding: 12px 16px;
-      background: #000; border: 1px solid var(--border-2);
-      border-radius: var(--r-sm); color: var(--fg);
-      font-family: var(--mono); font-size: 13px; outline: none;
-      transition: border-color var(--t);
+      flex: 1; padding: 12px 16px; background: transparent; border: none;
+      color: var(--fg); font-family: var(--mono); font-size: 13px; outline: none;
     }
-    .search-input:focus { border-color: var(--accent); }
+    .search-input::placeholder { color: var(--dim); }
     .btn-run {
       padding: 0 24px; background: var(--fg); color: #000;
       border: none; border-radius: var(--r-sm); font-family: var(--mono);
-      font-weight: 600; cursor: pointer; transition: background var(--t);
+      font-weight: 600; font-size: 12px; cursor: pointer; transition: background var(--t);
+      display: flex; align-items: center; gap: var(--s2);
     }
     .btn-run:hover { background: var(--accent); }
 
-    .results-area {
+    /* Filter Chips */
+    .filter-chips { display: flex; gap: var(--s2); flex-wrap: wrap; }
+    .chip {
+      padding: 6px 12px; background: transparent; border: 1px solid var(--border-2);
+      border-radius: 100px; color: var(--dim); font-family: var(--mono);
+      font-size: 10px; cursor: pointer; transition: all var(--t);
+      display: flex; align-items: center; gap: 6px;
+    }
+    .chip:hover { border-color: var(--accent-2); color: var(--fg); }
+    .chip.active { background: rgba(110, 231, 168, 0.1); border-color: var(--accent); color: var(--accent); }
+
+    /* Stats Row */
+    .stats-row {
+      display: grid; grid-template-columns: repeat(5, 1fr); gap: var(--s3);
+      padding: 0 var(--s6) var(--s6);
+    }
+    .stat-card {
+      background: var(--card); border: 1px solid var(--border); border-radius: var(--r-md);
+      padding: var(--s4);
+    }
+    .stat-label { font-family: var(--mono); font-size: 9px; color: var(--dim); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: var(--s2); }
+    .stat-value { font-size: 20px; font-weight: 600; color: var(--fg); line-height: 1; margin-bottom: var(--s1); }
+    .stat-value.green { color: var(--accent); }
+    .stat-sub { font-family: var(--mono); font-size: 9px; color: var(--dim); }
+
+    /* Results Panel */
+    .results-panel {
+      flex: 1; display: flex; flex-direction: column;
+      border-top: 1px solid var(--border);
+      background: rgba(5, 8, 7, 0.5);
+      overflow: hidden;
+    }
+    .results-header {
+      display: flex; align-items: center; padding: 0 var(--s6); height: 44px;
+      border-bottom: 1px solid var(--border); background: var(--panel);
+    }
+    .results-title { font-family: var(--mono); font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; color: var(--fg); }
+    .results-tabs { margin-left: var(--s6); display: flex; gap: var(--s4); }
+    .rtab { font-family: var(--mono); font-size: 10px; color: var(--dim); cursor: pointer; text-transform: uppercase; letter-spacing: 0.05em; padding: 12px 0; border-bottom: 2px solid transparent; }
+    .rtab.active { color: var(--fg); border-bottom-color: var(--fg); }
+    .results-actions { margin-left: auto; display: flex; gap: var(--s2); }
+    .btn-sm { background: transparent; border: 1px solid var(--border-2); color: var(--dim); padding: 4px 10px; border-radius: 4px; font-family: var(--mono); font-size: 9px; cursor: pointer; text-transform: uppercase; }
+    .btn-sm:hover { color: var(--fg); border-color: var(--fg); }
+
+    /* Empty State */
+    .empty-view {
+      flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
+      background: radial-gradient(circle at center, rgba(110, 231, 168, 0.03) 0%, transparent 60%);
+    }
+    .empty-icon { width: 48px; height: 48px; border: 1px solid var(--border-2); border-radius: var(--r-md); display: grid; place-items: center; font-size: 20px; color: var(--dim); margin-bottom: var(--s4); }
+    .empty-title { font-size: 14px; font-weight: 600; color: var(--fg); margin-bottom: var(--s2); }
+    .empty-sub { font-size: 12px; color: var(--dim); }
+
+    /* Result Feed */
+    .result-feed {
       flex: 1; overflow-y: auto; padding: var(--s6);
-      background: radial-gradient(ellipse 80% 50% at 50% 0%, rgba(110, 231, 168, 0.03), transparent 60%);
+      display: flex; flex-direction: column; gap: var(--s3);
     }
-    .results-area::-webkit-scrollbar { width: 6px; }
-    .results-area::-webkit-scrollbar-thumb { background: var(--border-2); }
-
-    .empty-state {
-      text-align: center; padding: 100px 20px;
-      font-family: var(--mono); color: var(--dim);
-    }
-    .empty-state .icon { font-size: 32px; margin-bottom: var(--s4); opacity: 0.3; }
-
-    /* Result Cards */
-    .result-card {
-      background: var(--card); border: 1px solid var(--border);
-      border-radius: var(--r-md); padding: var(--s4); margin-bottom: var(--s3);
-      max-width: 800px;
-      animation: slideUp 0.3s ease;
+    .result-feed::-webkit-scrollbar { width: 6px; }
+    .result-feed::-webkit-scrollbar-thumb { background: var(--border-2); border-radius: 3px; }
+    
+    .feed-item {
+      background: var(--card); border: 1px solid var(--border); border-radius: var(--r-md);
+      padding: var(--s4); animation: slideUp 0.3s ease;
     }
     @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     
-    .result-header {
-      display: flex; align-items: center; gap: var(--s3);
-      margin-bottom: var(--s3); padding-bottom: var(--s3);
-      border-bottom: 1px solid var(--border);
-    }
-    .res-badge {
-      padding: 2px 8px; border-radius: 4px; font-family: var(--mono);
-      font-size: 9px; font-weight: 700; text-transform: uppercase;
-    }
-    .res-badge.stealer { background: rgba(237, 66, 69, 0.1); color: var(--danger); }
-    .res-badge.breach { background: rgba(232, 162, 74, 0.1); color: var(--warn); }
-    .res-badge.account { background: rgba(110, 231, 168, 0.1); color: var(--accent); }
-    .res-badge.iptrace { background: rgba(110, 231, 168, 0.1); color: var(--accent); }
+    .fi-header { display: flex; align-items: center; gap: var(--s3); margin-bottom: var(--s3); padding-bottom: var(--s3); border-bottom: 1px solid var(--border-2); }
+    .fi-badge { padding: 2px 6px; border-radius: 4px; font-family: var(--mono); font-size: 9px; font-weight: 700; text-transform: uppercase; }
+    .fi-badge.stealer { background: rgba(237, 66, 69, 0.1); color: var(--danger); border: 1px solid rgba(237,66,69,.3); }
+    .fi-badge.breach { background: rgba(232, 162, 74, 0.1); color: var(--warn); border: 1px solid rgba(232,162,74,.3); }
+    .fi-badge.account, .fi-badge.iptrace { background: rgba(110, 231, 168, 0.1); color: var(--accent); border: 1px solid rgba(110,231,168,.3); }
     
-    .res-title { font-size: 13px; font-weight: 600; color: var(--fg); }
-    .res-source { margin-left: auto; font-family: var(--mono); font-size: 10px; color: var(--dim); }
-    
-    .res-data {
-      display: grid; grid-template-columns: 120px 1fr; gap: var(--s2) var(--s4);
-      font-family: var(--mono); font-size: 11px;
-    }
-    .res-data .k { color: var(--dim); }
-    .res-data .v { color: var(--fg-2); word-break: break-all; }
+    .fi-source { margin-left: auto; font-family: var(--mono); font-size: 10px; color: var(--dim); }
+    .fi-data { display: grid; grid-template-columns: 140px 1fr; gap: var(--s2) var(--s4); font-family: var(--mono); font-size: 11px; }
+    .fi-data .k { color: var(--dim); }
+    .fi-data .v { color: var(--fg-2); word-break: break-all; }
+    .fi-data .v.highlight { color: var(--fg); font-weight: 500; }
 
-    /* ============ RIGHT GRAPH PANEL ============ */
-    .graph-panel {
-      width: 400px;
-      border-left: 1px solid var(--border);
-      background: var(--panel);
-      display: flex; flex-direction: column;
-      flex-shrink: 0;
+    /* Graph overlay (hidden by default, toggled) */
+    #graph-panel {
+      position: fixed; top: 0; right: -400px; width: 400px; height: 100vh;
+      background: var(--panel); border-left: 1px solid var(--border);
+      transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1); z-index: 100;
+      display: flex; flex-direction: column; box-shadow: -10px 0 30px rgba(0,0,0,0.5);
     }
-    .graph-header {
-      height: 48px; border-bottom: 1px solid var(--border);
-      display: flex; align-items: center; padding: 0 var(--s4);
-      font-family: var(--mono); font-size: 10px; color: var(--dim);
-      text-transform: uppercase; letter-spacing: 0.1em;
-    }
-    .graph-stats { margin-left: auto; display: flex; gap: var(--s3); }
-    .graph-stats b { color: var(--fg); font-weight: 500; }
-
-    #network {
-      flex: 1; width: 100%;
-      background: #000;
-    }
-
+    #graph-panel.open { right: 0; }
+    .graph-header { height: 52px; border-bottom: 1px solid var(--border); display: flex; align-items: center; padding: 0 var(--s4); font-family: var(--mono); font-size: 11px; color: var(--fg); }
+    .graph-close { margin-left: auto; cursor: pointer; color: var(--dim); }
+    .graph-close:hover { color: var(--fg); }
+    #network { flex: 1; background: #000; }
   </style>
 </head>
 <body>
 
 <script>
-  // Gate: redirect to login if not authed
-  if (!localStorage.getItem('volume_token')) {
-    window.location.href = '/login';
-  }
+  if (!localStorage.getItem('volume_token')) window.location.href = '/login';
 </script>
 
-<!-- LEFT SIDEBAR -->
 <aside class="sidebar">
   <div class="brand-area">
     <a href="/" class="brand">
       <div class="brand-logo">v</div>
-      <div>volume<span>.tools</span></div>
-    </a>
-    <div class="case-selector" id="active-case-btn">
-      <div style="display: flex; align-items: center; gap: 6px;">
-        <span class="dot"></span>
-        <span id="active-case-name">No active case</span>
+      <div class="brand-text">
+        volume.tools
+        <span>intelligence console</span>
       </div>
-      <span>▼</span>
-    </div>
+    </a>
+    <button class="close-btn">×</button>
   </div>
 
   <div class="nav-group">
     <div class="nav-label">Search</div>
-    <a class="nav-item active" data-pane="search"><span class="icon">⌕</span> Unified Search</a>
-    <a class="nav-item"><span class="icon">📧</span> Email</a>
-    <a class="nav-item"><span class="icon">📱</span> Phone</a>
-    <a class="nav-item"><span class="icon">👤</span> Username</a>
-    <a class="nav-item"><span class="icon">🌐</span> Domain / IP</a>
+    <a class="nav-item active"><span class="icon">⌕</span> Live Intel Search</a>
+    <a class="nav-item"><span class="icon">📧</span> Email search</a>
+    <a class="nav-item"><span class="icon">📱</span> Phone search</a>
+    <a class="nav-item"><span class="icon">👤</span> Username search</a>
+    <a class="nav-item"><span class="icon">🌐</span> Domain search</a>
+    <a class="nav-item"><span class="icon">🛡</span> IP lookup</a>
   </div>
 
   <div class="nav-group">
-    <div class="nav-label">Modules</div>
-    <a class="nav-item"><span class="icon">🦠</span> Stealer-Intel</a>
-    <a class="nav-item"><span class="icon">🔓</span> Leaks & Breaches</a>
-    <a class="nav-item"><span class="icon">🎮</span> Discord Tools</a>
-    <a class="nav-item"><span class="icon">🕸</span> CNAME Lookup</a>
+    <div class="nav-label">Records</div>
+    <a class="nav-item" onclick="document.getElementById('graph-panel').classList.add('open')"><span class="icon">🕸</span> Entity Graph</a>
+    <a class="nav-item"><span class="icon">🦠</span> Breach intel</a>
+    <a class="nav-item"><span class="icon">🕵</span> Stealerlog investigation</a>
+    <a class="nav-item"><span class="icon">🎮</span> Discord info</a>
+    <a class="nav-item"><span class="icon">📁</span> Case files</a>
   </div>
 
   <div class="sidebar-footer">
-    <div class="user-pill">
-      <span id="user-email">loading...</span>
-      <span class="tier-badge" id="user-tier">FREE</span>
+    <div class="user-card">
+      <div class="user-info">
+        <div class="name" id="user-name">operator</div>
+        <div class="quota" id="user-quota">FREE · 15 CREDITS</div>
+      </div>
+      <a href="#" class="sign-out" id="logout-btn">Sign out</a>
     </div>
-    <a href="#" class="sign-out" id="logout-btn">sign out</a>
+    <div class="status-bar">
+      <div class="status-dot"></div> Proxy ready
+    </div>
   </div>
 </aside>
 
-<!-- CENTER WORKSPACE -->
-<main class="workspace">
+<main class="main-content">
   <header class="topbar">
-    <span class="crumb" id="topbar-crumb">Workspace / Unified Search</span>
-    <div class="spacer"></div>
-    <span class="shortcut">⌘K</span>
+    <div class="breadcrumb">
+      <span>Workspace</span>
+      <span class="sep">/</span>
+      <span class="current" id="crumb">Email search</span>
+    </div>
+    <div class="topbar-right">
+      <div class="topbar-pill" id="topbar-tier">FREE · 15</div>
+      <div class="topbar-pill green" id="clock">00:00:00 UTC</div>
+    </div>
   </header>
 
-  <div class="search-header">
-    <div class="search-box">
-      <input type="text" id="search-input" class="search-input" placeholder="Enter an email, phone, username, domain, or IP..." autocomplete="off" autofocus>
-      <button id="search-btn" class="btn-run">Run</button>
+  <div class="search-section">
+    <h1 class="search-title" id="search-title">Email intelligence</h1>
+    <div class="search-bar">
+      <input type="text" id="search-input" class="search-input" placeholder="Enter an email address" autocomplete="off" autofocus>
+      <button id="search-btn" class="btn-run">Run →</button>
+    </div>
+
+    <div class="filter-chips">
+      <div class="chip active" data-type="email">📧 Email</div>
+      <div class="chip" data-type="phone">📱 Phone</div>
+      <div class="chip" data-type="username">👤 Username</div>
+      <div class="chip" data-type="domain">🌐 Domain</div>
+      <div class="chip" data-type="ip">🛡 IP Address</div>
     </div>
   </div>
 
-  <div class="results-area" id="results-area">
-    <div class="empty-state" id="empty-state">
-      <div class="icon">◌</div>
-      No active investigation.<br>
-      Drop a target above to begin.
+  <div class="stats-row">
+    <div class="stat-card">
+      <div class="stat-label">Stream</div>
+      <div class="stat-value" id="stat-stream">Ready</div>
+      <div class="stat-sub" id="stat-stream-sub">Idle</div>
     </div>
+    <div class="stat-card">
+      <div class="stat-label">Results</div>
+      <div class="stat-value" id="stat-results">0</div>
+      <div class="stat-sub">Module events</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Matches</div>
+      <div class="stat-value green" id="stat-matches">0</div>
+      <div class="stat-sub">Flagged as match</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Entities</div>
+      <div class="stat-value" id="stat-entities">0</div>
+      <div class="stat-sub">Cross-module correlations</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Plan</div>
+      <div class="stat-value" id="stat-plan">Free</div>
+      <div class="stat-sub">15 searches left</div>
+    </div>
+  </div>
+
+  <div class="results-panel">
+    <div class="results-header">
+      <div class="results-title">Results <span id="results-count-badge" style="color: var(--dim); font-weight: 400; margin-left: 6px;">0 events</span></div>
+      <div class="results-tabs">
+        <div class="rtab active">Feed</div>
+        <div class="rtab" onclick="document.getElementById('graph-panel').classList.add('open')">Graph</div>
+        <div class="rtab">Split</div>
+      </div>
+      <div class="results-actions">
+        <button class="btn-sm">All</button>
+        <button class="btn-sm">Matches</button>
+        <button class="btn-sm">Log</button>
+        <button class="btn-sm">Export</button>
+      </div>
+    </div>
+
+    <div class="empty-view" id="empty-view">
+      <div class="empty-icon">⌕</div>
+      <div class="empty-title">No results yet</div>
+      <div class="empty-sub">Select a module, enter a target, and run a lookup.</div>
+    </div>
+
+    <div class="result-feed" id="feed-container" style="display: none;"></div>
   </div>
 </main>
 
-<!-- RIGHT GRAPH -->
-<aside class="graph-panel">
+<!-- SLIDE OUT GRAPH PANEL -->
+<div id="graph-panel">
   <div class="graph-header">
     Entity Graph
-    <div class="graph-stats">
-      <span>nodes <b id="stat-nodes">0</b></span>
-      <span>edges <b id="stat-edges">0</b></span>
-    </div>
+    <span class="graph-close" onclick="document.getElementById('graph-panel').classList.remove('open')">✕</span>
   </div>
   <div id="network"></div>
-</aside>
+</div>
 
 <script>
 (() => {
   const TOKEN = localStorage.getItem('volume_token');
-  const API = window.location.hostname === 'localhost'
-    ? 'http://localhost:8000'
-    : 'https://volume-tools-2.onrender.com';
+  const API = window.location.hostname === 'localhost' ? 'http://localhost:8000' : 'https://volume-tools-2.onrender.com';
+  
+  let currentKind = 'email';
+  
+  // Clock
+  setInterval(() => {
+    document.getElementById('clock').textContent = new Date().toISOString().slice(11,19) + ' UTC';
+  }, 1000);
 
-  const $ = id => document.getElementById(id);
-  const input = $('search-input');
-  const btn = $('search-btn');
-  const resultsArea = $('results-area');
-  const emptyState = $('empty-state');
-
-  // Fetch user info
+  // Fetch User
   fetch(`${API}/api/me`, { headers: { 'authorization': `Bearer ${TOKEN}` } })
     .then(r => r.json())
     .then(d => {
-      $('user-email').textContent = d.email || d.telegram_id || 'operator';
-      $('user-tier').textContent = (d.tier || 'free').toUpperCase();
+      document.getElementById('user-name').textContent = d.email ? d.email.split('@')[0] : 'operator';
+      document.getElementById('user-quota').textContent = `${(d.tier || 'free').toUpperCase()} · ${d.quota?.daily_limit - d.quota?.used_today || 15} CREDITS`;
+      document.getElementById('topbar-tier').textContent = `${(d.tier || 'free').toUpperCase()} · ${d.quota?.daily_limit - d.quota?.used_today || 15}`;
+      document.getElementById('stat-plan').textContent = (d.tier || 'free').toUpperCase();
     }).catch(() => {});
 
-  // Setup Graph
+  // Chips Logic
+  document.querySelectorAll('.chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+      chip.classList.add('active');
+      currentKind = chip.dataset.type;
+      
+      const titles = { email: 'Email intelligence', phone: 'Phone intelligence', username: 'Username intelligence', domain: 'Domain intelligence', ip: 'IP intelligence' };
+      const crumb = { email: 'Email search', phone: 'Phone search', username: 'Username search', domain: 'Domain search', ip: 'IP Lookup' };
+      const placeholders = { email: 'Enter an email address', phone: 'Enter a phone number', username: 'Enter a username', domain: 'Enter a domain name', ip: 'Enter an IP address' };
+      
+      document.getElementById('search-title').textContent = titles[currentKind];
+      document.getElementById('crumb').textContent = crumb[currentKind];
+      document.getElementById('search-input').placeholder = placeholders[currentKind];
+    });
+  });
+
+  // Graph Setup
   const nodes = new vis.DataSet([]);
   const edges = new vis.DataSet([]);
-  const network = new vis.Network($('network'), { nodes, edges }, {
-    nodes: {
-      shape: 'dot', size: 12, borderWidth: 1,
-      font: { color: '#b8c0b9', face: 'monospace', size: 11 },
-      color: { background: '#0f1410', border: '#6ee7a8' }
-    },
-    edges: {
-      color: { color: '#1d271f', highlight: '#6ee7a8' },
-      width: 1, smooth: { type: 'dynamic' }
-    },
-    physics: {
-      solver: 'forceAtlas2Based',
-      forceAtlas2Based: { gravitationalConstant: -40, centralGravity: 0.015, springLength: 100, springConstant: 0.06, damping: 0.4 }
-    },
+  const network = new vis.Network(document.getElementById('network'), { nodes, edges }, {
+    nodes: { shape: 'dot', size: 12, font: { color: '#b8c0b9', face: 'monospace', size: 10 }, color: { background: '#0f1410', border: '#6ee7a8' } },
+    edges: { color: { color: '#1d271f', highlight: '#6ee7a8' }, width: 1, smooth: { type: 'dynamic' } },
+    physics: { solver: 'forceAtlas2Based', forceAtlas2Based: { gravitationalConstant: -40, centralGravity: 0.015, springLength: 100 } },
     interaction: { hover: true }
   });
 
-  function addNode(id, label, isRoot = false) {
-    if (nodes.get(id)) return;
-    nodes.add({
-      id, label,
-      size: isRoot ? 20 : 12,
-      color: isRoot ? { background: '#6ee7a8', border: '#eef1ee' } : { background: '#0f1410', border: '#3f9a6b' },
-      font: isRoot ? { color: '#000', bold: true } : { color: '#b8c0b9' }
+  function updateGraph(seed, hits) {
+    nodes.clear(); edges.clear();
+    const rootId = `${currentKind}:${seed}`;
+    nodes.add({ id: rootId, label: seed.slice(0, 15), size: 20, color: { background: '#6ee7a8', border: '#eef1ee' }, font: { color: '#000', bold: true } });
+    
+    hits.forEach(h => {
+      const hitId = `${h.kind}:${h.value}`;
+      if (!nodes.get(hitId)) {
+        nodes.add({ id: hitId, label: h.value.slice(0, 15) });
+        edges.add({ from: rootId, to: hitId });
+      }
     });
-    updateStats();
+    
+    document.getElementById('stat-entities').textContent = nodes.length;
   }
 
-  function addEdge(from, to) {
-    const id = `${from}->${to}`;
-    if (edges.get(id)) return;
-    edges.add({ id, from, to });
-    updateStats();
-  }
-
-  function updateStats() {
-    $('stat-nodes').textContent = nodes.length;
-    $('stat-edges').textContent = edges.length;
-  }
-
-  // Detect kind from input
-  function detectKind(val) {
-    if (/^\d{1,3}(\.\d{1,3}){3}$/.test(val)) return 'ip';
-    if (/^\d{17,19}$/.test(val)) return 'discord_id';
-    if (/^\+?[\d\s\-()]{7,}$/.test(val)) return 'phone';
-    if (val.includes('@')) return 'email';
-    if (val.includes('.') && !val.startsWith('http')) return 'domain';
-    return 'username';
-  }
-
+  // Search Logic
   async function runSearch() {
-    const seed = input.value.trim();
+    const seed = document.getElementById('search-input').value.trim();
     if (!seed) return;
-    const kind = detectKind(seed);
-
+    
+    const btn = document.getElementById('search-btn');
     btn.disabled = true;
     btn.textContent = '...';
-    emptyState.style.display = 'none';
+    
+    document.getElementById('empty-view').style.display = 'none';
+    const feed = document.getElementById('feed-container');
+    feed.style.display = 'flex';
+    feed.innerHTML = '<div style="color: var(--dim); font-family: var(--mono); font-size: 11px;">Initializing fan-out...</div>';
 
-    // Add root node
-    const rootId = `${kind}:${seed}`;
-    addNode(rootId, seed.slice(0, 20), true);
+    document.getElementById('stat-stream').textContent = 'Active';
+    document.getElementById('stat-stream-sub').textContent = 'Querying modules';
 
     try {
       const res = await fetch(`${API}/api/pivot`, {
         method: 'POST',
         headers: { 'content-type': 'application/json', 'authorization': `Bearer ${TOKEN}` },
-        body: JSON.stringify({ seed, kind })
+        body: JSON.stringify({ seed, kind: currentKind })
       });
-
-      if (res.status === 402) {
-        const err = await res.json();
-        resultsArea.innerHTML = `
-          <div class="result-card" style="border-color: var(--danger);">
-            <div class="res-title" style="color: var(--danger);">Limit Reached</div>
-            <div class="res-data" style="margin-top: 10px;">
-              <span class="k">Reason</span><span class="v">${err.detail || 'Upgrade required'}</span>
-            </div>
-            <a href="/dashboard" style="display: inline-block; margin-top: 16px; color: var(--accent); text-decoration: none; font-family: var(--mono); font-size: 11px;">upgrade account →</a>
-          </div>`;
-        btn.disabled = false;
-        btn.textContent = 'Run';
-        return;
-      }
 
       const data = await res.json();
       
-      // Render results
-      resultsArea.innerHTML = '';
+      if (!res.ok) {
+        feed.innerHTML = `<div class="feed-item" style="border-color: var(--danger);">
+          <div class="fi-header"><span class="fi-badge stealer">Error</span></div>
+          <div class="fi-data"><span class="k">Reason</span><span class="v">${data.detail || 'Upgrade required'}</span></div>
+          <a href="/dashboard" style="display: inline-block; margin-top: 12px; color: var(--accent); text-decoration: none; font-size: 11px; font-family: var(--mono);">upgrade account →</a>
+        </div>`;
+        document.getElementById('stat-stream').textContent = 'Error';
+        document.getElementById('stat-stream-sub').textContent = 'Limit reached';
+        return;
+      }
+
+      // Update Stats
+      document.getElementById('stat-results').textContent = data.count;
+      document.getElementById('stat-matches').textContent = data.count;
+      document.getElementById('results-count-badge').textContent = `${data.count} events`;
+      document.getElementById('stat-stream').textContent = 'Complete';
+      document.getElementById('stat-stream-sub').textContent = 'Done';
+      
+      updateGraph(seed, data.hits);
+
+      // Render Feed
+      feed.innerHTML = '';
       if (data.count === 0) {
-        resultsArea.innerHTML = '<div class="empty-state">No hits found.</div>';
+        feed.innerHTML = '<div style="color: var(--dim); font-family: var(--mono); font-size: 11px; text-align: center; padding: 40px;">No hits found. The target is clean.</div>';
       } else {
         data.hits.forEach(hit => {
-          // Add to graph
-          const hitId = `${hit.kind}:${hit.value}`;
-          addNode(hitId, hit.value.slice(0, 20));
-          addEdge(rootId, hitId);
-
-          // Add to UI
           let dataHtml = '';
           for (const [k, v] of Object.entries(hit.meta)) {
             if (k === 'sources' || k === 'pillar' || k === 'confidence') continue;
@@ -454,36 +541,33 @@
             dataHtml += `<span class="k">${k}</span><span class="v">${valStr}</span>`;
           }
 
-          const card = document.createElement('div');
-          card.className = 'result-card';
-          card.innerHTML = `
-            <div class="result-header">
-              <span class="res-badge ${hit.pillar || 'account'}">${hit.pillar || hit.kind}</span>
-              <span class="res-title">${hit.kind}</span>
-              <span class="res-source">via ${(hit.meta.sources || [hit.source]).join(', ')}</span>
-            </div>
-            <div class="res-title" style="margin-bottom: 10px; font-family: var(--mono);">${hit.value}</div>
-            <div class="res-data">
-              ${dataHtml || '<span class="k">info</span><span class="v">-</span>'}
+          feed.innerHTML += `
+            <div class="feed-item">
+              <div class="fi-header">
+                <span class="fi-badge ${hit.pillar || 'account'}">${hit.pillar || hit.kind}</span>
+                <span class="fi-source">via ${(hit.meta.sources || [hit.source]).join(', ')}</span>
+              </div>
+              <div class="fi-data">
+                <span class="k">Result</span><span class="v highlight">${hit.value}</span>
+                ${dataHtml}
+              </div>
             </div>
           `;
-          resultsArea.appendChild(card);
         });
       }
     } catch (e) {
-      resultsArea.innerHTML = `<div class="empty-state" style="color: var(--danger);">Error: ${e.message}</div>`;
+      feed.innerHTML = `<div style="color: var(--danger); font-family: var(--mono); font-size: 11px;">Network error: ${e.message}</div>`;
     } finally {
       btn.disabled = false;
-      btn.textContent = 'Run';
+      btn.textContent = 'Run →';
     }
   }
 
-  btn.addEventListener('click', runSearch);
-  input.addEventListener('keydown', (e) => { if (e.key === 'Enter') runSearch(); });
+  document.getElementById('search-btn').addEventListener('click', runSearch);
+  document.getElementById('search-input').addEventListener('keydown', (e) => { if (e.key === 'Enter') runSearch(); });
 
-  $('logout-btn').addEventListener('click', async (e) => {
+  document.getElementById('logout-btn').addEventListener('click', (e) => {
     e.preventDefault();
-    try { await fetch(`${API}/api/auth/logout`, { method: 'POST', headers: { 'authorization': `Bearer ${TOKEN}` } }); } catch(_){}
     localStorage.removeItem('volume_token');
     window.location.href = '/';
   });
