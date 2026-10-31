@@ -32,20 +32,19 @@
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
     html, body { height: 100%; }
-    
-    body {
-      font-family: var(--sans);
-      background: var(--bg);
-      color: var(--fg);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 100vh;
-      overflow: hidden;
-      -webkit-font-smoothing: antialiased;
-      background-image: 
-        radial-gradient(circle at 10% 20%, rgba(30, 70, 45, 0.2) 0%, transparent 50%),
-        radial-gradient(circle at 90% 80%, rgba(20, 50, 30, 0.15) 0%, transparent 50%);
+
+    body { 
+      font-family: var(--sans); 
+      background: var(--bg); 
+      color: var(--fg); 
+      font-size: 13px; 
+      line-height: 1.5; 
+      display: flex; 
+      justify-content: center; 
+      align-items: flex-start; /* Pushes content to the top */
+      margin: 0; /* Removes default browser margin */
+      overflow: hidden; 
+      /* ... rest ... */
     }
 
     /* Glass Panel */
