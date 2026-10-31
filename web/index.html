@@ -43,8 +43,8 @@
     ::-webkit-scrollbar-thumb:hover { background: var(--accent-2); }
     
     .gsap-fade { opacity: 0; transform: translateY(20px); }
-    
-    .app-container { 
+
+        .app-container { 
       display: flex; 
       width: 100%; 
       max-width: 1600px; /* Prevents it from stretching infinitely on ultrawides */
@@ -253,12 +253,13 @@
   </aside>
 
   <main class="main-content gsap-fade" id="main-content">
-    <header class="topbar">
+        <header class="topbar">
       <div class="breadcrumb">
         <span>Workspace</span>
         <span class="sep">/</span>
         <span class="current" id="crumb">Live Email Intel</span>
       </div>
+      <div style="flex: 1;"></div>
       <div class="topbar-right">
         <div class="topbar-pill" id="topbar-tier">FREE · 15</div>
         <div class="topbar-pill green" id="clock">00:00:00 UTC</div>
@@ -434,13 +435,19 @@
     }
     setTimeout(() => { typeIndex = 0; isDeleting = false; typePlaceholder(); }, 1000);
 
-    // 6. GLOWING CURSOR TRAIL
+    // 6. GLOWING CURSOR TRAIO
     if (typeof gsap !== 'undefined') {
       const trail = document.createElement('div');
-      trail.style.cssText = 'position:fixed;width:4px;height:4px;background:var(--accent);border-radius:50%;pointer-events:none;z-index:9999;box-shadow:0 0 10px var(--accent);transition:transform 0.1s ease-out;opacity:0.6;';
+      trail.style.cssText = 'position:fixed; top:0; left:0; width:6px; height:6px; background:var(--accent); border-radius:50%; pointer-events:none; z-index:9999; box-shadow:0 0 12px var(--accent); opacity:0.5;';
       document.body.appendChild(trail);
+      
       document.addEventListener('mousemove', (e) => {
-        gsap.to(trail, { x: e.clientX - 2, y: e.clientY - 2, duration: 0.1, ease: 'power2.out' });
+        gsap.to(trail, { 
+          x: e.clientX - 3, 
+          y: e.clientY - 3, 
+          duration: 0.1, 
+          ease: 'power2.out' 
+        });
       });
     }
 
