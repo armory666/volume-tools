@@ -13,6 +13,33 @@
   <script src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
 
+      /* MOBILE RESPONSIVE FIXES */
+    @media (max-width: 900px) {
+      /* 1. Hide the sidebar, turn the main area into full width */
+      .sidebar { display: none; }
+      .app-container { flex-direction: column; }
+      
+      /* 2. Fix padding for small screens */
+      .search-section, .stats-row, .results-header, .result-feed { padding: 16px; }
+      .topbar { padding: 0 16px; }
+      
+      /* 3. Make the stats row stack 2x2 instead of 5-across */
+      .stats-row { grid-template-columns: 1fr 1fr; }
+      .stat-card:last-child { grid-column: span 2; }
+
+      /* 4. Make the search bar stack vertically */
+      .search-box-wrap { flex-direction: column; }
+      .search-input { padding: 12px; }
+      .btn-run { padding: 12px; }
+
+      /* 5. Hide the graph panel on mobile */
+      #graph-panel { display: none !important; }
+      
+      /* 6. Make the result data stack vertically */
+      .fi-data { grid-template-columns: 1fr; gap: 4px; }
+      .fi-data .v.highlight { grid-column: 1; }
+    }
+  
   <style>
     :root {
       --bg: #050807; --bg-glass: rgba(10, 14, 11, 0.85); --panel: #0a0e0b; --card: #0f1410;
