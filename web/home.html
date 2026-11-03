@@ -9,42 +9,6 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&display=swap" rel="stylesheet">
-
-      /* MOBILE RESPONSIVE FIXES */
-    @media (max-width: 900px) {
-      /* 1. Nav bar - hide links, keep logo and CTA */
-      nav .links { display: none; }
-      nav { padding: 16px; }
-      
-      /* 2. Hero section - stack the text and the gateway */
-      .hero { grid-template-columns: 1fr; gap: 32px; padding: 32px 0; }
-      .hero h1 { font-size: 40px; }
-      .hero .lede { font-size: 15px; }
-      
-      /* 3. Coverage cards - stack 1 per row */
-      .coverage-grid { grid-template-columns: 1fr; }
-      
-      /* 4. Demo terminal - hide the sidebar inside it */
-      .demo-body { grid-template-columns: 1fr; }
-      .demo-sidebar { display: none; }
-      
-      /* 5. Modules - stack 1 per row */
-      .modules-grid { grid-template-columns: 1fr; }
-      
-      /* 6. Testimonials - stack 1 per row */
-      .testimonials-grid { grid-template-columns: 1fr; }
-      
-      /* 7. Plans - stack 1 per row, remove the 5-column grid */
-      .plans-grid { grid-template-columns: 1fr; }
-      .custom-plan-cta { flex-direction: column; text-align: center; }
-      
-      /* 8. Policies - stack the tabs */
-      .policy-tabs { flex-wrap: wrap; }
-      .policy-tab { flex: 1 0 45%; text-align: center; }
-      
-      /* 9. Footer */
-      footer { flex-direction: column; text-align: center; gap: 16px; }
-    }
   
   <style>
     :root {
