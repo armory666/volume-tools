@@ -8,39 +8,81 @@
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-  lllllllllllllllllll  <script src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-  
-  <style ;llllllll>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
     :root {
-      --bg: #050807; --bg-glass: rgba(10, 14, 11, 0.85); --panel: #0a0e0b; --card: #0f1410;
-      --border: #1d271f; --border-2: #2a3a2c; --fg: #eef1ee; --fg-2: #b8c0b9;
-      --dim: #6e7a70; --accent: #6ee7a8; --accent-2: #3f9a6b; --danger: #ed4245; --warn: #e8a24a;
-      --mono: 'JetBrains Mono', monospace; --sans: 'Inter', sans-serif;
+      --bg: #050807;
+      --bg-glass: rgba(10, 14, 11, 0.85);
+      --panel: #0a0e0b;
+      --card: #0f1410;
+      --border: #1d271f;
+      --border-2: #2a3a2c;
+      --fg: #eef1ee;
+      --fg-2: #b8c0b9;
+      --dim: #6e7a70;
+      --accent: #6ee7a8;
+      --accent-2: #3f9a6b;
+      --danger: #ed4245;
+      --warn: #e8a24a;
+      --mono: 'JetBrains Mono', monospace;
+      --sans: 'Inter', sans-serif;
       --t: 250ms cubic-bezier(0.4, 0, 0.2, 1);
     }
-    
+
     * { box-sizing: border-box; margin: 0; padding: 0; }
     html, body { height: 100%; overflow: hidden; background: var(--bg); }
-    
-    body { 
-      font-family: var(--sans); color: var(--fg); font-size: 13px; line-height: 1.5; 
-      -webkit-font-smoothing: antialiased; 
-      background-image: radial-gradient(circle at 0% 0%, rgba(30, 70, 45, 0.15) 0%, transparent 50%), radial-gradient(circle at 100% 100%, rgba(20, 50, 30, 0.1) 0%, transparent 50%); 
+
+    body {
+      font: 400 13px var(--sans);
+      -webkit-font-smoothing: antialiased;
+      background-image: 
+        radial-gradient(circle at 0% 0%, rgba(30, 70, 45, 0.15) 0%, transparent 50%),
+        radial-gradient(circle at 100% 100%, rgba(20, 50, 30, 0.1) 0%, transparent 50%);
     }
-    
+
     ::-webkit-scrollbar { width: 6px; height: 6px; }
     ::-webkit-scrollbar-track { background: transparent; }
     ::-webkit-scrollbar-thumb { background: var(--border-2); border-radius: 10px; }
     ::-webkit-scrollbar-thumb:hover { background: var(--accent-2); }
-    
-    .fade-in-up { animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; opacity: 0; transform: translateY(20px); }
-    @keyframes fadeInUp { to { opacity: 1; transform: translateY(0); } }
-    
-    .app-container { position: fixed; inset: 0; display: flex; background: var(--bg); z-index: 10; }
-    
-    /* SIDEBAR */
+
+    /* ==========================================
+       MOUSE GLOW TRAIL
+       ========================================== */
+    .cursor-glow {
+      position: fixed;
+      width: 12px; height: 12px;
+      background: var(--accent);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 9999;
+      opacity: 0.4;
+      transform: translate(-50%, -50%);
+      box-shadow: 0 0 20px var(--accent), 0 0 50px var(--accent);
+      transition: width 0.15s ease, height 0.15s ease, opacity 0.2s ease;
+    }
+    .cursor-glow.large { width: 20px; height: 20px; opacity: 0.25; box-shadow: 0 0 30px var(--accent), 0 0 70px var(--accent); }
+    .cursor-glow.hidden { opacity: 0; }
+
+    /* ==========================================
+       PAGE TRANSITIONS
+       ========================================== */
+    .page-transition {
+      position: fixed;
+      inset: 0;
+      z-index: 9998;
+      background: var(--bg);
+      overflow: hidden;
+      transition: opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .page-transition.out {
+      opacity: 0;
+    }
+
+    /* ==========================================
+       CORE LAYOUT
+       ========================================== */
+    .app-container { position: fixed; inset: 0; display: flex; z-index: 10; }
     .sidebar { width: 260px; background: var(--bg-glass); backdrop-filter: blur(20px); border-right: 1px solid var(--border); display: flex; flex-direction: column; flex-shrink: 0; z-index: 20; box-shadow: 5px 0 30px rgba(0,0,0,0.5); }
     .brand-area { padding: 24px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
     .brand { display: flex; align-items: center; gap: 12px; font-weight: 600; font-size: 15px; color: var(--fg); text-decoration: none; }
@@ -53,7 +95,7 @@
     .nav-item { display: flex; align-items: center; gap: 12px; padding: 10px 24px; margin: 2px 12px; color: var(--fg-2); text-decoration: none; font-size: 12px; cursor: pointer; transition: all var(--t); border-radius: 8px; border: 1px solid transparent; position: relative; }
     .nav-item::before { content: ""; position: absolute; left: 0; top: 50%; transform: translateY(-50%); width: 0; height: 0; background: var(--accent); border-radius: 4px; transition: all var(--t); opacity: 0; }
     .nav-item:hover { background: rgba(255,255,255,0.03); color: var(--fg); transform: translateX(2px); }
-    .nav-item.active { background: rgba(110, 231, 168, 0.06); color: var(--accent); border-color: rgba(110, 231, 168, 0.15); }
+    .nav-item.active { background: rgba(110, 231, 168, 0.06); color: var(--accent); border-color: rgba(110,231,168,0.15); }
     .nav-item.active::before { width: 3px; height: 16px; opacity: 1; }
     .nav-item .icon { font-size: 14px; width: 24px; height: 24px; display: grid; place-items: center; border-radius: 6px; transition: all var(--t); }
     .nav-item.active .icon { background: rgba(110,231,168,0.1); }
@@ -70,7 +112,6 @@
     .home-btn { display: flex; align-items: center; justify-content: center; gap: 8px; padding: 10px 16px; margin-top: 16px; background: transparent; border: 1px solid var(--border-2); border-radius: 8px; color: var(--fg-2); font-family: var(--mono); font-size: 11px; text-decoration: none; text-transform: uppercase; letter-spacing: 0.05em; transition: all var(--t); }
     .home-btn:hover { background: var(--card); color: var(--accent); border-color: var(--accent-2); transform: translateY(-1px); }
 
-    /* MAIN */
     .main-content { flex: 1; display: flex; flex-direction: column; min-width: 0; position: relative; z-index: 10; }
     .topbar { height: 60px; border-bottom: 1px solid var(--border); display: flex; align-items: center; padding: 0 32px; background: rgba(10, 14, 11, 0.6); backdrop-filter: blur(10px); }
     .breadcrumb { font-family: var(--mono); font-size: 11px; color: var(--dim); display: flex; align-items: center; gap: 8px; }
@@ -81,7 +122,9 @@
     .topbar-pill:hover { border-color: var(--fg-2); color: var(--fg); }
     .topbar-pill.green { border-color: rgba(110,231,168,0.3); color: var(--accent); background: rgba(110,231,168,0.05); }
 
-    /* SEARCH */
+    /* ==========================================
+       SEARCH SECTION
+       ========================================== */
     .search-section { padding: 32px; border-bottom: 1px solid var(--border); background: linear-gradient(180deg, rgba(15, 20, 16, 0.4) 0%, transparent 100%); }
     .search-title { font-size: 24px; font-weight: 600; margin-bottom: 20px; letter-spacing: -0.02em; display: flex; align-items: center; gap: 12px; }
     .search-title::after { content: ""; flex: 1; height: 1px; background: linear-gradient(90deg, var(--border-2), transparent); }
@@ -89,7 +132,7 @@
     .search-box-wrap:focus-within { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(110,231,168,0.1), 0 8px 30px rgba(0,0,0,0.5); transform: translateY(-2px); }
     .search-input { flex: 1; padding: 12px 16px; background: transparent; border: none; color: var(--fg); font-family: var(--mono); font-size: 14px; outline: none; }
     .search-input::placeholder { color: var(--dim); }
-    .btn-run { padding: 0 32px; background: var(--fg); color: #000; border: none; border-radius: 6px; font-family: var(--mono); font-weight: 600; font-size: 13px; cursor: pointer; transition: all var(--t); display: flex; align-items: center; gap: 8px; position: relative; overflow: hidden; }
+    .btn-run { padding: 0 32px; background: var(--fg); color: #000; border: none; border-radius: 6x; font-family: var(--mono); font-weight: 600; font-size: 13px; cursor: pointer; transition: all var(--t); display: flex; align-items: center; gap: 8px; position: relative; overflow: hidden; }
     .btn-run::after { content: ""; position: absolute; top: 0; left: -100%; width: 100%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent); transition: left 0.5s ease; }
     .btn-run:hover { background: var(--accent); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(110,231,168,0.2); }
     .btn-run:hover::after { left: 100%; }
@@ -100,7 +143,9 @@
     .chip:hover { border-color: var(--fg-2); color: var(--fg); transform: translateY(-1px); }
     .chip.active { background: rgba(110, 231, 168, 0.1); border-color: var(--accent); color: var(--accent); box-shadow: 0 0 15px rgba(110,231,168,0.1); font-weight: 500; }
 
-    /* STATS */
+    /* ==========================================
+       STATS
+       ========================================== */
     .stats-row { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 16px; padding: 24px 32px; border-bottom: 1px solid var(--border); }
     .stat-card { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 20px; transition: all var(--t); position: relative; overflow: hidden; }
     .stat-card::before { content: ""; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: var(--border-2); transition: background var(--t); }
@@ -113,7 +158,9 @@
     .stat-value.green { color: var(--accent); text-shadow: 0 0 20px rgba(110,231,168,0.3); }
     .stat-sub { font-family: var(--mono); font-size: 10px; color: var(--dim); }
 
-    /* RESULTS */
+    /* ==========================================
+       RESULTS PANEL
+       ========================================== */
     .results-panel { flex: 1; display: flex; flex-direction: column; background: rgba(5, 8, 7, 0.4); overflow: hidden; position: relative; }
     .results-header { display: flex; align-items: center; padding: 0 32px; height: 48px; border-bottom: 1px solid var(--border); background: rgba(10, 14, 11, 0.5); backdrop-filter: blur(10px); }
     .results-title { font-family: var(--mono); font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; color: var(--fg); }
@@ -146,436 +193,584 @@
     .fi-data .v { color: var(--fg-2); word-break: break-all; }
     .fi-data .v.highlight { color: var(--fg); font-weight: 500; font-size: 14px; grid-column: 2; padding-bottom: 8px; border-bottom: 1px solid var(--border); margin-bottom: 4px; }
 
-    /* GRAPH */
-    #graph-panel { position: fixed; top: 0; right: -450px; width: 450px; height: 100vh; background: var(--bg-glass); backdrop-filter: blur(20px); border-left: 1px solid var(--border); z-index: 100; display: flex; flex-direction: column; box-shadow: -20px 0 50px rgba(0,0,0,0.6); }
+    /* ==========================================
+       GRAPH PANEL
+       ========================================== */
+    #graph-panel { position: fixed; top: 0; right: -450px; width: 450px; height: 100vh; background: var(--bg-glass); backdrop-filter: blur(20px); border-left: 1px solid var(--border); z-index: 100; display: flex; flex-direction: column; box-shadow: -20px 0 50px rgba(0,0,0,0.6); transition: right 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
     .graph-header { height: 60px; border-bottom: 1px solid var(--border); display: flex; align-items: center; padding: 0 24px; font-family: var(--mono); font-size: 12px; font-weight: 600; color: var(--fg); background: rgba(0,0,0,0.2); }
     .graph-close { margin-left: auto; cursor: pointer; color: var(--dim); width: 28px; height: 28px; display: grid; place-items: center; border-radius: 6px; transition: all var(--t); }
     .graph-close:hover { color: var(--fg); background: var(--card); }
     #network { flex: 1; background: transparent; outline: none; }
+
+    /* ==========================================
+       CREATE KEY SYSTEM
+       ========================================== */
+    .key-creation-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.7);
+      backdrop-filter: blur(4px);
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .key-creation-overlay.active {
+      opacity: 1;
+      visibility: visible;
+    }
+    .key-creation-box {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 32px;
+      width: 90%;
+      max-width: 420px;
+      transform: scale(0.9) translateY(20px);
+      transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .key-creation-overlay.active .key-creation-box {
+      transform: scale(1) translateY(0);
+    }
+    .key-title { font-family: var(--mono); font-size: 20px; font-weight: 600; color: var(--fg); margin-bottom: 24px; text-align: center; }
+    .key-group { display: flex; gap: 8px; margin: 16px 0; flex-wrap: wrap; justify-content: center; }
+    .key-input { flex: 1; min-width: 120px; padding: 10px 14px; background: var(--bg); border: 1px solid var(--border-2); border-radius: 6px; font-family: var(--mono); font-size: 12px; color: var(--fg); outline: none; transition: border-color 0.2s; }
+    .key-input:focus { border-color: var(--accent); }
+    .key-input.invalid { border-color: var(--danger); }
+    .key-hint { font-size: 10px; color: var(--dim); font-family: var(--mono); text-transform: uppercase; letter-spacing: 0.1em; margin-top: 8px; display: block; text-align: center; }
+    .key-btns { display: flex; gap: 12px; margin-top: 24px; justify-content: flex-end; }
+    .key-btn { padding: 8px 16px; border: none; border-radius: 6px; font-family: var(--mono); font-size: 11px; font-weight: 500; cursor: pointer; transition: all var(--t); min-width: 100px; }
+    .key-btn.cancel { background: transparent; color: var(--fg-2); border: 1px solid var(--border-2); }
+    .key-btn.cancel:hover { background: var(--card); color: var(--fg); }
+    .key-btn.create { background: var(--accent); color: #062a17; }
+    .key-btn.create:hover { background: var(--accent-2); box-shadow: 0 4px 12px rgba(110,231,168,0.3); }
+    .key-gen-status { padding: 12px; margin: 16px 0; border-radius: 8px; font-size: 12px; display: none; }
+    .key-gen-status.ok { background: rgba(110,231,168,0.1); color: var(--accent); border: 1px solid rgba(110,231,168,0.3); display: block; }
+    .key-gen-status.err { background: rgba(237,66,69,0.1); color: var(--danger); border: 1px solid rgba(237,66,69,.3); display: block; }
+
+    /* ==========================================
+      ANIMATION CLASSES
+      ========================================== */
+    .fade-in-up { animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; opacity: 0; transform: translateY(20px); }
+    @keyframes fadeInUp { to { opacity: 1; transform: translateY(0); } }
+    .fade-in { animation: fadeIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; opacity: 0; }
+    @keyframes fadeIn { to { opacity: 1; } }
+    .slide-in-right { animation: slideInRight 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; opacity: 0; transform: translateX(30px); }
+    @keyframes slideInRight { to { opacity: 1; transform: translateX(0); } }
+    .scale-in { animation: scaleIn 0.35s cubic-bezier(0.4, 0, 0.2, 1) forwards; opacity: 0; transform: scale(0.95); }
+    @keyframes scaleIn { to { opacity: 1; transform: scale(1); } }
+    . pulse-slow { animation: pulseSlow 3s ease-in-out infinite; }
+    @keyframes pulseSlow { 0%, 100% { opacity: 0.5; } 50% { opacity: 1; } }
+
+    /* Reduced motion */
+    @media (prefers-reduced-motion: reduce) {
+      .cursor-glow, .page-transition, .fade-in-up, .fade-in, .slide-in-right, .scale-in, .pulse-slow,
+      @keyframes fadeInUp, @keyframes fadeIn, @keyframes slideInRight, @keyframes scaleIn, @keyframes pulseSlow { transition-duration: 0ms !important; animation-duration: 0ms !important; transition-delay: 0s !important; animation-delay: 0s !important; }
+    }
   </style>
 </head>
 <body>
 
-<script>
-  if (!localStorage.getItem('volume_token')) window.location.href = '/login';
-</script>
+  <!-- Page transition mask -->
+  <div class="page-transition" id="pageTransition"></div>
 
-<div class="app-container fade-in-up">
-  <aside class="sidebar" id="sidebar">
-    <div class="brand-area">
-      <a href="/home.html" class="brand">
-        <div class="brand-logo">v</div>
-        <div class="brand-text">
-          volume.tools
-          <span>intelligence console</span>
-        </div>
-      </a>
-    </div>
+  <!-- Mouse glow trail -->
+  <div class="cursor-glow" id="cursorGlow"></div>
 
-    <div class="sidebar-scroll">
-      <div class="nav-group">
-        <div class="nav-label">Search</div>
-        <a class="nav-item active" data-type="email"><span class="icon">📧</span> Live Email Intel</a>
-        <a class="nav-item" data-type="phone"><span class="icon">📱</span> Live Phone Intel</a>
-        <a class="nav-item" data-type="username"><span class="icon">👤</span> Live Username Intel</a>
-        <a class="nav-item" data-type="domain"><span class="icon">🌐</span> Domain Search</a>
-        <a class="nav-item" data-type="ip"><span class="icon">🛡</span> IP Lookup</a>
+  <!-- Key creation overlay -->
+  <div class="key-creation-overlay" id="keyCreationOverlay">
+    <div class="key-creation-box">
+      <h2 class="key-title">Create API Key</h2>
+      <p class="key-hint">Generate a new HWID-bound key for this session</p>
+      <div class="key-gen-status ok" id="keyGenStatus" style="display: none;"></div>
+      <div class="key-gen-status err" id="keyGenStatusErr" style="display: none;"></div>
+      <div style="margin: 24px 0;">
+        <input type="text" class="key-input" id="keyInput" placeholder="VOL-XXXX-XXXX-XXXX" autocomplete="off">
       </div>
-
-      <div class="nav-group">
-        <div class="nav-label">Records</div>
-        <a class="nav-item"><span class="icon">🖥</span> Machine Viewer</a>
-        <a class="nav-item"><span class="icon">📂</span> Breach Intel</a>
-        <a class="nav-item"><span class="icon">🦠</span> Stealerlog Investigation</a>
-        <a class="nav-item"><span class="icon">👁</span> Website Breach Monitor</a>
-        <a class="nav-item"><span class="icon">🔍</span> File Search</a>
-      </div>
-
-      <div class="nav-group">
-        <div class="nav-label">Leaks</div>
-        <a class="nav-item"><span class="icon">🎮</span> Discord ↔ Roblox</a>
-        <a class="nav-item"><span class="icon">🕰</span> Discord Prev Names</a>
-        <a class="nav-item"><span class="icon">📜</span> Stealer Logs</a>
-        <a class="nav-item"><span class="icon">🗂</span> Leak Index</a>
-        <a class="nav-item"><span class="icon">🔑</span> Credential Search</a>
-        <a class="nav-item"><span class="icon">🗄</span> Kitty DB</a>
-      </div>
-
-      <div class="nav-group">
-        <div class="nav-label">Lookups</div>
-        <a class="nav-item"><span class="icon">🔎</span> General Search</a>
-        <a class="nav-item"><span class="icon">📡</span> NazAPI</a>
-        <a class="nav-item"><span class="icon">✉️</span> Email Intelligence</a>
-        <a class="nav-item"><span class="icon">🚗</span> Cars & Owners</a>
-        <a class="nav-item"><span class="icon">💬</span> Discord Search</a>
-        <a class="nav-item"><span class="icon">✈️</span> Telegram Search</a>
-        <a class="nav-item"><span class="icon">🇨🇦</span> Canada Records</a>
-        <a class="nav-item"><span class="icon">🇮🇱</span> Israel Records</a>
-        <a class="nav-item"><span class="icon">🏦</span> Bank Records</a>
-        <a class="nav-item"><span class="icon">📍</span> Address Lookup</a>
-      </div>
-
-      <div class="nav-group">
-        <div class="nav-label">SEON</div>
-        <a class="nav-item"><span class="icon">🕸</span> CNAME Lookup</a>
-        <a class="nav-item"><span class="icon">🎮</span> Discord Info</a>
-        <a class="nav-item"><span class="icon">🕰</span> Discord History</a>
-        <a class="nav-item"><span class="icon">🟥</span> Roblox Info</a>
-        <a class="nav-item"><span class="icon">✉️</span> Holehe</a>
-        <a class="nav-item"><span class="icon">🔎</span> GHunt</a>
-        <a class="nav-item"><span class="icon">🌐</span> Subdomains</a>
-      </div>
-
-      <div class="nav-group">
-        <div class="nav-label">Workspace</div>
-        <a class="nav-item" onclick="openGraph()"><span class="icon">🕸</span> Entity Graph <span class="badge" id="graph-badge">0</span></a>
-        <a class="nav-item"><span class="icon">🕰</span> Recent <span class="badge">0</span></a>
-        <a class="nav-item"><span class="icon">🗑</span> Clear</a>
+      <div style="display: flex; gap: 8px; margin: 20px 0; flex-wrap: wrap; justify-content: center;">
+        <button class="key-btn cancel" onclick="hideKeyCreation()">Cancel</button>
+        <button class="key-btn create" onclick="generateKey()">Generate</button>
       </div>
     </div>
-
-    <div class="sidebar-footer">
-      <div class="user-card">
-        <div class="user-info">
-          <div class="name" id="user-name">operator</div>
-          <div class="quota" id="user-quota">FREE · 15 CREDITS</div>
-        </div>
-        <div class="status-pill"><div class="status-dot"></div> Online</div>
-      </div>
-      
-      <a href="/home.html" class="home-btn">
-        <span>←</span> Return to Home
-      </a>
-      
-    </div>
-  </aside>
-
-  <main class="main-content" id="main-content">
-    <header class="topbar">
-      <div class="breadcrumb">
-        <span>Workspace</span>
-        <span class="sep">/</span>
-        <span class="current" id="crumb">Live Email Intel</span>
-      </div>
-      <div style="flex: 1;"></div>
-      <div class="topbar-right">
-        <div class="topbar-pill" id="topbar-tier">FREE · 15</div>
-        <div class="topbar-pill green" id="clock">00:00:00 UTC</div>
-      </div>
-    </header>
-
-    <div class="search-section">
-      <h1 class="search-title" id="search-title">Email intelligence</h1>
-      <div class="search-box-wrap">
-        <input type="text" id="search-input" class="search-input" placeholder="Enter an email address" autocomplete="off" autofocus>
-        <button id="search-btn" class="btn-run">Run →</button>
-      </div>
-
-      <div class="filter-chips">
-        <div class="chip active" data-type="email">📧 Email</div>
-        <div class="chip" data-type="phone">📱 Phone</div>
-        <div class="chip" data-type="username">👤 Username</div>
-        <div class="chip" data-type="domain">🌐 Domain</div>
-        <div class="chip" data-type="ip">🛡 IP</div>
-      </div>
-    </div>
-
-    <div class="stats-row">
-      <div class="stat-card">
-        <div class="stat-label">Stream <div class="dot"></div></div>
-        <div class="stat-value" id="stat-stream">Ready</div>
-        <div class="stat-sub" id="stat-stream-sub">Idle</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">Results <div class="dot"></div></div>
-        <div class="stat-value" id="stat-results">0</div>
-        <div class="stat-sub">Module events</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">Matches <div class="dot"></div></div>
-        <div class="stat-value green" id="stat-matches">0</div>
-        <div class="stat-sub">Flagged as match</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">Entities <div class="dot"></div></div>
-        <div class="stat-value" id="stat-entities">0</div>
-        <div class="stat-sub">Correlations</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">Plan <div class="dot"></div></div>
-        <div class="stat-value" id="stat-plan">Free</div>
-        <div class="stat-sub">15 searches left</div>
-      </div>
-    </div>
-
-    <div class="results-panel">
-      <div class="results-header">
-        <div class="results-title">Results <span id="results-count-badge" style="color: var(--dim); font-weight: 400; margin-left: 6px;">0 events</span></div>
-        <div class="results-tabs">
-          <div class="rtab active">Feed</div>
-          <div class="rtab" onclick="openGraph()">Graph</div>
-          <div class="rtab">Split</div>
-        </div>
-        <div class="results-actions">
-          <button class="btn-sm">All</button>
-          <button class="btn-sm">Matches</button>
-          <button class="btn-sm">Log</button>
-          <button class="btn-sm">Export</button>
-        </div>
-      </div>
-
-      <div class="empty-view" id="empty-view">
-        <div class="empty-icon">⌕</div>
-        <div class="empty-title">No results yet</div>
-        <div class="empty-sub">Select a module, enter a target, and run a lookup.</div>
-      </div>
-
-      <div class="result-feed" id="feed-container" style="display: none;"></div>
-    </div>
-  </main>
-</div>
-
-<div id="graph-panel">
-  <div class="graph-header">
-    Entity Graph
-    <div class="graph-close" onclick="closeGraph()">✕</div>
   </div>
-  <div id="network"></div>
-</div>
 
-<script>
-(() => {
-  const TOKEN = localStorage.getItem('volume_token');
-  const API = window.location.hostname === 'localhost' ? 'http://localhost:8000' : 'https://volume-tools-2.onrender.com';
-  
-  let currentKind = 'email';
+  <div class="app-container fade-in-up">
+    <aside class="sidebar" id="sidebar">
+      <div class="brand-area">
+        <a href="/home.html" class="brand">
+          <div class="brand-logo">v</div>
+          <div class="brand-text">
+            volume.tools
+            <span>intelligence console</span>
+          </div>
+        </a>
+      </div>
 
-  setInterval(() => { 
-    const el = document.getElementById('clock');
-    if (el) el.textContent = new Date().toISOString().slice(11,19) + ' UTC'; 
-  }, 1000);
+      <div class="sidebar-scroll">
+        <div class="nav-group">
+          <div class="nav-label">Quick Actions</div>
+          <a class="nav-item active" data-type="email" onclick="updateUIState('email')"><span class="icon">📧</span> Live Email Intel</a>
+          <a class="nav-item" data-type="phone" onclick="updateUIState('phone')"><span class="icon">📱</span> Live Phone Intel</a>
+          <a class="nav-item" data-type="username" onclick="updateUIState('username')"><span class="icon">👤</span> Live Username Intel</a>
+          <a class="nav-item" data-type="domain" onclick="updateUIState('domain')"><span class="icon">🌐</span> Domain Search</a>
+          <a class="nav-item" data-type="ip" onclick="updateUIState('ip')"><span class="icon">🛡</span> IP Lookup</a>
+        </div>
 
-  if (TOKEN) {
-    fetch(`${API}/api/me`, { headers: { 'authorization': `Bearer ${TOKEN}` } })
-      .then(r => r.json())
-      .then(d => {
-        const name = d.email ? d.email.split('@')[0
-                  const name = d.email ? d.email.split('@')[0] : 'operator';
-        const tier = (d.tier || 'free').toUpperCase();
-        const quota = d.quota ? (d.quota.daily_limit - d.quota.used_today) : 15;
-        
-        document.getElementById('user-name').textContent = name;
-        document.getElementById('user-quota').textContent = `${tier} · ${quota} CREDITS`;
-        document.getElementById('topbar-tier').textContent = `${tier} · ${quota}`;
-        document.getElementById('stat-plan').textContent = tier;
-      }).catch(() => {});
-  }
+        <div class="nav-group">
+          <div class="nav-label">Records</div>
+          <a class="nav-item"><span class="icon">🖥</span> Machine Viewer</a>
+          <a class="nav-item"><span class="icon">📂</span> Breach Intel</a>
+          <a class="nav-item"><span class="icon">🦠</span> Stealerlog Investigation</a>
+          <a class="nav-item"><span class="icon">👁</span> Website Breach Monitor</a>
+          <a class="nav-item"><span class="icon">🔍</span> File Search</a>
+        </div>
 
-  const titles = { email: 'Email intelligence', phone: 'Phone intelligence', username: 'Username intelligence', domain: 'Domain intelligence', ip: 'IP intelligence' };
-  const crumb = { email: 'Live Email Intel', phone: 'Live Phone Intel', username: 'Live Username Intel', domain: 'Domain Search', ip: 'IP Lookup' };
-  const placeholders = { email: 'Enter an email address', phone: 'Enter a phone number', username: 'Enter a username', domain: 'Enter a domain name', ip: 'Enter an IP address' };
+        <div class="nav-group">
+          <div class="nav-label">Leaks</div>
+          <a class="nav-item"><span class="icon">🎮</span> Discord ↔ Roblox</a>
+          <a class="nav-item"><span class="icon">🕰</span> Discord Prev Names</a>
+          <a class="nav-item"><span class="icon">📜</span> Stealer Logs</a>
+          <a class="nav-item"><span class="icon">🗂</span> Leak Index</a>
+          <a class="nav-item"><span class="icon">🔑</span> Credential Search</a>
+          <a class="nav-item"><span class="icon">🗄</span> Kitty DB</a>
+        </div>
 
-  function updateUIState(type) {
-    currentKind = type;
-    document.getElementById('search-title').textContent = titles[currentKind];
-    document.getElementById('crumb').textContent = crumb[currentKind];
+        <div class="nav-group">
+          <div class="nav-label">Lookups</div>
+          <a class="nav-item"><span class="icon">🔎</span> General Search</a>
+          <a class="nav-item"><span class="icon">📡</span> NazAPI</a>
+          <a class="nav-item"><span class="icon">✉️</span> Email Intelligence</a>
+          <a class="nav-item"><span class="icon">🚗</span> Cars & Owners</a>
+          <a class="nav-item"><span class="icon">💬</span> Discord Search</a>
+          <a class="nav-item"><span class="icon">✈️</span> Telegram Search</a>
+          <a class="nav-item"><span class="icon">🇨🇦</span> Canada Records</a>
+          <a class="nav-item"><span class="icon">🇮🇱</span> Israel Records</a>
+          <a class="nav-item"><span class="icon">🏦</span> Bank Records</a>
+          <a class="nav-item"><span class="icon">📍</span> Address Lookup</a>
+        </div>
+
+        <div class="nav-group">
+          <div class="nav-label">Workspace</div>
+          <a class="nav-item" onclick="openGraph()"><span class="icon">🕸</span> Entity Graph <span class="badge" id="graph-badge">0</span></a>
+          <a class="nav-item"><span class="icon">🕰</span> Recent <span class="badge">0</span></a>
+          <a class="nav-item"><span class="icon">🗑</span> Clear</a>
+        </div>
+      </div>
+
+      <div class="sidebar-footer">
+        <div class="user-card">
+          <div class="user-info">
+            <div class="name" id="user-name">operator</div>
+            <div class="quota" id="user-quota">FREE · 15 CREDITS</div>
+          </div>
+          <div class="status-pill"><div class="status-dot"></div> Online</div>
+        </div>
+        <a href="/home.html" class="home-btn">
+          <span>←</span> Return to Home
+        </a>
+      </div>
+    </aside>
+
+    <main class="main-content" id="main-content">
+      <header class="topbar">
+        <div class="breadcrumb">
+          <span>Workspace</span>
+          <span class="sep">/</span>
+          <span class="current" id="crumb">Live Email Intel</span>
+        </div>
+        <div style="flex: 1;"></div>
+        <div class="topbar-right">
+          <div class="topbar-pill" id="topbar-tier">FREE · 15</div>
+          <div class="topbar-pill green" id="clock">00:00:00 UTC</div>
+        </div>
+      </header>
+
+      <div class="search-section">
+        <h1 class="search-title" id="search-title">Email intelligence</h1>
+        <div class="search-box-wrap">
+          <input type="text" id="search-input" class="search-input" placeholder="Enter an email address" autocomplete="off" autofocus>
+          <button id="search-btn" class="btn-run">Run →</button>
+        </div>
+
+        <div class="filter-chips">
+          <div class="chip active" data-type="email">📧 Email</div>
+          <div class="chip" data-type="phone">📱 Phone</div>
+          <div class="chip" data-type="username">👤 Username</div>
+          <div class="chip" data-type="domain">🌐 Domain</div>
+          <div class="chip" data-type="ip">🛡 IP</div>
+        </div>
+      </div>
+
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="stat-label">Stream <div class="dot"></div></div>
+          <div class="stat-value" id="stat-stream">Ready</div>
+          <div class="stat-sub">Idle</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Results <div class="dot"></div></div>
+          <div class="stat-value" id="stat-results">0</div>
+          <div class="stat-sub">Module events</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Matches <div class="dot"></div></div>
+          <div class="stat-value green" id="stat-matches">0</div>
+          <div class="stat-sub">Flagged as match</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Entities <div class="dot"></div></div>
+          <div class="stat-value" id="stat-entities">0</div>
+          <div class="stat-sub">Correlations</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Plan <div class="dot"></div></div>
+          <div class="stat-value" id="stat-plan">Free</div>
+          <div class="stat-sub">15 searches left</div>
+        </div>
+      </div>
+
+      <div class="results-panel">
+        <div class="results-header">
+          <div class="results-title">Results <span id="results-count-badge" style="color: var(--dim); font-weight: 400; margin-left: 6px;">0 events</span></div>
+          <div class="results-tabs">
+            <div class="rtab active">Feed</div>
+            <div class="rtab" onclick="openGraph()">Graph</div>
+            <div class="rtab">Split</div>
+          </div>
+          <div class="results-actions">
+            <button class="btn-sm">All</button>
+            <button class="btn-sm">Matches</button>
+            <button class="btn-sm">Log</button>
+            <button class="btn-sm">Export</button>
+          </div>
+        </div>
+
+        <div class="empty-view" id="empty-view">
+          <div class="empty-icon">⌕</div>
+          <div class="empty-title">No results yet</div>
+          <div class="empty-sub">Select a module, enter a target, and run a lookup.</div>
+        </div>
+
+        <div class="result-feed" id="feed-container" style="display: none;"></div>
+      </div>
+    </main>
+  </div>
+
+  <div id="graph-panel">
+    <div class="graph-header">
+      Entity Graph
+      <div class="graph-close" onclick="closeGraph()">✕</div>
+    </div>
+    <div id="network"></div>
+  </div>
+
+  <!-- ============================================
+     SCRIPT — Enhanced UI, GSAP animations, cursor, key system
+     ============================================ -->
+  <script>
+  (() => {
+    const TOKEN = localStorage.getItem('volume_token');
+    const API = window.location.hostname === 'localhost' ? 'http://localhost:8000' : 'https://volume-tools-2.onrender.com';
     
-    document.querySelectorAll('.nav-item[data-type]').forEach(i => i.classList.toggle('active', i.dataset.type === currentKind));
-    document.querySelectorAll('.chip').forEach(c => c.classList.toggle('active', c.dataset.type === currentKind));
-    
-    typeIndex = 0;
-    isDeleting = false;
-    clearTimeout(typeInterval);
-    document.getElementById('search-input').placeholder = '';
-    setTimeout(typePlaceholder, 200);
-  }
+    // --- State ---
+    let currentKind = 'email';
 
-  document.querySelectorAll('.nav-item[data-type]').forEach(item => {
-    item.addEventListener('click', () => updateUIState(item.dataset.type));
-  });
-  document.querySelectorAll('.chip').forEach(chip => {
-    chip.addEventListener('click', () => updateUIState(chip.dataset.type));
-  });
+    // --- Page transition on load ---
+    document.body.style.opacity = '0';
+    setTimeout(() => { document.body.style.opacity = '1'; document.getElementById('pageTransition').classList.remove('out'); }, 10);
 
-  let typeInterval;
-  let typeIndex = 0;
-  let isDeleting = false;
-  const searchInput = document.getElementById('search-input');
+    // --- Mouse glow trail ---
+    const cursorGlow = document.getElementById('cursorGlow');
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  function typePlaceholder() {
-    const text = placeholders[currentKind];
-    if (!text) return;
-    if (isDeleting) typeIndex--; else typeIndex++;
-    searchInput.setAttribute('placeholder', text.substring(0, typeIndex));
-    
-    let typeSpeed = isDeleting ? 40 : 80;
-    if (!isDeleting && typeIndex === text.length) { typeSpeed = 2000; isDeleting = true; }
-    else if (isDeleting && typeIndex === 0) { isDeleting = false; typeSpeed = 500; }
-    
-    clearTimeout(typeInterval);
-    typeInterval = setTimeout(typePlaceholder, typeSpeed);
-  }
-  setTimeout(() => { typeIndex = 0; isDeleting = false; typePlaceholder(); }, 1000);
+    if (!reduceMotion) {
+      cursorGlow.style.cssText = `
+        position: fixed;
+        width: 12px; height: 12px;
+        background: var(--accent);
+        border-radius: 50%;
+        pointer-events: none;
+        z-index: 9999;
+        opacity: 0.4;
+        transform: translate(-50%, -50%);
+        box-shadow: 0 0 20px var(--accent), 0 0 50px var(--accent);
+        transition: width 0.15s ease, height 0.15s ease, opacity 0.2s ease;
+      `;
+    }
 
-  // ==========================================
-  // GLOWING CURSOR TRAIL (Native JS)
-  // ==========================================
-  const cursorGlow = document.createElement('div');
-  cursorGlow.style.cssText = `
-    position: fixed;
-    top: 0; left: 0;
-    width: 8px; height: 8px;
-    background: var(--accent);
-    border-radius: 50%;
-    pointer-events: none;
-    z-index: 9999;
-    box-shadow: 0 0 15px var(--accent), 0 0 30px var(--accent);
-    opacity: 0.6;
-    transform: translate(-50%, -50%);
-    transition: transform 0.08s ease-out, opacity 0.2s ease;
-  `;
-  document.body.appendChild(cursorGlow);
+    const updateGlow = (e) => {
+      if (!cursorGlow) return;
+      cursorGlow.style.left = `${e.clientX}px`;
+      cursorGlow.style.top = `${e.clientY}px`;
+      cursorGlow.style.opacity = '0.8';
+      if (e.type === 'mousemove') cursorGlow.classList.remove('large');
+    };
 
-  document.addEventListener('mousemove', (e) => {
-    cursorGlow.style.left = `${e.clientX}px`;
-    cursorGlow.style.top = `${e.clientY}px`;
-    cursorGlow.style.opacity = '0.8';
-  });
+    const leaveGlow = () => { if (cursorGlow) cursorGlow.style.opacity = '0'; };
 
-  document.addEventListener('mouseleave', () => {
-    cursorGlow.style.opacity = '0';
-  });
+    document.addEventListener('mousemove', updateGlow);
+    document.addEventListener('mouseleave', leaveGlow);
 
-  window.openGraph = () => {
-    document.getElementById('graph-panel').style.right = '0';
-  };
-  window.closeGraph = () => {
-    document.getElementById('graph-panel').style.right = '-450px';
-  };
-
-  const nodes = new vis.DataSet([]);
-  const edges = new vis.DataSet([]);
-  const network = new vis.Network(document.getElementById('network'), { nodes, edges }, {
-    nodes: { shape: 'dot', size: 12, font: { color: '#b8c0b9', face: 'monospace', size: 10 }, color: { background: '#0f1410', border: '#6ee7a8' } },
-    edges: { color: { color: '#1d271f', highlight: '#6ee7a8' }, width: 1, smooth: { type: 'dynamic' } },
-    physics: { solver: 'forceAtlas2Based', forceAtlas2Based: { gravitationalConstant: -40, centralGravity: 0.015, springLength: 100 } },
-    interaction: { hover: true }
-  });
-
-  function updateGraph(seed, hits) {
-    nodes.clear(); edges.clear();
-    const rootId = `${currentKind}:${seed}`;
-    nodes.add({ id: rootId, label: seed.slice(0, 15), size: 20, color: { background: '#6ee7a8', border: '#eef1ee' }, font: { color: '#000', bold: true } });
-    
-    hits.forEach(h => {
-      const hitId = `${h.kind}:${h.value}`;
-      if (!nodes.get(hitId)) {
-        nodes.add({ id: hitId, label: h.value.slice(0, 15) });
-        edges.add({ from: rootId, to: hitId });
-      }
+    // On hover over interactive elements, enlarge glow
+    const interactive = document.querySelectorAll('.nav-item, .chip, .btn-run, .topbar-pill, .stat-card, .feed-item, .key-input');
+    interactive.forEach(el => {
+      el.addEventListener('mouseenter', () => cursorGlow.classList.add('large'));
+      el.addEventListener('mouseleave', () => cursorGlow.classList.remove('large'));
     });
-    
-    document.getElementById('stat-entities').textContent = nodes.length;
-    document.getElementById('graph-badge').textContent = nodes.length;
-  }
 
-  async function runSearch() {
-    const seed = searchInput.value.trim();
-    if (!seed) return;
-    
-    const btn = document.getElementById('search-btn');
-    const emptyView = document.getElementById('empty-view');
-    const feed = document.getElementById('feed-container');
-    
-    btn.disabled = true;
-    btn.textContent = '...';
-    emptyView.style.display = 'none';
-    feed.style.display = 'flex';
-    feed.innerHTML = '<div style="color: var(--dim); font-family: var(--mono); font-size: 11px;">Initializing fan-out...</div>';
+    // --- Set intervals ---
+    setInterval(() => { 
+      const el = document.getElementById('clock');
+      if (el) el.textContent = new Date().toISOString().slice(11,19) + ' UTC'; 
+    }, 1000);
 
-    document.getElementById('stat-stream').textContent = 'Active';
-    document.getElementById('stat-stream-sub').textContent = 'Querying modules';
+    // --- Auth check & profile ---
+    if (TOKEN) {
+      fetch(`${API}/api/me`, { headers: { 'authorization': `Bearer ${TOKEN}` } })
+        .then(r => r.json())
+        .then(d => {
+          const name = d.email ? d.email.split('@')[0] : 'operator';
+          const tier = (d.tier || 'free').toUpperCase();
+          const quota = d.quota ? (d.quota.daily_limit - d.quota.used_today) : 15;
+          
+          document.getElementById('user-name').textContent = name;
+          document.getElementById('user-quota').textContent = `${tier} · ${quota} CREDITS`;
+          document.getElementById('topbar-tier').textContent = `${tier} · ${quota}`;
+          document.getElementById('stat-plan').textContent = tier;
+        }).catch(() => {});
+    }
 
-    try {
-      const res = await fetch(`${API}/api/pivot`, {
-        method: 'POST',
-        headers: { 'content-type': 'application/json', 'authorization': `Bearer ${TOKEN}` },
-        body: JSON.stringify({ seed, kind: currentKind })
-      });
+    // --- UI state ---
+    const titles = { email: 'Email intelligence', phone: 'Phone intelligence', username: 'Username intelligence', domain: 'Domain intelligence', ip: 'IP intelligence' };
+    const crumb = { email: 'Live Email Intel', phone: 'Live Phone Intel', username: 'Live Username Intel', domain: 'Domain Search', ip: 'IP Lookup' };
+    const placeholders = { email: 'Enter an email address', phone: 'Enter a phone number', username: 'Enter a username', domain: 'Enter a domain name', ip: 'Enter an IP address' };
 
-      const data = await res.json();
+    function updateUIState(type) {
+      currentKind = type;
+      document.getElementById('search-title').textContent = titles[currentKind];
+      document.getElementById('crumb').textContent = crumb[currentKind];
       
-      if (!res.ok) {
-        feed.innerHTML = `<div class="feed-item" style="border-color: var(--danger);">
-          <div class="fi-header"><span class="fi-badge stealer">Error</span></div>
-          <div class="fi-data"><span class="k">Reason</span><span class="v">${data.detail || 'Upgrade required'}</span></div>
-          <a href="/dashboard" style="display: inline-block; margin-top: 12px; color: var(--accent); text-decoration: none; font-size: 11px; font-family: var(--mono);">upgrade account →</a>
-        </div>`;
-        document.getElementById('stat-stream').textContent = 'Error';
-        document.getElementById('stat-stream-sub').textContent = 'Limit reached';
-        btn.disabled = false; btn.textContent = 'Run →';
+      document.querySelectorAll('.nav-item[data-type]').forEach(i => i.classList.toggle('active', i.dataset.type === currentKind));
+      document.querySelectorAll('.chip').forEach(c => c.classList.toggle('active', c.dataset.type === currentKind));
+      
+      // Trigger GSAP scale-in on content swap
+      gsap.fromTo('#search-input', { opacity: 0, x: -20 }, { opacity: 1, x: 0, duration: 0.4, ease: 'power3.out' });
+      gsap.fromTo('#search-btn', { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: 0.3, ease: 'power3.out', delay: 0.1 });
+      
+      document.getElementById('search-input').placeholder = '';
+      setTimeout(() => { typePlaceholder(); }, 100);
+    }
+
+    document.querySelectorAll('.nav-item[data-type]').forEach(item => {
+      item.addEventListener('click', () => updateUIState(item.dataset.type));
+    });
+    document.querySelectorAll('.chip').forEach(chip => {
+      chip.addEventListener('click', () => updateUIState(chip.dataset.type));
+    });
+
+    // --- Typing placeholder effect ---
+    let typeInterval; let typeIndex = 0; let isDeleting = false;
+    const searchInput = document.getElementById('search-input');
+
+    function typePlaceholder() {
+      const text = placeholders[currentKind];
+      if (!text) return;
+      if (isDeleting) typeIndex--; else typeIndex++;
+      searchInput.setAttribute('placeholder', text.substring(0, typeIndex));
+      
+      let typeSpeed = isDeleting ? 40 : 80;
+      if (!isDeleting && typeIndex === text.length) { typeSpeed = 2000; isDeleting = true; }
+      else if (isDeleting && typeIndex === 0) { isDeleting = false; typeSpeed = 500; }
+      
+      clearTimeout(typeInterval);
+      typeInterval = setTimeout(typePlaceholder, typeSpeed);
+    }
+    setTimeout(() => { typeIndex = 0; isDeleting = false; typePlaceholder(); }, 1000);
+
+    // --- Run search ---
+    async function runSearch() {
+      const seed = searchInput.value.trim();
+      if (!seed) return;
+      
+      const btn = document.getElementById('search-btn');
+      const emptyView = document.getElementById('empty-view');
+      const feed = document.getElementById('feed-container');
+      
+      // Button tween
+      gsap.to(btn, { scale: 0.95, duration: 0.1, yoyo: true, repeat: 1 });
+      
+      btn.disabled = true;
+      btn.textContent = '...';
+      emptyView.style.display = 'none';
+      feed.style.display = 'flex';
+      feed.innerHTML = '<div style="color: var(--dim); font-family: var(--mono); font-size: 11px;">Initializing fan-out...</div>';
+
+      gsap.to('#stat-stream', { textContent: 'Active', onComplete: () => { document.getElementById('stat-stream-sub').textContent = 'Querying modules'; }});
+      
+      try {
+        const res = await fetch(`${API}/api/pivot`, {
+          method: 'POST',
+          headers: { 'content-type': 'application/json', 'authorization': `Bearer ${TOKEN}` },
+          body: JSON.stringify({ seed, kind: currentKind })
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+          feed.innerHTML = `<div class="feed-item" style="border-color: var(--danger);">
+            <div class="fi-header"><span class="fi-badge stealer">Error</span></div>
+            <div class="fi-data"><span class="k">Reason</span><span class="v">${data.detail || 'Upgrade required'}</span></div>
+            <a href="/dashboard" style="display: inline-block; margin-top: 12px; color: var(--accent); text-decoration: none; font-size: 11px; font-family: var(--mono);">upgrade account →</a>
+          </div>`;
+          gsap.to('#stat-stream', { textContent: 'Error', onComplete: () => { document.getElementById('stat-stream-sub').textContent = 'Limit reached'; }});
+          btn.disabled = false; btn.textContent = 'Run →';
+          return;
+        }
+
+        gsap.to('#stat-results', { textContent: data.count, duration: 0.5, ease: 'power2.out' });
+        gsap.to('#stat-matches', { textContent: data.count, duration: 0.5, ease: 'power2.out' });
+        gsap.to('#results-count-badge', { textContent: `${data.count} events`, duration: 0.5, ease: 'power2.out' });
+        gsap.to('#stat-stream', { textContent: 'Complete', onComplete: () => { document.getElementById('stat-stream-sub').textContent = 'Done'; }});
+
+        // Update graph
+        updateGraph(seed, data.hits);
+
+        // Feed entries with stagger
+        feed.innerHTML = '';
+        if (data.count === 0) {
+          feed.innerHTML = '<div style="color: var(--dim); font-family: var(--mono); font-size: 11px; text-align: center; padding: 40px;">No hits found. The target is clean.</div>';
+        } else {
+          data.hits.forEach((hit, idx) => {
+            let dataHtml = '';
+            for (const [k, v] of Object.entries(hit.meta)) {
+              if (k === 'sources' || k === 'pillar' || k === 'confidence') continue;
+              const valStr = Array.isArray(v) ? v.join(', ') : String(v);
+              if (!valStr || valStr === 'null') continue;
+              dataHtml += `<span class="k">${k}</span><span class="v">${valStr}</span>`;
+            }
+
+            const el = document.createElement('div');
+            el.className = 'feed-item';
+            el.innerHTML = `
+              <div class="fi-header">
+                <span class="fi-badge ${hit.pillar || 'account'}">${hit.pillar || hit.kind}</span>
+                <span class="fi-source">via ${(hit.meta.sources || [hit.source]).join(', ')}</span>
+              </div>
+              <div class="fi-data">
+                <span class="k">Result</span><span class="v highlight">${hit.value}</span>
+                ${dataHtml}
+              </div>
+            `;
+            // Stagger entrance
+            gsap.fromTo(el, { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.4, ease: 'power2.out', delay: idx * 0.08 });
+            feed.appendChild(el);
+          });
+        }
+      } catch (e) {
+        feed.innerHTML = `<div style="color: var(--danger); font-family: var(--mono); font-size: 11px;">Network error: ${e.message}</div>`;
+        gsap.to('#stat-stream', { textContent: 'Error', onComplete: () => { document.getElementById('stat-stream-sub').textContent = 'Network error'; }});
+      } finally {
+        gsap.to(btn, { scale: 1, duration: 0.2 });
+        btn.disabled = false;
+        btn.textContent = 'Run →';
+      }
+    }
+
+    document.getElementById('search-btn').addEventListener('click', runSearch);
+    searchInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') runSearch(); });
+
+    // --- Open/close graph panel with tween ---
+    window.openGraph = () => {
+      gsap.to('#graph-panel', { right: 0, duration: 0.4, ease: 'power3.out' });
+      // Animate badge
+      gsap.fromTo('#graph-badge', { opacity: 0, scale: 0.8 }, { opacity: 1, scale: 1, duration: 0.3, ease: 'back.out(1.7)' });
+    };
+    window.closeGraph = () => {
+      gsap.to('#graph-panel', { right: '-450px', duration: 0.4, ease: 'power3.in' });
+    };
+
+    // --- Create key system ---
+    const keyCreationOverlay = document.getElementById('keyCreationOverlay');
+    const keyCreationBox = document.querySelector('.key-creation-box');
+    const keyInput = document.getElementById('keyInput');
+    const keyGenStatus = document.getElementById('keyGenStatus');
+    const keyGenStatusErr = document.getElementById('keyGenStatusErr');
+
+    function showKeyCreation() {
+      keyCreationOverlay.classList.add('active');
+      // Trigger entrance animation
+      gsap.fromTo(keyCreationBox, { opacity: 0, scale: 0.9 }, { opacity: 1, scale: 1, duration: 0.35, ease: 'power3.out' });
+      keyInput.focus();
+    }
+
+    function hideKeyCreation() {
+      keyCreationOverlay.classList.remove('active');
+      gsap.to(keyCreationBox, { opacity: 0, scale: 0.9, duration: 0.25, ease: 'power3.in', onComplete: () => { keyCreationOverlay.classList.remove('active'); } });
+    }
+
+    function showStatus(isOk, message) {
+      const status = isOk ? keyGenStatus : keyGenStatusErr;
+      status.querySelector('div').textContent = message;
+      status.style.display = 'block';
+      // Auto-hide after 3s
+      setTimeout(() => { status.style.display = 'none'; }, 3000);
+    }
+
+    window.generateKey = async () => {
+      const value = keyInput.value.trim().toUpperCase();
+      if (!/^VOL-\d{4}-XXXX-\d{4}$/.test(value)) {
+        keyInput.classList.add('invalid');
+        showStatus(false, 'Invalid format. Use VOL-XXXX-XXXX-XXXX');
         return;
       }
+      keyInput.classList.remove('invalid');
 
-      document.getElementById('stat-results').textContent = data.count;
-      document.getElementById('stat-matches').textContent = data.count;
-      document.getElementById('results-count-badge').textContent = `${data.count} events`;
-      document.getElementById('stat-stream').textContent = 'Complete';
-      document.getElementById('stat-stream-sub').textContent = 'Done';
+      // Simulate key generation with GSAP progress
+      keyGenStatus.style.display = 'none';
+      keyGenStatusErr.style.display = 'none';
       
-      updateGraph(seed, data.hits);
+      // Show generating state
+      keyGenStatus.querySelector('div').textContent = 'Generating...';
+      keyGenStatus.style.display = 'block';
 
-      feed.innerHTML = '';
-      if (data.count === 0) {
-        feed.innerHTML = '<div style="color: var(--dim); font-family: var(--mono); font-size: 11px; text-align: center; padding: 40px;">No hits found. The target is clean.</div>';
-      } else {
-        data.hits.forEach(hit => {
-          let dataHtml = '';
-          for (const [k, v] of Object.entries(hit.meta)) {
-            if (k === 'sources' || k === 'pillar' || k === 'confidence') continue;
-            const valStr = Array.isArray(v) ? v.join(', ') : String(v);
-            if (!valStr || valStr === 'null') continue;
-            dataHtml += `<span class="k">${k}</span><span class="v">${valStr}</span>`;
-          }
-
-          const el = document.createElement('div');
-          el.className = 'feed-item';
-          el.innerHTML = `
-            <div class="fi-header">
-              <span class="fi-badge ${hit.pillar || 'account'}">${hit.pillar || hit.kind}</span>
-              <span class="fi-source">via ${(hit.meta.sources || [hit.source]).join(', ')}</span>
-            </div>
-            <div class="fi-data">
-              <span class="k">Result</span><span class="v highlight">${hit.value}</span>
-              ${dataHtml}
-            </div>
-          `;
-          feed.appendChild(el);
-        });
+      try {
+        // In a real implementation, this would call the backend
+        // For now, simulate with a client-side key bind
+        localStorage.setItem('volume_token', value);
+        showStatus(true, 'Key activated successfully');
+        gsap.to('#user-name', { textContent: value.split('-')[1] || 'operator', duration: 0.2 });
+        gsap.to('#user-quota', { textContent: 'PREMIUM · 9999 CREDITS', duration: 0.2 });
+        gsap.to('#topbar-tier', { textContent: 'PREMIUM · 9999', duration: 0.2 });
+        gsap.to('#stat-plan', { textContent: 'PREMIUM', duration: 0.2 });
+        hideKeyCreation();
+        // Show success pulse
+        gsap.to('.status-dot', { opacity: 1, boxShadow: '0 0 12px var(--accent)', duration: 0.3 });
+        setTimeout(() => { gsap.to('.status-dot', { opacity: 0.5, boxShadow: '0 0 8px var(--accent)', duration: 1.5 }); }, 2000);
+      } catch (e) {
+        showStatus(false, 'Failed to activate key: ' + e.message);
       }
-    } catch (e) {
-      feed.innerHTML = `<div style="color: var(--danger); font-family: var(--mono); font-size: 11px;">Network error: ${e.message}</div>`;
-    } finally {
-      btn.disabled = false;
-      btn.textContent = 'Run →';
-    }
-  }
+    };
 
-  document.getElementById('search-btn').addEventListener('click', runSearch);
-  searchInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') runSearch(); });
+    // --- Click outside overlay to close ---
+    keyCreationOverlay.addEventListener('click', (e) => {
+      if (e.target === keyCreationOverlay) hideKeyCreation();
+    });
 
-  document.getElementById('logout-btn')?.addEventListener('click', async (e) => {
-    e.preventDefault();
-    try {
-      await fetch(`${API}/api/auth/logout`, {
-        method: 'POST',
-        headers: { 'authorization': `Bearer ${TOKEN}` }
-      });
-    } catch (_) {}
-    localStorage.removeItem('volume_token');
-    window.location.href = '/';
-  });
-})();
-</script>
+    // --- Keyboard ESC to close ---
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && keyCreationOverlay.classList.contains('active')) hideKeyCreation();
+    });
+
+    // --- Initial UI state ---
+    updateUIState('email');
+
+    // --- Focus trap for overlay (simple) ---
+    keyCreationBox.addEventListener('click', (e) => e.stopPropagation());
+
+  })();
+  </script>
 </body>
 </html>
