@@ -31,12 +31,12 @@
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    html, body { height: 100%; overflow: hidden; background: var(--bg); }
+    html, body { height: 100%; overflow-x: hidden; }
 
     body {
       font: 400 13px var(--sans);
       -webkit-font-smoothing: antialiased;
-      background-image: 
+      background:
         radial-gradient(circle at 0% 0%, rgba(30, 70, 45, 0.15) 0%, transparent 50%),
         radial-gradient(circle at 100% 100%, rgba(20, 50, 30, 0.1) 0%, transparent 50%);
     }
@@ -63,21 +63,6 @@
     }
     .cursor-glow.large { width: 20px; height: 20px; opacity: 0.25; box-shadow: 0 0 30px var(--accent), 0 0 70px var(--accent); }
     .cursor-glow.hidden { opacity: 0; }
-
-    /* ==========================================
-       PAGE TRANSITIONS
-       ========================================== */
-    .page-transition {
-      position: fixed;
-      inset: 0;
-      z-index: 9998;
-      background: var(--bg);
-      overflow: hidden;
-      transition: opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-    .page-transition.out {
-      opacity: 0;
-    }
 
     /* ==========================================
        CORE LAYOUT
@@ -132,7 +117,7 @@
     .search-box-wrap:focus-within { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(110,231,168,0.1), 0 8px 30px rgba(0,0,0,0.5); transform: translateY(-2px); }
     .search-input { flex: 1; padding: 12px 16px; background: transparent; border: none; color: var(--fg); font-family: var(--mono); font-size: 14px; outline: none; }
     .search-input::placeholder { color: var(--dim); }
-    .btn-run { padding: 0 32px; background: var(--fg); color: #000; border: none; border-radius: 6x; font-family: var(--mono); font-weight: 600; font-size: 13px; cursor: pointer; transition: all var(--t); display: flex; align-items: center; gap: 8px; position: relative; overflow: hidden; }
+    .btn-run { padding: 0 32px; background: var(--fg); color: #000; border: none; border-radius: 6px; font-family: var(--mono); font-weight: 600; font-size: 13px; cursor: pointer; transition: all var(--t); display: flex; align-items: center; gap: 8px; position: relative; overflow: hidden; }
     .btn-run::after { content: ""; position: absolute; top: 0; left: -100%; width: 100%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent); transition: left 0.5s ease; }
     .btn-run:hover { background: var(--accent); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(110,231,168,0.2); }
     .btn-run:hover::after { left: 100%; }
@@ -203,7 +188,7 @@
     #network { flex: 1; background: transparent; outline: none; }
 
     /* ==========================================
-       CREATE KEY SYSTEM
+       KEY CREATION OVERLAY
        ========================================== */
     .key-creation-overlay {
       position: fixed;
@@ -218,10 +203,7 @@
       visibility: hidden;
       transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
-    .key-creation-overlay.active {
-      opacity: 1;
-      visibility: visible;
-    }
+    .key-creation-overlay.active { opacity: 1; visibility: visible; }
     .key-creation-box {
       background: var(--card);
       border: 1px solid var(--border);
@@ -232,9 +214,7 @@
       transform: scale(0.9) translateY(20px);
       transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
     }
-    .key-creation-overlay.active .key-creation-box {
-      transform: scale(1) translateY(0);
-    }
+    .key-creation-overlay.active .key-creation-box { transform: scale(1) translateY(0); }
     .key-title { font-family: var(--mono); font-size: 20px; font-weight: 600; color: var(--fg); margin-bottom: 24px; text-align: center; }
     .key-group { display: flex; gap: 8px; margin: 16px 0; flex-wrap: wrap; justify-content: center; }
     .key-input { flex: 1; min-width: 120px; padding: 10px 14px; background: var(--bg); border: 1px solid var(--border-2); border-radius: 6px; font-family: var(--mono); font-size: 12px; color: var(--fg); outline: none; transition: border-color 0.2s; }
@@ -252,8 +232,8 @@
     .key-gen-status.err { background: rgba(237,66,69,0.1); color: var(--danger); border: 1px solid rgba(237,66,69,.3); display: block; }
 
     /* ==========================================
-      ANIMATION CLASSES
-      ========================================== */
+       ANIMATION CLASSES
+       ========================================== */
     .fade-in-up { animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; opacity: 0; transform: translateY(20px); }
     @keyframes fadeInUp { to { opacity: 1; transform: translateY(0); } }
     .fade-in { animation: fadeIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; opacity: 0; }
@@ -262,40 +242,18 @@
     @keyframes slideInRight { to { opacity: 1; transform: translateX(0); } }
     .scale-in { animation: scaleIn 0.35s cubic-bezier(0.4, 0, 0.2, 1) forwards; opacity: 0; transform: scale(0.95); }
     @keyframes scaleIn { to { opacity: 1; transform: scale(1); } }
-    . pulse-slow { animation: pulseSlow 3s ease-in-out infinite; }
+    .pulse-slow { animation: pulseSlow 3s ease-in-out infinite; }
     @keyframes pulseSlow { 0%, 100% { opacity: 0.5; } 50% { opacity: 1; } }
 
-    /* Reduced motion */
     @media (prefers-reduced-motion: reduce) {
-      .cursor-glow, .page-transition, .fade-in-up, .fade-in, .slide-in-right, .scale-in, .pulse-slow,
-      @keyframes fadeInUp, @keyframes fadeIn, @keyframes slideInRight, @keyframes scaleIn, @keyframes pulseSlow { transition-duration: 0ms !important; animation-duration: 0ms !important; transition-delay: 0s !important; animation-delay: 0s !important; }
+      .cursor-glow, .page-transition, .fade-in-up, .fade-in, .slide-in-right, .scale-in, .pulse-slow { transition-duration: 0ms !important; animation-duration: 0ms !important; }
     }
   </style>
 </head>
 <body>
 
-  <!-- Page transition mask -->
-  <div class="page-transition" id="pageTransition"></div>
-
   <!-- Mouse glow trail -->
   <div class="cursor-glow" id="cursorGlow"></div>
-
-  <!-- Key creation overlay -->
-  <div class="key-creation-overlay" id="keyCreationOverlay">
-    <div class="key-creation-box">
-      <h2 class="key-title">Create API Key</h2>
-      <p class="key-hint">Generate a new HWID-bound key for this session</p>
-      <div class="key-gen-status ok" id="keyGenStatus" style="display: none;"></div>
-      <div class="key-gen-status err" id="keyGenStatusErr" style="display: none;"></div>
-      <div style="margin: 24px 0;">
-        <input type="text" class="key-input" id="keyInput" placeholder="VOL-XXXX-XXXX-XXXX" autocomplete="off">
-      </div>
-      <div style="display: flex; gap: 8px; margin: 20px 0; flex-wrap: wrap; justify-content: center;">
-        <button class="key-btn cancel" onclick="hideKeyCreation()">Cancel</button>
-        <button class="key-btn create" onclick="generateKey()">Generate</button>
-      </div>
-    </div>
-  </div>
 
   <div class="app-container fade-in-up">
     <aside class="sidebar" id="sidebar">
@@ -467,9 +425,6 @@
     <div id="network"></div>
   </div>
 
-  <!-- ============================================
-     SCRIPT — Enhanced UI, GSAP animations, cursor, key system
-     ============================================ -->
   <script>
   (() => {
     const TOKEN = localStorage.getItem('volume_token');
@@ -478,15 +433,11 @@
     // --- State ---
     let currentKind = 'email';
 
-    // --- Page transition on load ---
-    document.body.style.opacity = '0';
-    setTimeout(() => { document.body.style.opacity = '1'; document.getElementById('pageTransition').classList.remove('out'); }, 10);
-
     // --- Mouse glow trail ---
     const cursorGlow = document.getElementById('cursorGlow');
     const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-    if (!reduceMotion) {
+    if (!reduceMotion && cursorGlow) {
       cursorGlow.style.cssText = `
         position: fixed;
         width: 12px; height: 12px;
@@ -514,12 +465,13 @@
     document.addEventListener('mousemove', updateGlow);
     document.addEventListener('mouseleave', leaveGlow);
 
-    // On hover over interactive elements, enlarge glow
     const interactive = document.querySelectorAll('.nav-item, .chip, .btn-run, .topbar-pill, .stat-card, .feed-item, .key-input');
-    interactive.forEach(el => {
-      el.addEventListener('mouseenter', () => cursorGlow.classList.add('large'));
-      el.addEventListener('mouseleave', () => cursorGlow.classList.remove('large'));
-    });
+    if (interactive.length) {
+      interactive.forEach(el => {
+        el.addEventListener('mouseenter', () => cursorGlow.classList.add('large'));
+        el.addEventListener('mouseleave', () => cursorGlow.classList.remove('large'));
+      });
+    }
 
     // --- Set intervals ---
     setInterval(() => { 
@@ -557,8 +509,10 @@
       document.querySelectorAll('.chip').forEach(c => c.classList.toggle('active', c.dataset.type === currentKind));
       
       // Trigger GSAP scale-in on content swap
-      gsap.fromTo('#search-input', { opacity: 0, x: -20 }, { opacity: 1, x: 0, duration: 0.4, ease: 'power3.out' });
-      gsap.fromTo('#search-btn', { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: 0.3, ease: 'power3.out', delay: 0.1 });
+      if (typeof gsap !== 'undefined') {
+        gsap.fromTo('#search-input', { opacity: 0, x: -20 }, { opacity: 1, x: 0, duration: 0.4, ease: 'power3.out' });
+        gsap.fromTo('#search-btn', { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: 0.3, ease: 'power3.out', delay: 0.1 });
+      }
       
       document.getElementById('search-input').placeholder = '';
       setTimeout(() => { typePlaceholder(); }, 100);
@@ -600,7 +554,9 @@
       const feed = document.getElementById('feed-container');
       
       // Button tween
-      gsap.to(btn, { scale: 0.95, duration: 0.1, yoyo: true, repeat: 1 });
+      if (typeof gsap !== 'undefined') {
+        gsap.to(btn, { scale: 0.95, duration: 0.1, yoyo: true, repeat: 1 });
+      }
       
       btn.disabled = true;
       btn.textContent = '...';
@@ -608,7 +564,12 @@
       feed.style.display = 'flex';
       feed.innerHTML = '<div style="color: var(--dim); font-family: var(--mono); font-size: 11px;">Initializing fan-out...</div>';
 
-      gsap.to('#stat-stream', { textContent: 'Active', onComplete: () => { document.getElementById('stat-stream-sub').textContent = 'Querying modules'; }});
+      if (typeof gsap !== 'undefined') {
+        gsap.to('#stat-stream', { textContent: 'Active', onComplete: () => { document.getElementById('stat-stream-sub').textContent = 'Querying modules'; }});
+      } else {
+        document.getElementById('stat-stream').textContent = 'Active';
+        document.getElementById('stat-stream-sub').textContent = 'Querying modules';
+      }
       
       try {
         const res = await fetch(`${API}/api/pivot`, {
@@ -625,18 +586,31 @@
             <div class="fi-data"><span class="k">Reason</span><span class="v">${data.detail || 'Upgrade required'}</span></div>
             <a href="/dashboard" style="display: inline-block; margin-top: 12px; color: var(--accent); text-decoration: none; font-size: 11px; font-family: var(--mono);">upgrade account →</a>
           </div>`;
-          gsap.to('#stat-stream', { textContent: 'Error', onComplete: () => { document.getElementById('stat-stream-sub').textContent = 'Limit reached'; }});
+          if (typeof gsap !== 'undefined') {
+            gsap.to('#stat-stream', { textContent: 'Error', onComplete: () => { document.getElementById('stat-stream-sub').textContent = 'Limit reached'; }});
+          } else {
+            document.getElementById('stat-stream').textContent = 'Error';
+            document.getElementById('stat-stream-sub').textContent = 'Limit reached';
+          }
           btn.disabled = false; btn.textContent = 'Run →';
           return;
         }
 
-        gsap.to('#stat-results', { textContent: data.count, duration: 0.5, ease: 'power2.out' });
-        gsap.to('#stat-matches', { textContent: data.count, duration: 0.5, ease: 'power2.out' });
-        gsap.to('#results-count-badge', { textContent: `${data.count} events`, duration: 0.5, ease: 'power2.out' });
-        gsap.to('#stat-stream', { textContent: 'Complete', onComplete: () => { document.getElementById('stat-stream-sub').textContent = 'Done'; }});
+        if (typeof gsap !== 'undefined') {
+          gsap.to('#stat-results', { textContent: data.count, duration: 0.5, ease: 'power2.out' });
+          gsap.to('#stat-matches', { textContent: data.count, duration: 0.5, ease: 'power2.out' });
+          gsap.to('#results-count-badge', { textContent: `${data.count} events`, duration: 0.5, ease: 'power2.out' });
+          gsap.to('#stat-stream', { textContent: 'Complete', onComplete: () => { document.getElementById('stat-stream-sub').textContent = 'Done'; }});
+        } else {
+          document.getElementById('stat-results').textContent = data.count;
+          document.getElementById('stat-matches').textContent = data.count;
+          document.getElementById('results-count-badge').textContent = `${data.count} events`;
+          document.getElementById('stat-stream').textContent = 'Complete';
+          document.getElementById('stat-stream-sub').textContent = 'Done';
+        }
 
         // Update graph
-        updateGraph(seed, data.hits);
+        if (typeof window.updateGraph !== 'undefined') updateGraph(seed, data.hits);
 
         // Feed entries with stagger
         feed.innerHTML = '';
@@ -664,16 +638,27 @@
                 ${dataHtml}
               </div>
             `;
-            // Stagger entrance
-            gsap.fromTo(el, { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.4, ease: 'power2.out', delay: idx * 0.08 });
+            if (typeof gsap !== 'undefined') {
+              gsap.fromTo(el, { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.4, ease: 'power2.out', delay: idx * 0.08 });
+            } else {
+              el.style.opacity = '1';
+              el.style.transform = 'translateY(0)';
+            }
             feed.appendChild(el);
           });
         }
       } catch (e) {
         feed.innerHTML = `<div style="color: var(--danger); font-family: var(--mono); font-size: 11px;">Network error: ${e.message}</div>`;
-        gsap.to('#stat-stream', { textContent: 'Error', onComplete: () => { document.getElementById('stat-stream-sub').textContent = 'Network error'; }});
+        if (typeof gsap !== 'undefined') {
+          gsap.to('#stat-stream', { textContent: 'Error', onComplete: () => { document.getElementById('stat-stream-sub').textContent = 'Network error'; }});
+        } else {
+          document.getElementById('stat-stream').textContent = 'Error';
+          document.getElementById('stat-stream-sub').textContent = 'Network error';
+        }
       } finally {
-        gsap.to(btn, { scale: 1, duration: 0.2 });
+        if (typeof gsap !== 'undefined') {
+          gsap.to(btn, { scale: 1, duration: 0.2 });
+        }
         btn.disabled = false;
         btn.textContent = 'Run →';
       }
@@ -684,12 +669,21 @@
 
     // --- Open/close graph panel with tween ---
     window.openGraph = () => {
-      gsap.to('#graph-panel', { right: 0, duration: 0.4, ease: 'power3.out' });
-      // Animate badge
-      gsap.fromTo('#graph-badge', { opacity: 0, scale: 0.8 }, { opacity: 1, scale: 1, duration: 0.3, ease: 'back.out(1.7)' });
+      if (typeof gsap !== 'undefined') {
+        gsap.to('#graph-panel', { right: 0, duration: 0.4, ease: 'power3.out' });
+        if (typeof gsap !== 'undefined') {
+          gsap.fromTo('#graph-badge', { opacity: 0, scale: 0.8 }, { opacity: 1, scale: 1, duration: 0.3, ease: 'back.out(1.7)' });
+        }
+      } else {
+        document.getElementById('graph-panel').style.right = '0';
+      }
     };
     window.closeGraph = () => {
-      gsap.to('#graph-panel', { right: '-450px', duration: 0.4, ease: 'power3.in' });
+      if (typeof gsap !== 'undefined') {
+        gsap.to('#graph-panel', { right: '-450px', duration: 0.4, ease: 'power3.in' });
+      } else {
+        document.getElementById('graph-panel').style.right = '-450px';
+      }
     };
 
     // --- Create key system ---
@@ -701,21 +695,27 @@
 
     function showKeyCreation() {
       keyCreationOverlay.classList.add('active');
-      // Trigger entrance animation
-      gsap.fromTo(keyCreationBox, { opacity: 0, scale: 0.9 }, { opacity: 1, scale: 1, duration: 0.35, ease: 'power3.out' });
+      if (typeof gsap !== 'undefined') {
+        gsap.fromTo(keyCreationBox, { opacity: 0, scale: 0.9 }, { opacity: 1, scale: 1, duration: 0.35, ease: 'power3.out' });
+      } else {
+        keyCreationOverlay.classList.add('active');
+      }
       keyInput.focus();
     }
 
     function hideKeyCreation() {
       keyCreationOverlay.classList.remove('active');
-      gsap.to(keyCreationBox, { opacity: 0, scale: 0.9, duration: 0.25, ease: 'power3.in', onComplete: () => { keyCreationOverlay.classList.remove('active'); } });
+      if (typeof gsap !== 'undefined') {
+        gsap.to(keyCreationBox, { opacity: 0, scale: 0.9, duration: 0.25, ease: 'power3.in', onComplete: () => { keyCreationOverlay.classList.remove('active'); } });
+      } else {
+        keyCreationOverlay.classList.remove('active');
+      }
     }
 
     function showStatus(isOk, message) {
       const status = isOk ? keyGenStatus : keyGenStatusErr;
       status.querySelector('div').textContent = message;
       status.style.display = 'block';
-      // Auto-hide after 3s
       setTimeout(() => { status.style.display = 'none'; }, 3000);
     }
 
@@ -728,38 +728,40 @@
       }
       keyInput.classList.remove('invalid');
 
-      // Simulate key generation with GSAP progress
       keyGenStatus.style.display = 'none';
       keyGenStatusErr.style.display = 'none';
       
-      // Show generating state
       keyGenStatus.querySelector('div').textContent = 'Generating...';
       keyGenStatus.style.display = 'block';
 
       try {
-        // In a real implementation, this would call the backend
-        // For now, simulate with a client-side key bind
         localStorage.setItem('volume_token', value);
         showStatus(true, 'Key activated successfully');
-        gsap.to('#user-name', { textContent: value.split('-')[1] || 'operator', duration: 0.2 });
-        gsap.to('#user-quota', { textContent: 'PREMIUM · 9999 CREDITS', duration: 0.2 });
-        gsap.to('#topbar-tier', { textContent: 'PREMIUM · 9999', duration: 0.2 });
-        gsap.to('#stat-plan', { textContent: 'PREMIUM', duration: 0.2 });
+        if (typeof gsap !== 'undefined') {
+          gsap.to('#user-name', { textContent: value.split('-')[1] || 'operator', duration: 0.2 });
+          gsap.to('#user-quota', { textContent: 'PREMIUM · 9999 CREDITS', duration: 0.2 });
+          gsap.to('#topbar-tier', { textContent: 'PREMIUM · 9999', duration: 0.2 });
+          gsap.to('#stat-plan', { textContent: 'PREMIUM', duration: 0.2 });
+        } else {
+          document.getElementById('user-name').textContent = value.split('-')[1] || 'operator';
+          document.getElementById('user-quota').textContent = 'PREMIUM · 9999 CREDITS';
+          document.getElementById('topbar-tier').textContent = 'PREMIUM · 9999';
+          document.getElementById('stat-plan').textContent = 'PREMIUM';
+        }
         hideKeyCreation();
-        // Show success pulse
-        gsap.to('.status-dot', { opacity: 1, boxShadow: '0 0 12px var(--accent)', duration: 0.3 });
-        setTimeout(() => { gsap.to('.status-dot', { opacity: 0.5, boxShadow: '0 0 8px var(--accent)', duration: 1.5 }); }, 2000);
+        if (typeof gsap !== 'undefined') {
+          gsap.to('.status-dot', { opacity: 1, boxShadow: '0 0 12px var(--accent)', duration: 0.3 });
+          setTimeout(() => { gsap.to('.status-dot', { opacity: 0.5, boxShadow: '0 0 8px var(--accent)', duration: 1.5 }); }, 2000);
+        }
       } catch (e) {
         showStatus(false, 'Failed to activate key: ' + e.message);
       }
     };
 
-    // --- Click outside overlay to close ---
     keyCreationOverlay.addEventListener('click', (e) => {
       if (e.target === keyCreationOverlay) hideKeyCreation();
     });
 
-    // --- Keyboard ESC to close ---
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape' && keyCreationOverlay.classList.contains('active')) hideKeyCreation();
     });
@@ -767,7 +769,6 @@
     // --- Initial UI state ---
     updateUIState('email');
 
-    // --- Focus trap for overlay (simple) ---
     keyCreationBox.addEventListener('click', (e) => e.stopPropagation());
 
   })();
