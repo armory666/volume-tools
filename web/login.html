@@ -32,6 +32,7 @@
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
     html, body { height: 100%; }
+    html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
     
     body {
       font-family: var(--sans);
@@ -41,6 +42,7 @@
       align-items: center;
       justify-content: center;
       min-height: 100vh;
+      min-height: 100dvh;
       overflow: hidden;
       -webkit-font-smoothing: antialiased;
       background-image: 
@@ -267,6 +269,18 @@
       font-weight: 600;
       color: var(--accent);
       letter-spacing: 0.2em;
+    }
+
+    /* Small screens / short viewports: keep the panel from feeling zoomed in */
+    @media (max-width: 480px) {
+      body { padding: 16px; align-items: flex-start; overflow-y: auto; }
+      .login-panel { padding: 30px 22px; border-radius: 12px; margin: auto 0; }
+      .brand { margin-bottom: 24px; }
+      h1 { font-size: 22px; }
+    }
+    @media (max-height: 640px) {
+      body { align-items: flex-start; overflow-y: auto; }
+      .login-panel { margin: 20px 0; }
     }
   </style>
 </head>

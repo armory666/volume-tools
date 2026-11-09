@@ -32,10 +32,11 @@
   }
   *{box-sizing:border-box;margin:0;padding:0}
   html,body{height:100%;overflow:hidden}
+  html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
   body{
     font-family:var(--sans);background:var(--bg);color:var(--fg);
     -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;
-    min-height:100vh;letter-spacing:-0.01em;
+    min-height:100vh;min-height:100dvh;letter-spacing:-0.01em;
   }
   body::before{
     content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
@@ -352,6 +353,14 @@
     .nav-item{margin:0;white-space:nowrap}
     .cove-main{padding:20px 16px}
     .cove-header h2{font-size:18px}
+  }
+  @media (max-width:560px){
+    .landing{padding:16px}
+    .warning-panel{padding:24px 18px}
+    .cove-main{padding:16px 12px}
+    .cove-header h2{font-size:16px}
+    .btn{width:100%}
+    .case-list{max-height:none}
   }
 </style>
 </head>
