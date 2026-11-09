@@ -832,7 +832,7 @@
       let data = null;
       try {
         const controller = new AbortController();
-        const timer = setTimeout(() => controller.abort(), 4200);
+        const timer = setTimeout(() => controller.abort(), 3000);
         const res = await fetch(API + '/api/pivot', {
           method: 'POST',
           headers: { 'content-type': 'application/json', authorization: 'Bearer ' + TOKEN },
@@ -937,10 +937,62 @@
     });
 
     /* ------------------------------------------------------------
+       Auto-demo — show a populated console as if a lookup was run
+       ------------------------------------------------------------ */
+    const sampleQueries = {
+      email: 'operator@example.com',
+      phone: '+31612345678',
+      username: 'operator',
+      domain: 'example.com',
+      ip: '203.0.113.42'
+    };
+    let autoDemoTimer = null;
+    let autoDemoCancelled = false;
+
+    function cancelAutoDemo() {
+      autoDemoCancelled = true;
+      clearTimeout(autoDemoTimer);
+    }
+
+    function demoAlreadyShown() {
+      try { return sessionStorage.getItem('volume_demo_shown') === '1'; }
+      catch (_) { return false; }
+    }
+    function markDemoShown() {
+      try { sessionStorage.setItem('volume_demo_shown', '1'); } catch (_) {}
+    }
+
+    function scheduleAutoDemo() {
+      if (demoAlreadyShown()) return;
+      autoDemoTimer = setTimeout(async () => {
+        if (autoDemoCancelled || running || document.hidden) return;
+        const seed = sampleQueries[currentKind] || 'operator@example.com';
+        searchInput.value = '';
+        for (let i = 1; i <= seed.length; i++) {
+          if (autoDemoCancelled || running) { searchInput.value = ''; return; }
+          searchInput.value = seed.slice(0, i);
+          await sleep(38);
+        }
+        if (autoDemoCancelled || running) return;
+        markDemoShown();
+        runSearch();
+      }, 1100);
+    }
+
+    ['focus', 'keydown', 'input', 'pointerdown'].forEach((evt) =>
+      searchInput.addEventListener(evt, cancelAutoDemo)
+    );
+    document.querySelectorAll('.nav-item[data-type], .chip').forEach((el) =>
+      el.addEventListener('click', cancelAutoDemo)
+    );
+    $('search-btn').addEventListener('click', cancelAutoDemo);
+
+    /* ------------------------------------------------------------
        Init
        ------------------------------------------------------------ */
     updateUIState('email');
     setStream('Ready', 'Idle');
+    scheduleAutoDemo();
 
   })();
   </script>
