@@ -140,13 +140,13 @@
     .side-btn {
       display: flex; align-items: center; justify-content: center; gap: 8px;
       width: 100%; padding: 9px 14px; margin-top: 8px;
-      background: transparent; border: 1px solid var(--border-2); border-radius: 8px;
-      color: var(--fg-2); font-family: var(--mono); font-size: 10px;
-      text-decoration: none; text-transform: uppercase; letter-spacing: 0.06em;
+      background: transparent; border: 1px solid var(--border-2); border-radius: 9px;
+      color: var(--fg-2); font-family: var(--sans); font-size: 11.5px; font-weight: 600;
+      text-decoration: none; letter-spacing: -0.005em;
       cursor: pointer; transition: all var(--t);
     }
-    .side-btn:hover { background: var(--card); color: var(--accent); border-color: var(--accent-2); transform: translateY(-1px); }
-    .side-btn.primary { background: rgba(110,231,168,0.08); border-color: rgba(110,231,168,0.3); color: var(--accent); }
+    .side-btn:hover { background: rgba(255,255,255,0.06); color: var(--fg); border-color: var(--border-2); transform: translateY(-1px); }
+    .side-btn.primary { background: rgba(110,231,168,0.08); border-color: rgba(110,231,168,0.28); color: var(--accent); }
     .side-btn.primary:hover { background: rgba(110,231,168,0.14); }
 
     .main-content { flex: 1; display: flex; flex-direction: column; min-width: 0; position: relative; z-index: 10; }
@@ -166,26 +166,27 @@
     .search-section { padding: 26px 28px; border-bottom: 1px solid var(--border); background: linear-gradient(180deg, rgba(15, 20, 16, 0.32) 0%, transparent 100%); }
     .search-title { font-size: clamp(20px, 2.2vw, 24px); font-weight: 600; margin-bottom: 16px; letter-spacing: -0.02em; display: flex; align-items: center; gap: 12px; }
     .search-title::after { content: ""; flex: 1; height: 1px; background: linear-gradient(90deg, var(--border-2), transparent); }
-    .search-box-wrap { display: flex; gap: 8px; background: var(--card); border: 1px solid var(--border-2); border-radius: 10px; padding: 7px; box-shadow: 0 8px 30px rgba(0,0,0,0.4); transition: all var(--t); position: relative; }
+    .search-box-wrap { display: flex; gap: 8px; background: var(--card); border: 1px solid var(--border-2); border-radius: 12px; padding: 6px; box-shadow: 0 8px 30px rgba(0,0,0,0.4); transition: all var(--t); position: relative; }
     .search-box-wrap:focus-within { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(110,231,168,0.1), 0 8px 30px rgba(0,0,0,0.5); }
     .search-input { flex: 1; min-width: 0; padding: 11px 14px; background: transparent; border: none; color: var(--fg); font-family: var(--mono); font-size: 14px; outline: none; }
     .search-input::placeholder { color: var(--dim); }
-    .btn-run { padding: 0 28px; background: var(--fg); color: #000; border: none; border-radius: 6px; font-family: var(--mono); font-weight: 600; font-size: 13px; cursor: pointer; transition: all var(--t); display: flex; align-items: center; gap: 8px; position: relative; overflow: hidden; white-space: nowrap; }
-    .btn-run::after { content: ""; position: absolute; top: 0; left: -100%; width: 100%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent); transition: left 0.5s ease; }
-    .btn-run:hover { background: var(--accent); box-shadow: 0 4px 12px rgba(110,231,168,0.2); }
+    .btn-run { padding: 0 24px; min-height: 44px; background: var(--fg); color: #050807; border: none; border-radius: 10px; font-family: var(--sans); font-weight: 600; font-size: 13px; letter-spacing: -0.01em; cursor: pointer; transition: all var(--t); display: flex; align-items: center; gap: 8px; position: relative; overflow: hidden; white-space: nowrap; }
+    .btn-run::after { content: ""; position: absolute; top: 0; left: -100%; width: 100%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.25), transparent); transition: left 0.5s ease; }
+    .btn-run:hover { background: #fff; transform: translateY(-1px); box-shadow: 0 10px 30px rgba(0,0,0,0.35), 0 0 0 1px rgba(110,231,168,0.25); }
     .btn-run:hover::after { left: 100%; }
-    .btn-run:active { transform: translateY(1px); }
-    .btn-run:disabled { opacity: 0.75; cursor: wait; }
+    .btn-run:active { transform: translateY(0) scale(0.99); }
+    .btn-run:disabled { opacity: 0.75; cursor: wait; transform: none; }
     .filter-chips { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 14px; }
-    .chip { padding: 6px 13px; background: transparent; border: 1px solid var(--border-2); border-radius: 100px; color: var(--dim); font-family: var(--mono); font-size: 11px; cursor: pointer; transition: all var(--t); display: flex; align-items: center; gap: 7px; }
-    .chip:hover { border-color: var(--fg-2); color: var(--fg); }
-    .chip.active { background: rgba(110, 231, 168, 0.1); border-color: var(--accent); color: var(--accent); box-shadow: 0 0 15px rgba(110,231,168,0.1); font-weight: 500; }
+    .chip { padding: 7px 12px; background: transparent; border: 1px solid var(--border-2); border-radius: 9px; color: var(--dim); font-family: var(--sans); font-size: 11.5px; font-weight: 500; cursor: pointer; transition: all var(--t); display: flex; align-items: center; gap: 7px; }
+    .chip:hover { background: rgba(255,255,255,0.04); border-color: var(--border-2); color: var(--fg); }
+    .chip.active { background: rgba(110, 231, 168, 0.09); border-color: rgba(110,231,168,0.55); color: var(--accent); box-shadow: 0 0 0 1px rgba(110,231,168,0.08); font-weight: 600; }
+    .btn-run:focus-visible, .chip:focus-visible, .side-btn:focus-visible, .key-btn:focus-visible, .btn-sm:focus-visible, .nav-item:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
     /* ==========================================
        STATS
        ========================================== */
     .stats-row { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 12px; padding: 18px 28px; border-bottom: 1px solid var(--border); }
-    .stat-card { background: rgba(15, 20, 16, 0.82); border: 1px solid var(--border); border-radius: 10px; padding: 16px; transition: all var(--t); position: relative; overflow: hidden; }
+    .stat-card { background: rgba(15, 20, 16, 0.82); border: 1px solid var(--border); border-radius: 12px; padding: 16px; transition: all var(--t); position: relative; overflow: hidden; }
     .stat-card::before { content: ""; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: var(--border-2); transition: background var(--t); }
     .stat-card:hover { border-color: var(--border-2); transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,0,0,0.3); }
     .stat-card:hover::before { background: var(--accent-2); }
@@ -207,8 +208,8 @@
     .rtab:hover { color: var(--fg-2); }
     .rtab.active { color: var(--fg); border-bottom-color: var(--accent); }
     .results-actions { margin-left: auto; display: flex; gap: 7px; }
-    .btn-sm { background: transparent; border: 1px solid var(--border-2); color: var(--dim); padding: 5px 10px; border-radius: 6px; font-family: var(--mono); font-size: 9px; cursor: pointer; text-transform: uppercase; transition: all var(--t); }
-    .btn-sm:hover { color: var(--fg); border-color: var(--fg); }
+    .btn-sm { background: transparent; border: 1px solid var(--border-2); color: var(--dim); padding: 5px 10px; border-radius: 7px; font-family: var(--mono); font-size: 9px; cursor: pointer; text-transform: uppercase; transition: all var(--t); }
+    .btn-sm:hover { background: rgba(255,255,255,0.04); color: var(--fg); border-color: var(--fg-2); }
     .empty-view { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; background: radial-gradient(circle at center, rgba(110, 231, 168, 0.03) 0%, transparent 70%); padding: 24px; text-align: center; }
     .empty-icon { width: 56px; height: 56px; border: 1px solid var(--border-2); border-radius: 12px; display: grid; place-items: center; font-size: 24px; color: var(--dim); margin-bottom: 16px; background: var(--card); box-shadow: 0 10px 30px rgba(0,0,0,0.5); animation: float 4s ease-in-out infinite; }
     @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
@@ -258,11 +259,11 @@
     .key-status.ok { background: rgba(110,231,168,0.1); color: var(--accent); border: 1px solid rgba(110,231,168,0.3); display: block; }
     .key-status.err { background: rgba(237,66,69,0.1); color: var(--danger); border: 1px solid rgba(237,66,69,0.3); display: block; }
     .key-btns { display: flex; gap: 10px; margin-top: 18px; justify-content: flex-end; }
-    .key-btn { padding: 9px 16px; border: none; border-radius: 7px; font-family: var(--mono); font-size: 11px; font-weight: 600; cursor: pointer; transition: all var(--t); min-width: 96px; }
+    .key-btn { padding: 10px 16px; border: none; border-radius: 9px; font-family: var(--sans); font-size: 12px; font-weight: 600; cursor: pointer; transition: all var(--t); min-width: 96px; }
     .key-btn.cancel { background: transparent; color: var(--fg-2); border: 1px solid var(--border-2); }
-    .key-btn.cancel:hover { background: rgba(255,255,255,0.03); color: var(--fg); }
-    .key-btn.create { background: var(--accent); color: #062a17; }
-    .key-btn.create:hover { background: var(--accent-2); box-shadow: 0 4px 12px rgba(110,231,168,0.3); }
+    .key-btn.cancel:hover { background: rgba(255,255,255,0.05); color: var(--fg); }
+    .key-btn.create { background: var(--fg); color: #050807; box-shadow: 0 6px 20px rgba(0,0,0,0.3); }
+    .key-btn.create:hover { background: #fff; transform: translateY(-1px); box-shadow: 0 10px 26px rgba(0,0,0,0.4), 0 0 0 1px rgba(110,231,168,0.25); }
 
     /* ==========================================
        ANIMATIONS
@@ -431,7 +432,7 @@
         <h1 class="search-title" id="search-title">Email intelligence</h1>
         <div class="search-box-wrap">
           <input type="text" id="search-input" class="search-input" placeholder="Enter an email address" autocomplete="off" spellcheck="false" autofocus>
-          <button id="search-btn" class="btn-run">Run →</button>
+          <button id="search-btn" class="btn-run">Search →</button>
         </div>
         <div class="filter-chips">
           <div class="chip active" data-type="email">📧 Email</div>
@@ -809,7 +810,7 @@
 
       const btn = $('search-btn');
       btn.disabled = true;
-      btn.textContent = 'Scanning…';
+      btn.textContent = 'Searching…';
       emptyView.style.display = 'none';
       feed.style.display = 'flex';
       feed.innerHTML = '';
@@ -870,7 +871,7 @@
 
       running = false;
       btn.disabled = false;
-      btn.textContent = 'Run →';
+      btn.textContent = 'Search →';
     }
 
     $('search-btn').addEventListener('click', runSearch);
@@ -979,7 +980,7 @@
       }, 1100);
     }
 
-    ['focus', 'keydown', 'input', 'pointerdown'].forEach((evt) =>
+    ['keydown', 'input', 'pointerdown'].forEach((evt) =>
       searchInput.addEventListener(evt, cancelAutoDemo)
     );
     document.querySelectorAll('.nav-item[data-type], .chip').forEach((el) =>
