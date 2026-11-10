@@ -6,6 +6,6 @@
     { "source": "/app", "destination": "/index.html" },
     { "source": "/1995", "destination": "/1995.html" },
     { "source": "/upgrade", "destination": "/dashboard.html" },
-    { "source": "/api/:path*", "destination": "https://volume-api.onrender.com/api/:path*" }
+    { "source": "/api/:path*", "destination": "https://volume-tools-2.onrender.com/api/:path*" }
   ]
 }
