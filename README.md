@@ -637,8 +637,12 @@ return them in a response.
 
 1. Push the repository.
 2. Create a Render service from `render.yaml` (or use the start command
-   `uvicorn api.main:app --host 0.0.0.0 --port $PORT`).
+   `python -m uvicorn api.main:app --host 0.0.0.0 --port $PORT`).
 3. Create a Neon Postgres database and set `DATABASE_URL` on Render.
+   If `DATABASE_URL` is set but unreachable, the API logs the error and falls
+   back to SQLite for that instance so the service still boots; `/api/health`
+   then reports `"database": "sqlite"` and a `database_fallback` reason. Data on
+   that fallback is ephemeral, so fix the URL before inviting real users.
 4. Set `VOLUME_PUBLIC_URL`, `VOLUME_WEB_ORIGINS`, `VOLUME_ADMIN_EMAILS`, and the
    email provider secrets.
 5. If Render gives the service a different hostname than

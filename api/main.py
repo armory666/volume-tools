@@ -223,15 +223,19 @@ def owned_case(user: dict, case_id: str) -> dict:
 @app.get("/api/health")
 @app.get("/health", include_in_schema=False)
 def health():
-    return {
+    reason = db.fallback_reason()
+    payload = {
         "ok": True,
         "app": settings.APP_NAME,
         "version": settings.VERSION,
-        "database": "postgres" if settings.IS_POSTGRES else "sqlite",
+        "database": db.backend(),
         "database_ok": db.healthy(),
         "modules": len(modules_api.REGISTRY),
         "email": emailer.config()["provider"],
     }
+    if reason:
+        payload["database_fallback"] = reason
+    return payload
 
 
 @app.get("/api/config")
@@ -741,7 +745,7 @@ def admin_overview(_admin: dict = Depends(admin_guard)):
         "cases": cases["n"],
         "modules": len(modules_api.REGISTRY),
         "modules_disabled": disabled["n"],
-        "database": "postgres" if settings.IS_POSTGRES else "sqlite",
+        "database": db.backend(),
         "email": emailer.config(),
         "version": settings.VERSION,
     }

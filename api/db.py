@@ -17,6 +17,21 @@ SQLITE_PATH = Path(
 
 _local = threading.local()
 
+# If DATABASE_URL is set but unreachable, log loudly and serve this instance on
+# SQLite instead of crash-looping the whole service. Data is then ephemeral,
+# which is still better than a deployment that never binds a port.
+_forced_sqlite = False
+_fallback_reason = ""
+
+
+def backend() -> str:
+    """The database actually in use right now."""
+    return "sqlite" if (_forced_sqlite or not settings.IS_POSTGRES) else "postgresql"
+
+
+def fallback_reason() -> str:
+    return _fallback_reason
+
 SCHEMA = """
 CREATE TABLE IF NOT EXISTS users (
     id TEXT PRIMARY KEY,
@@ -203,11 +218,11 @@ def _postgres_conn():
 
 
 def _translate(sql: str) -> str:
-    return sql.replace("?", "%s") if settings.IS_POSTGRES else sql
+    return sql.replace("?", "%s") if backend() == "postgresql" else sql
 
 
 def query(sql: str, params: tuple | list = ()) -> list[dict]:
-    if settings.IS_POSTGRES:
+    if backend() == "postgresql":
         conn = _postgres_conn()
         with conn.cursor() as cur:
             cur.execute(_translate(sql), tuple(params))
@@ -227,7 +242,7 @@ def query_one(sql: str, params: tuple | list = ()) -> dict | None:
 
 
 def execute(sql: str, params: tuple | list = ()) -> int:
-    if settings.IS_POSTGRES:
+    if backend() == "postgresql":
         conn = _postgres_conn()
         with conn.cursor() as cur:
             cur.execute(_translate(sql), tuple(params))
@@ -239,6 +254,18 @@ def execute(sql: str, params: tuple | list = ()) -> int:
 
 
 def init() -> None:
+    global _forced_sqlite, _fallback_reason
+    if settings.IS_POSTGRES and not _forced_sqlite:
+        try:
+            _postgres_conn()
+        except Exception as exc:  # bad host, auth failure, SSL, timeout...
+            _forced_sqlite = True
+            _fallback_reason = f"{type(exc).__name__}: {exc}"
+            print(
+                "[db] DATABASE_URL is unreachable, falling back to SQLite for this "
+                f"instance. Fix DATABASE_URL to persist data. Reason: {_fallback_reason}",
+                flush=True,
+            )
     for statement in SCHEMA.split(";"):
         statement = statement.strip()
         if not statement:
