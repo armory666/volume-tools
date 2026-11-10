@@ -11,3 +11,14 @@ reportlab>=4.0.0
 
 # Optional: enables EXIF/GPS extraction in Image Metadata
 Pillow>=10.0.0
+
+# --- Web API ----------------------------------------------------------------
+fastapi>=0.115.0
+uvicorn[standard]>=0.32.0
+
+# PostgreSQL in production (Render + Neon). SQLite is used automatically when
+# DATABASE_URL is unset, so this is optional for local development.
+psycopg[binary]>=3.2.0
+
+# WebAuthn / passkeys
+webauthn>=2.5.0

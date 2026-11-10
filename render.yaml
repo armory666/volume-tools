@@ -1,0 +1,56 @@
+# Render blueprint for the VOLUME web API.
+#
+# 1. Create the service from this file (New > Blueprint) or point Render at the
+#    repository and use these values manually.
+# 2. Create a free Neon Postgres database and paste its connection string into
+#    DATABASE_URL. SQLite is used only when DATABASE_URL is empty.
+# 3. Set the email provider secrets. The API starts in console mode without
+#    them, which prints sign-in codes to the Render logs.
+#
+# If Render assigns a different hostname than volume-api.onrender.com, update
+# the /api rewrite in web/vercel.json (or set window.VOLUME_API_BASE before the
+# page scripts load).
+
+services:
+  - type: web
+    name: volume-api
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn api.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/health
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.6
+      - key: PYTHONPATH
+        value: .
+      - key: DATABASE_URL
+        sync: false
+      - key: VOLUME_PUBLIC_URL
+        sync: false
+      - key: VOLUME_WEB_ORIGINS
+        sync: false
+      - key: VOLUME_ADMIN_EMAILS
+        sync: false
+      - key: VOLUME_ADMIN_KEY
+        sync: false
+      - key: VOLUME_EMAIL_PROVIDER
+        value: console
+      - key: VOLUME_DEV_CODES
+        value: "false"
+      - key: VOLUME_EMAIL_FROM
+        sync: false
+      - key: VOLUME_SMTP_HOST
+        sync: false
+      - key: VOLUME_SMTP_PORT
+        sync: false
+      - key: VOLUME_SMTP_USER
+        sync: false
+      - key: VOLUME_SMTP_PASSWORD
+        sync: false
+      - key: RESEND_API_KEY
+        sync: false
+      - key: VOLUME_WEBAUTHN_RP_ID
+        sync: false
+      - key: VOLUME_WEBAUTHN_ORIGIN
+        sync: false

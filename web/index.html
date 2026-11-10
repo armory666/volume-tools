@@ -216,7 +216,7 @@
     .empty-title { font-size: 16px; font-weight: 600; color: var(--fg); margin-bottom: 8px; }
     .empty-sub { font-size: 13px; color: var(--dim); max-width: 360px; }
     .result-feed { flex: 1; overflow-y: auto; padding: 24px 28px; display: flex; flex-direction: column; gap: 12px; }
-    .feed-item { background: rgba(15, 20, 16, 0.9); border: 1px solid var(--border); border-radius: 10px; padding: 18px; transition: all var(--t); position: relative; overflow: hidden; }
+    .feed-item { background: rgba(15, 20, 16, 0.9); border: 1px solid var(--border); border-radius: 10px; padding: 18px; transition: all var(--t); position: relative; overflow: hidden; flex: 0 0 auto; }
     .feed-item:hover { border-color: var(--accent-2); box-shadow: 0 8px 30px rgba(0,0,0,0.4); transform: translateY(-2px); }
     .feed-item::after { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: var(--accent); opacity: 0; transition: opacity var(--t); }
     .feed-item:hover::after { opacity: 1; }
@@ -230,9 +230,9 @@
     .fi-data .k { color: var(--dim); }
     .fi-data .v { color: var(--fg-2); word-break: break-all; }
     .fi-data .v.highlight { color: var(--fg); font-weight: 500; font-size: 14px; grid-column: 2; padding-bottom: 8px; border-bottom: 1px solid var(--border); margin-bottom: 3px; }
-    .scan-line { font-family: var(--mono); font-size: 11px; color: var(--dim); display: flex; gap: 10px; align-items: center; padding: 2px 0; }
+    .scan-line { font-family: var(--mono); font-size: 11px; color: var(--dim); display: flex; gap: 10px; align-items: center; padding: 2px 0; flex: 0 0 auto; }
     .scan-line .spark { width: 5px; height: 5px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 10px var(--accent); animation: pulse 1s infinite; }
-    .demo-note { font-family: var(--mono); font-size: 10px; color: var(--warn); border: 1px dashed rgba(232,162,74,0.35); background: rgba(232,162,74,0.06); border-radius: 8px; padding: 8px 12px; margin-bottom: 4px; }
+    .demo-note { font-family: var(--mono); font-size: 10px; color: var(--warn); border: 1px dashed rgba(232,162,74,0.35); background: rgba(232,162,74,0.06); border-radius: 8px; padding: 8px 12px; margin-bottom: 4px; flex: 0 0 auto; }
 
     /* ==========================================
        GRAPH PANEL
@@ -241,7 +241,7 @@
     .graph-header { height: 56px; flex-shrink: 0; border-bottom: 1px solid var(--border); display: flex; align-items: center; padding: 0 20px; font-family: var(--mono); font-size: 12px; font-weight: 600; color: var(--fg); background: rgba(0,0,0,0.2); }
     .graph-close { margin-left: auto; cursor: pointer; color: var(--dim); width: 28px; height: 28px; display: grid; place-items: center; border-radius: 6px; transition: all var(--t); }
     .graph-close:hover { color: var(--fg); background: var(--card); }
-    #network { flex: 1; background: transparent; outline: none; }
+    #network { flex: 1; min-height: 0; position: relative; overflow: hidden; background: transparent; outline: none; }
 
     /* ==========================================
        KEY CREATION
@@ -409,7 +409,9 @@
           </div>
           <div class="status-pill"><div class="status-dot"></div> Online</div>
         </div>
-        <button class="side-btn primary" id="create-key-btn">🔑 Create Key</button>
+        <button class="side-btn primary" id="create-key-btn">🔑 Redeem access key</button>
+        <a href="/dashboard.html" class="side-btn"><span>▦</span> Dashboard</a>
+        <a href="/dashboard.html#admin" class="side-btn" id="admin-link" style="display:none"><span>⚙</span> Admin console</a>
         <a href="/home.html" class="side-btn"><span>←</span> Return to Home</a>
       </div>
     </aside>
@@ -481,6 +483,7 @@
           <div class="results-actions">
             <button class="btn-sm" id="btn-all">All</button>
             <button class="btn-sm" id="btn-matches">Matches</button>
+            <button class="btn-sm" id="btn-save">Save case</button>
             <button class="btn-sm" id="btn-clear">Clear</button>
           </div>
         </div>
@@ -507,13 +510,13 @@
   <!-- Create Key overlay -->
   <div class="key-creation-overlay" id="keyCreationOverlay">
     <div class="key-creation-box">
-      <h2 class="key-title">Create API Key</h2>
-      <span class="key-hint">Generate a new HWID-bound key for this session</span>
+      <h2 class="key-title">Redeem access key</h2>
+      <span class="key-hint">Enter a VOLUME key to raise your tier and add credits</span>
       <input type="text" class="key-input" id="keyInput" placeholder="VOL-XXXX-XXXX-XXXX" autocomplete="off" spellcheck="false">
       <div class="key-status" id="keyStatus"></div>
       <div class="key-btns">
         <button class="key-btn cancel" id="keyCancel">Cancel</button>
-        <button class="key-btn create" id="keyCreate">Generate</button>
+        <button class="key-btn create" id="keyCreate">Redeem</button>
       </div>
     </div>
   </div>
@@ -523,7 +526,12 @@
     'use strict';
 
     const TOKEN = localStorage.getItem('volume_token');
-    const API = window.location.hostname === 'localhost' ? 'http://localhost:8000' : 'https://volume-tools-2.onrender.com';
+    const API = window.VOLUME_API_BASE ||
+      ((['localhost', '127.0.0.1'].includes(location.hostname) && location.port !== '8000')
+        ? 'http://localhost:8000'
+        : '');
+    if (!TOKEN) location.replace('/login');
+    const AUTH = () => ({ authorization: 'Bearer ' + localStorage.getItem('volume_token') });
     const $ = (id) => document.getElementById(id);
     const sleep = (ms) => new Promise(r => setTimeout(r, ms));
 
@@ -563,22 +571,56 @@
     $('menu-btn')?.addEventListener('click', () => sidebar.classList.toggle('open'));
 
     /* ------------------------------------------------------------
-       Profile
+       Profile + module catalogue
        ------------------------------------------------------------ */
-    if (TOKEN) {
-      fetch(API + '/api/me', { headers: { authorization: 'Bearer ' + TOKEN } })
-        .then(r => r.ok ? r.json() : null)
-        .then(d => {
-          if (!d) return;
-          const name = d.email ? d.email.split('@')[0] : 'operator';
-          const tier = (d.tier || 'free').toUpperCase();
-          const quota = d.quota ? (d.quota.daily_limit - d.quota.used_today) : 15;
-          $('user-name').textContent = name;
-          $('user-quota').textContent = tier + ' · ' + quota + ' CREDITS';
-          $('topbar-tier').textContent = tier + ' · ' + quota;
-          $('stat-plan').textContent = tier;
-        })
-        .catch(() => {});
+    let moduleCatalog = {};
+
+    async function loadProfile() {
+      try {
+        const res = await fetch(API + '/api/me', { headers: AUTH() });
+        if (res.status === 401) {
+          localStorage.removeItem('volume_token');
+          location.replace('/login');
+          return;
+        }
+        if (!res.ok) return;
+        const d = await res.json();
+        const name = d.email ? d.email.split('@')[0] : 'operator';
+        const tier = (d.tier || 'FREE').toUpperCase();
+        const remaining = d.admin ? 'unlimited' : (d.quota ? d.quota.remaining : 15);
+        $('user-name').textContent = name;
+        $('user-quota').textContent = tier + ' · ' + d.credits + ' CREDITS';
+        $('topbar-tier').textContent = tier + ' · ' + remaining;
+        $('stat-plan').textContent = tier;
+        $('stat-plan-sub').textContent = d.admin ? 'unlimited searches' : remaining + ' searches left today';
+        if (d.admin) {
+          const link = $('admin-link');
+          if (link) link.style.display = '';
+        }
+      } catch (_) {
+        setStream('Offline', 'Backend unreachable');
+      }
+    }
+
+    async function loadModules() {
+      try {
+        const res = await fetch(API + '/api/modules', { headers: AUTH() });
+        if (!res.ok) return;
+        const data = await res.json();
+        moduleCatalog = {};
+        for (const module of data.modules) moduleCatalog[module.id] = module;
+        applyModuleLocks();
+      } catch (_) {}
+    }
+
+    function applyModuleLocks() {
+      document.querySelectorAll('.nav-item[data-module]').forEach(item => {
+        const module = moduleCatalog[item.dataset.module];
+        if (!module) return;
+        const lock = module.available ? '' : ' · ' + (module.locked_reason || 'locked');
+        item.title = `${module.label} — ${module.tier} · ${module.credit_cost} credit(s)${lock}`;
+        item.style.opacity = module.available ? '' : '0.55';
+      });
     }
 
     /* ------------------------------------------------------------
@@ -591,6 +633,8 @@
     function updateUIState(type) {
       if (!titles[type]) return;
       currentKind = type;
+      selectedModule = null;
+      document.querySelectorAll('.nav-item[data-module]').forEach(i => i.classList.remove('active'));
       $('search-title').textContent = titles[type];
       $('crumb').textContent = crumbs[type];
       document.querySelectorAll('.nav-item[data-type]').forEach(i => i.classList.toggle('active', i.dataset.type === type));
@@ -605,6 +649,97 @@
 
     document.querySelectorAll('.nav-item[data-type]').forEach(item => item.addEventListener('click', () => updateUIState(item.dataset.type)));
     document.querySelectorAll('.chip').forEach(chip => chip.addEventListener('click', () => updateUIState(chip.dataset.type)));
+
+    /* ------------------------------------------------------------
+       Sidebar module wiring — every branded item maps to a real module
+       ------------------------------------------------------------ */
+    const MODULE_BY_LABEL = {
+      'Machine Index': 'machine_viewer',
+      'Breach Vault': 'breach_intel',
+      'Infostealer Index': 'stealerlog_investigation',
+      'Web Watch': 'website_breach_monitor',
+      'File Index': 'file_search',
+      'Discord ↔ Roblox': 'discord_roblox',
+      'Alias History': 'discord_prev_names',
+      'Stealer Logs': 'stealer_logs',
+      'Leak Index': 'leak_index',
+      'Credentials': 'credential_search',
+      'Kitty DB': 'kitty_db',
+      'Omni Search': 'general_search',
+      'NazAPI': 'nazapi',
+      'Inbox Intel': 'email_intelligence',
+      'Vehicle Registry': 'cars_owners',
+      'Discord Index': 'discord_search',
+      'Telegram Index': 'telegram_search',
+      'Canada Registry': 'address_lookup',
+      'Israel Registry': 'address_lookup',
+      'Address Index': 'address_lookup'
+    };
+
+    const INPUT_PLACEHOLDERS = {
+      email: 'Enter an email address',
+      phone: 'Enter a phone number',
+      username: 'Enter a username',
+      domain: 'Enter a domain name',
+      ip: 'Enter an IP address',
+      url: 'Enter a URL (https://…)',
+      hash: 'Enter a file hash (MD5 / SHA1 / SHA256)',
+      query: 'Enter a search term',
+      domain_or_url: 'Enter a domain or URL',
+      plate: 'Enter a number plate',
+      cve: 'Enter a CVE (CVE-2024-1234)',
+      keyword: 'Enter a keyword',
+      host: 'Enter a hostname',
+      user_id: 'Enter a Discord user ID',
+      invite: 'Enter a Discord invite code',
+      vanity: 'Enter a vanity name',
+      mac: 'Enter a MAC address',
+      text: 'Paste text to analyse',
+      pattern: 'Enter a filename pattern',
+      headers: 'Paste raw email headers',
+      source: 'Enter an image path or URL',
+      gamertag: 'Enter an Xbox gamertag',
+      password: 'Enter a password to check exposure',
+      target: 'Enter an ASN or IP target'
+    };
+
+    let selectedModule = null;
+
+    function navLabel(item) {
+      const last = item.lastChild;
+      if (last && last.nodeType === 3) return last.textContent.trim();
+      return item.textContent.replace(/^[^\p{L}\p{N}]+/u, '').trim();
+    }
+
+    document.querySelectorAll('.nav-item').forEach(item => {
+      if (item.dataset.type) return;
+      const moduleId = MODULE_BY_LABEL[navLabel(item)];
+      if (moduleId) item.dataset.module = moduleId;
+    });
+
+    function selectModule(moduleId) {
+      const module = moduleCatalog[moduleId];
+      const item = document.querySelector(`.nav-item[data-module="${moduleId}"]`);
+      const label = module ? module.label : (item ? navLabel(item) : moduleId);
+      selectedModule = moduleId;
+      currentKind = module && module.category === 'DISCORD' ? 'username' : currentKind;
+      document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+      if (item) item.classList.add('active');
+      document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+      $('search-title').textContent = module ? module.label : label;
+      $('crumb').textContent = label;
+      $('search-input').value = '';
+      clearTimeout(typeTimer);
+      const input = module && module.inputs && module.inputs[0];
+      $('search-input').placeholder =
+        (input && INPUT_PLACEHOLDERS[input]) || 'Enter a target and run the module';
+      $('search-input').focus();
+      if (window.innerWidth <= 860) sidebar.classList.remove('open');
+    }
+
+    document.querySelectorAll('.nav-item[data-module]').forEach(item => {
+      item.addEventListener('click', () => selectModule(item.dataset.module));
+    });
 
     /* Typing placeholder */
     let typeTimer, typeIndex = 0, isDeleting = false;
@@ -763,10 +898,13 @@
       graphNodes = new vis.DataSet([]);
       graphEdges = new vis.DataSet([]);
       network = new vis.Network($('network'), { nodes: graphNodes, edges: graphEdges }, {
-        nodes: { shape: 'dot', size: 11, font: { color: '#b8c0b9', face: 'monospace', size: 10 }, color: { background: '#0f1410', border: '#6ee7a8' } },
+        nodes: { shape: 'dot', size: 8, font: { color: '#b8c0b9', face: 'monospace', size: 9 } },
         edges: { color: { color: '#1d271f', highlight: '#6ee7a8' }, width: 1, smooth: { type: 'dynamic' } },
-        physics: { solver: 'forceAtlas2Based', forceAtlas2Based: { gravitationalConstant: -40, centralGravity: 0.015, springLength: 100 } },
-        interaction: { hover: true }
+        physics: {
+          stabilization: { iterations: 180, fit: true },
+          barnesHut: { gravitationalConstant: -2200, centralGravity: 0.4, springLength: 85, springConstant: 0.05, damping: 0.25 }
+        },
+        interaction: { hover: true, dragNodes: true, zoomView: true }
       });
     }
 
@@ -782,9 +920,10 @@
       graphNodes.add({ id: root, label: seed.slice(0, 16), size: 18, color: { background: '#6ee7a8', border: '#eef1ee' }, font: { color: '#000', bold: true } });
       hits.forEach((h, i) => {
         const id = 'n' + i + ':' + h.value;
-        graphNodes.add({ id, label: String(h.value).slice(0, 16) });
+        graphNodes.add({ id, label: String(h.value).slice(0, 16), color: { background: '#12261a', border: '#3f9a6b', highlight: { background: '#6ee7a8', border: '#eef1ee' } } });
         graphEdges.add({ from: root, to: id });
       });
+      network.once('stabilizationIterationsDone', () => network.fit({ animation: false }));
     }
 
     function openGraph() {
@@ -802,76 +941,180 @@
        Run lookup — live API with demo fallback + staged streaming
        ------------------------------------------------------------ */
     let running = false;
+    let lastSeed = '';
+    let lastKind = 'email';
+    let lastResult = null;
+    let modulesCompleted = 0;
 
-    async function runSearch() {
-      const seed = searchInput.value.trim();
-      if (!seed || running) return;
-      running = true;
+    function authHeaders(extra = {}) {
+      return { ...AUTH(), 'content-type': 'application/json', ...extra };
+    }
 
-      const btn = $('search-btn');
-      btn.disabled = true;
-      btn.textContent = 'Searching…';
+    function handleUnauthorized(res) {
+      if (res.status === 401) {
+        localStorage.removeItem('volume_token');
+        location.replace('/login');
+        return true;
+      }
+      return false;
+    }
+
+    async function apiJson(path, options = {}) {
+      const res = await fetch(API + path, {
+        ...options,
+        headers: authHeaders(options.headers || {})
+      });
+      if (handleUnauthorized(res)) throw new Error('Session expired');
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error || data.detail || `Request failed (${res.status})`);
+      return data;
+    }
+
+    function beginFeed() {
       emptyView.style.display = 'none';
       feed.style.display = 'flex';
       feed.innerHTML = '';
       lastHits = [];
+      modulesCompleted = 0;
       setText('stat-results', 0);
       setText('stat-matches', 0);
+      setText('stat-entities', 1);
       $('results-count-badge').textContent = '0 events';
       $('graph-badge').textContent = '0';
-      setStream('Active', 'Querying modules');
+    }
 
-      const scan = ['resolving seed…', 'querying public sources…', 'correlating entities…', 'scoring confidence…'];
-      for (const line of scan) {
-        const el = document.createElement('div');
-        el.className = 'scan-line';
-        el.innerHTML = '<span class="spark"></span><span>' + line + '</span>';
-        feed.appendChild(el);
-        await sleep(260);
+    function scanLine(text) {
+      const el = document.createElement('div');
+      el.className = 'scan-line';
+      el.innerHTML = '<span class="spark"></span><span>' + escapeHtml(text) + '</span>';
+      feed.appendChild(el);
+      return el;
+    }
+
+    function appendHits(hits) {
+      const base = feed.querySelectorAll('.feed-item').length;
+      hits.forEach((hit, i) => feed.appendChild(renderHit(hit, base + i)));
+      lastHits.push(...hits);
+      setText('stat-results', lastHits.length);
+      setText('stat-matches', lastHits.length);
+      $('results-count-badge').textContent = lastHits.length + ' events';
+      setText('stat-entities', lastHits.length + 1);
+    }
+
+    function syncKind(kind) {
+      if (!kind || kind === currentKind || !titles[kind]) return;
+      currentKind = kind;
+      $('search-title').textContent = titles[kind];
+      $('crumb').textContent = crumbs[kind];
+      document.querySelectorAll('.nav-item[data-type]').forEach(i => i.classList.toggle('active', i.dataset.type === kind));
+      document.querySelectorAll('.chip').forEach(c => c.classList.toggle('active', c.dataset.type === kind));
+    }
+
+    function onStreamEvent(event, payload) {
+      if (event === 'module') {
+        modulesCompleted += 1;
+        setStream('Streaming', modulesCompleted + ' modules · ' + (payload.label || payload.module));
+        scanLine((payload.label || payload.module) + ' → ' + (payload.status || 'ok') + ' · ' + (payload.ms || 0) + 'ms');
+        appendHits(payload.hits || []);
+      } else if (event === 'done') {
+        syncKind(payload.kind);
+        if (payload.kind) lastKind = payload.kind;
+        addHits(payload.hits || [], false);
+        setText('stat-results', payload.count || 0);
+        setText('stat-matches', payload.count || 0);
+        setText('stat-entities', Math.max(1, (payload.hits || []).length + 1));
+        setStream('Complete', (payload.modules_run || modulesCompleted) + ' modules');
+        lastResult = payload;
       }
+    }
 
-      let data = null;
+    function sseChunk(chunk) {
+      let event = 'message';
+      const data = [];
+      for (const line of chunk.split('\n')) {
+        if (line.startsWith('event:')) event = line.slice(6).trim();
+        else if (line.startsWith('data:')) data.push(line.slice(5).trim());
+      }
+      if (!data.length) return;
+      let payload = null;
+      try { payload = JSON.parse(data.join('\n')); } catch (_) { return; }
+      onStreamEvent(event, payload);
+    }
+
+    async function runPivot(seed) {
+      setStream('Active', 'Querying modules');
+      const res = await fetch(API + '/api/pivot/stream', {
+        method: 'POST',
+        headers: authHeaders(),
+        body: JSON.stringify({ seed, kind: currentKind })
+      });
+      if (handleUnauthorized(res)) return;
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error || 'Lookup failed (' + res.status + ')');
+      }
+      if (!res.body) {
+        const data = await res.json();
+        addHits(data.hits || [], false);
+        return;
+      }
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = '';
+      while (true) {
+        const { value, done } = await reader.read();
+        if (done) break;
+        buffer += decoder.decode(value, { stream: true });
+        let split;
+        while ((split = buffer.indexOf('\n\n')) >= 0) {
+          sseChunk(buffer.slice(0, split));
+          buffer = buffer.slice(split + 2);
+        }
+      }
+      if (buffer.trim()) sseChunk(buffer);
+    }
+
+    async function runSingleModule(seed) {
+      const label = (moduleCatalog[selectedModule] && moduleCatalog[selectedModule].label) || selectedModule;
+      setStream('Active', 'Running ' + label);
+      scanLine('executing ' + selectedModule + '…');
+      const data = await apiJson('/api/run', {
+        method: 'POST',
+        body: JSON.stringify({ module: selectedModule, seed })
+      });
+      lastResult = data;
+      addHits(data.hits || [], false);
+      setText('stat-entities', Math.max(1, (data.hits || []).length + 1));
+      setStream('Complete', label);
+    }
+
+    async function runSearch() {
+      const seed = searchInput.value.trim();
+      if (!seed || running) return;
+      const moduleId = selectedModule;
+      running = true;
+      lastSeed = seed;
+      lastKind = currentKind;
+      const btn = $('search-btn');
+      btn.disabled = true;
+      btn.textContent = 'Searching…';
+      beginFeed();
+      ['resolving seed…', 'querying live sources…', 'correlating entities…'].forEach(scanLine);
       try {
-        const controller = new AbortController();
-        const timer = setTimeout(() => controller.abort(), 3000);
-        const res = await fetch(API + '/api/pivot', {
-          method: 'POST',
-          headers: { 'content-type': 'application/json', authorization: 'Bearer ' + TOKEN },
-          body: JSON.stringify({ seed, kind: currentKind }),
-          signal: controller.signal
-        });
-        clearTimeout(timer);
-        if (res.ok) data = await res.json();
-      } catch (_) {}
-
-      if (data && Array.isArray(data.hits) && typeof data.count === 'number') {
-        addHits(data.hits, false);
-        setStream('Complete', 'Done');
-      } else {
-        const hits = demoData(currentKind, seed);
-        feed.innerHTML = '';
+        if (moduleId) await runSingleModule(seed);
+        else await runPivot(seed);
+        loadProfile();
+      } catch (err) {
+        setStream('Error', String(err.message).slice(0, 40));
         const note = document.createElement('div');
         note.className = 'demo-note';
-        note.textContent = 'Demo telemetry — live API offline. Connect the new backend to stream real results.';
+        note.textContent = err.message + ' — API: ' + (API || location.origin);
         feed.appendChild(note);
-
-        // Stream each result in as if modules are returning
-        for (let i = 0; i < hits.length; i++) {
-          await sleep(240);
-          feed.appendChild(renderHit(hits[i], i));
-          setText('stat-results', i + 1);
-          setText('stat-matches', i + 1);
-          $('results-count-badge').textContent = (i + 1) + ' events';
-          if (i === hits.length - 1) updateGraph(hits);
-        }
-        lastHits = hits;
-        setStream('Complete', 'Demo mode');
-        setText('stat-entities', hits.length + 1);
+      } finally {
+        running = false;
+        btn.disabled = false;
+        btn.textContent = 'Search →';
       }
-
-      running = false;
-      btn.disabled = false;
-      btn.textContent = 'Search →';
     }
 
     $('search-btn').addEventListener('click', runSearch);
@@ -891,6 +1134,44 @@
     $('btn-all')?.addEventListener('click', () => { if (lastHits.length) addHits(lastHits, false); });
     $('btn-matches')?.addEventListener('click', () => { if (lastHits.length) addHits(lastHits, false); });
     $('clear-nav')?.addEventListener('click', () => $('btn-clear')?.click());
+
+    $('btn-save')?.addEventListener('click', async () => {
+      if (!lastHits.length || !lastSeed) {
+        setStream('Ready', 'Nothing to save');
+        return;
+      }
+      const button = $('btn-save');
+      const original = button.textContent;
+      button.disabled = true;
+      button.textContent = 'Saving…';
+      try {
+        const name = [lastSeed, lastKind].join(' · ').slice(0, 90);
+        const created = await apiJson('/api/cases', {
+          method: 'POST',
+          body: JSON.stringify({ name, seed: lastSeed, kind: lastKind })
+        });
+        await apiJson('/api/cases/' + created.case.id + '/snapshot', {
+          method: 'POST',
+          body: JSON.stringify({
+            seed: lastSeed,
+            kind: lastKind,
+            payload: {
+              hits: lastHits,
+              count: lastHits.length,
+              modules: modulesCompleted,
+              saved: new Date().toISOString()
+            }
+          })
+        });
+        button.textContent = 'Saved ✓';
+        setStream('Complete', 'Saved to ' + created.case.name.slice(0, 26));
+        setTimeout(() => { button.textContent = original; button.disabled = false; }, 1800);
+      } catch (err) {
+        button.textContent = original;
+        button.disabled = false;
+        setStream('Error', String(err.message).slice(0, 40));
+      }
+    });
 
     /* ------------------------------------------------------------
        Create key system
@@ -919,7 +1200,7 @@
     keyOverlay?.addEventListener('click', (e) => { if (e.target === keyOverlay) hideKeyOverlay(); });
     document.addEventListener('keydown', (e) => { if (e.key === 'Escape') hideKeyOverlay(); });
 
-    $('keyCreate')?.addEventListener('click', () => {
+    $('keyCreate')?.addEventListener('click', async () => {
       const value = keyInput.value.trim().toUpperCase();
       if (!/^VOL-[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{4}$/.test(value)) {
         keyInput.classList.add('invalid');
@@ -927,73 +1208,46 @@
         return;
       }
       keyInput.classList.remove('invalid');
-      localStorage.setItem('volume_token', value);
-      keyMessage(true, 'Key activated. Premium workspace unlocked.');
-      $('user-name').textContent = value.split('-')[1] || 'operator';
-      $('user-quota').textContent = 'PREMIUM · 9999 CREDITS';
-      $('topbar-tier').textContent = 'PREMIUM · 9999';
-      $('stat-plan').textContent = 'PREMIUM';
-      $('stat-plan-sub').textContent = 'Unlimited searches';
-      setTimeout(hideKeyOverlay, 900);
-    });
-
-    /* ------------------------------------------------------------
-       Auto-demo — show a populated console as if a lookup was run
-       ------------------------------------------------------------ */
-    const sampleQueries = {
-      email: 'operator@example.com',
-      phone: '+31612345678',
-      username: 'operator',
-      domain: 'example.com',
-      ip: '203.0.113.42'
-    };
-    let autoDemoTimer = null;
-    let autoDemoCancelled = false;
-
-    function cancelAutoDemo() {
-      autoDemoCancelled = true;
-      clearTimeout(autoDemoTimer);
-    }
-
-    function demoAlreadyShown() {
-      try { return sessionStorage.getItem('volume_demo_shown') === '1'; }
-      catch (_) { return false; }
-    }
-    function markDemoShown() {
-      try { sessionStorage.setItem('volume_demo_shown', '1'); } catch (_) {}
-    }
-
-    function scheduleAutoDemo() {
-      if (demoAlreadyShown()) return;
-      autoDemoTimer = setTimeout(async () => {
-        if (autoDemoCancelled || running || document.hidden) return;
-        const seed = sampleQueries[currentKind] || 'operator@example.com';
-        searchInput.value = '';
-        for (let i = 1; i <= seed.length; i++) {
-          if (autoDemoCancelled || running) { searchInput.value = ''; return; }
-          searchInput.value = seed.slice(0, i);
-          await sleep(38);
+      const button = $('keyCreate');
+      button.disabled = true;
+      button.textContent = 'Redeeming…';
+      try {
+        const res = await fetch(API + '/api/auth/key', {
+          method: 'POST',
+          headers: authHeaders(),
+          body: JSON.stringify({ key: value })
+        });
+        if (handleUnauthorized(res)) return;
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) {
+          keyMessage(false, data.error || 'Key rejected');
+          return;
         }
-        if (autoDemoCancelled || running) return;
-        markDemoShown();
-        runSearch();
-      }, 1100);
-    }
-
-    ['keydown', 'input', 'pointerdown'].forEach((evt) =>
-      searchInput.addEventListener(evt, cancelAutoDemo)
-    );
-    document.querySelectorAll('.nav-item[data-type], .chip').forEach((el) =>
-      el.addEventListener('click', cancelAutoDemo)
-    );
-    $('search-btn').addEventListener('click', cancelAutoDemo);
+        const user = data.user || {};
+        const tier = (user.tier || 'PREMIUM').toUpperCase();
+        const credits = user.credits != null ? user.credits : '—';
+        keyMessage(true, 'Key activated · ' + tier + ' · ' + credits + ' credits');
+        $('user-name').textContent = (user.email || 'operator').split('@')[0];
+        $('user-quota').textContent = tier + ' · ' + credits + ' CREDITS';
+        $('topbar-tier').textContent = tier + ' · ' + (user.quota ? user.quota.remaining : credits);
+        $('stat-plan').textContent = tier;
+        setTimeout(hideKeyOverlay, 1100);
+        loadProfile();
+      } catch (err) {
+        keyMessage(false, 'Network error: ' + err.message);
+      } finally {
+        button.disabled = false;
+        button.textContent = 'Redeem';
+      }
+    });
 
     /* ------------------------------------------------------------
        Init
        ------------------------------------------------------------ */
     updateUIState('email');
     setStream('Ready', 'Idle');
-    scheduleAutoDemo();
+    loadProfile();
+    loadModules();
 
   })();
   </script>

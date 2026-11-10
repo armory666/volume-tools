@@ -1,11 +1,11 @@
 {
   "rewrites": [
     { "source": "/", "destination": "/home.html" },
-    { "source": "/dashboard", "destination": "/home.html" },
+    { "source": "/dashboard", "destination": "/dashboard.html" },
     { "source": "/login", "destination": "/login.html" },
     { "source": "/app", "destination": "/index.html" },
     { "source": "/1995", "destination": "/1995.html" },
-    { "source": "/upgrade", "destination": "https://volume-tools-2.onrender.com/upgrade" },
-    { "source": "/api/:path*", "destination": "https://volume-tools-2.onrender.com/api/:path*" }
+    { "source": "/upgrade", "destination": "/dashboard.html" },
+    { "source": "/api/:path*", "destination": "https://volume-api.onrender.com/api/:path*" }
   ]
 }

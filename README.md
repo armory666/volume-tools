@@ -580,3 +580,71 @@ all categories, required module IDs, tier gates, exports and sessions.
 | Module says `key_required` | Add the matching API key to `.env`; credits are refunded |
 | Garbled box characters | Use Windows Terminal; set `PYTHONIOENCODING=utf-8` |
 | Piped stdin exits immediately | The TUI needs a terminal; use `--run ... --json` for scripting |
+
+---
+
+## Web API and console
+
+The repository now ships a FastAPI backend that runs the same 73 Python modules
+as the CLI. The static pages in `web/` are served by the API in local
+development, and the Vercel deployment forwards `/api/*` to Render.
+
+```powershell
+cd C:\Users\almig\Downloads\volume-tools
+python -m pip install -r requirements.txt
+python -m uvicorn api.main:app --reload --port 8000
+```
+
+Open <http://localhost:8000/login>. In the default console email mode the
+six-digit code is printed to the terminal (and shown on the login screen as a
+local-development hint). No credentials are required to run locally.
+
+### Endpoints
+
+| Area | Endpoints |
+| --- | --- |
+| Auth | `POST /api/auth/request`, `POST /api/auth/verify`, `POST /api/auth/logout`, `GET /api/auth/session` |
+| Access keys | `POST /api/auth/key-login`, `POST /api/auth/key`, `POST /api/redeem` |
+| Magic links | `POST /api/auth/magic/request`, `GET /api/auth/magic/consume` |
+| Passkeys | `GET /api/passkeys`, `POST /api/auth/passkey/register/begin|complete`, `POST /api/auth/passkey/login/begin|complete` |
+| Account | `GET /api/me`, `GET /api/sessions`, `DELETE /api/sessions/{id}`, `GET /api/referrals/me` |
+| Modules | `GET /api/modules`, `POST /api/run`, `POST /api/pivot`, `POST /api/pivot/stream`, `POST /api/breach`, `POST /api/graph` |
+| Cases | `GET|POST /api/cases`, `GET|DELETE /api/cases/{id}`, `POST /api/cases/{id}/snapshot`, `GET /api/cases/{id}/export?format=csv|json` |
+| Watchlists | `GET|POST /api/watchlists`, `DELETE /api/watchlists/{id}`, `POST /api/watchlists/{id}/check` |
+| Admin | `GET /api/admin/overview`, `GET|PATCH /api/admin/users`, `GET|PATCH /api/admin/modules`, `GET /api/admin/audit`, `GET|POST /api/admin/keys` |
+
+Every lookup requires a session, is charged against the daily quota and the
+credit balance, and is written to the audit log. Modules can be switched off
+per-module from the admin console; disabled modules disappear from pivots.
+
+### Email
+
+`volume/core/emailer.py` implements three providers behind one function:
+
+| `VOLUME_EMAIL_PROVIDER` | Required settings |
+| --- | --- |
+| `console` (default) | none - codes print to the server log |
+| `smtp` | `VOLUME_SMTP_HOST`, `VOLUME_SMTP_PORT`, `VOLUME_SMTP_USER`, `VOLUME_SMTP_PASSWORD`, `VOLUME_EMAIL_FROM` |
+| `resend` | `RESEND_API_KEY`, `VOLUME_EMAIL_FROM` (verified domain) |
+
+Only console mode can echo the code back to the login page (`dev_code`), and
+only when `VOLUME_DEV_CODES=true`. Leave that flag off anywhere public: the code
+is always written to the server log, which is enough for local testing. The
+SMTP and Resend paths send hashed, expiring, single-use codes by email and never
+return them in a response.
+
+### Deployment
+
+1. Push the repository.
+2. Create a Render service from `render.yaml` (or use the start command
+   `uvicorn api.main:app --host 0.0.0.0 --port $PORT`).
+3. Create a Neon Postgres database and set `DATABASE_URL` on Render.
+4. Set `VOLUME_PUBLIC_URL`, `VOLUME_WEB_ORIGINS`, `VOLUME_ADMIN_EMAILS`, and the
+   email provider secrets.
+5. If Render gives the service a different hostname than
+   `volume-api.onrender.com`, update the `/api/:path*` rewrite in
+   `web/vercel.json` to match.
+6. Set the Vercel project's `VOLUME_API_BASE` is not needed when the rewrite is
+   correct; all pages fall back to same-origin `/api`.
+
+Never commit `.env`, provider keys, database URLs, or admin secrets.

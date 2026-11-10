@@ -320,6 +320,32 @@
     .redeem-input-group{flex-direction:column}
     .admin-popup{left:12px;right:12px;bottom:12px}
   }
+  .stack{display:flex;flex-direction:column;gap:8px}
+  .mini{font-family:var(--mono);font-size:11px;color:var(--dim);line-height:1.6}
+  .list-row{display:flex;align-items:center;gap:10px;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--border);font-size:12px}
+  .list-row:last-child{border-bottom:none}
+  .list-row .grow{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .list-row .sub{font-family:var(--mono);font-size:10px;color:var(--dim);margin-top:3px}
+  .row-btn{background:transparent;border:1px solid var(--border-2);color:var(--fg-2);border-radius:6px;padding:5px 9px;font-family:var(--mono);font-size:10px;cursor:pointer;transition:.15s;white-space:nowrap}
+  .row-btn:hover{border-color:var(--accent);color:var(--accent)}
+  .row-btn.danger:hover{border-color:var(--danger);color:var(--danger)}
+  .row-btn.primary{background:var(--accent);color:#062a17;border-color:var(--accent)}
+  .row-btn.primary:hover{filter:brightness(1.06);color:#062a17}
+  .row-btn:disabled{opacity:.5;cursor:not-allowed}
+  .inline-form{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+  .inline-form input,.inline-form select{background:#0b110d;border:1px solid var(--border-2);color:var(--fg);border-radius:6px;padding:9px 10px;font-family:var(--mono);font-size:12px;min-width:0}
+  .inline-form input{flex:1;min-width:130px}
+  .inline-form select{cursor:pointer}
+  .badge{font-family:var(--mono);font-size:9px;padding:2px 6px;border-radius:4px;background:rgba(110,231,168,.1);color:var(--accent);text-transform:uppercase;letter-spacing:.05em}
+  .badge.off{background:rgba(237,66,69,.12);color:var(--danger)}
+  .data-table{width:100%;border-collapse:collapse;font-family:var(--mono);font-size:11px}
+  .data-table th{text-align:left;color:var(--dim);font-weight:500;padding:6px 8px;border-bottom:1px solid var(--border)}
+  .data-table td{padding:7px 8px;border-bottom:1px solid rgba(29,39,31,.6);color:var(--fg-2);vertical-align:middle}
+  .data-table tr:hover td{background:rgba(110,231,168,.02)}
+  .hidden{display:none!important}
+  .toast{font-family:var(--mono);font-size:11px;margin-top:8px;min-height:16px}
+  .toast.ok{color:var(--accent)}
+  .toast.err{color:var(--danger)}
 </style>
 </head>
 <body>
@@ -373,6 +399,7 @@
           <div class="stat-row"><span class="k">email</span><span class="v" id="acc-email">—</span></div>
           <div class="stat-row"><span class="k">tier</span><span class="v" id="acc-tier">free</span></div>
           <div class="stat-row"><span class="k">quota</span><span class="v" id="acc-quota">— / —</span></div>
+          <div class="stat-row"><span class="k">credits</span><span class="v" id="acc-credits">—</span></div>
           <div class="stat-row"><span class="k">expires</span><span class="v" id="acc-expires">—</span></div>
         </div>
       </div>
@@ -416,18 +443,100 @@
         <div class="redeem-result" id="redeem-result"></div>
       </div>
 
-      <!-- ADMIN KEY -->
-      <div class="admin-section">
-        <div class="head">
-          <span class="icon">🔐</span>
-          <h4>admin access</h4>
+      <!-- CASES -->
+      <div class="card" style="grid-column:1/-1">
+        <div class="card-head">
+          <span class="card-label">case workspace</span>
+          <span class="card-badge" id="case-count">0 cases</span>
         </div>
-        <p>If you have an admin key, paste it below. Admin access grants key minting + all sources, forever.</p>
-        <div class="redeem-input-group">
-          <input class="redeem-input" id="admin-input" placeholder="ADMIN-XXXX-XXXX-XXXX" maxlength="32">
-          <button class="redeem-btn" id="admin-btn" style="background:#ed4245;color:#fff">authorize →</button>
+        <p style="font-size:13px;color:var(--dim);margin-bottom:12px">
+          Lookups saved from the console are archived here with their full payload. Export a case as JSON or CSV.
+        </p>
+        <div class="stack" id="cases-list"><div class="mini">Loading cases…</div></div>
+      </div>
+
+      <!-- WATCHLISTS -->
+      <div class="card">
+        <div class="card-head">
+          <span class="card-label">watchlists</span>
+          <span class="card-badge" id="watch-count">0</span>
         </div>
-        <div class="redeem-result" id="admin-result"></div>
+        <p style="font-size:13px;color:var(--dim);margin-bottom:12px">Re-run a saved target and see what is new since the last check.</p>
+        <div class="inline-form">
+          <input id="watch-seed" placeholder="target to watch">
+          <select id="watch-kind">
+            <option value="email">email</option>
+            <option value="phone">phone</option>
+            <option value="username">username</option>
+            <option value="domain">domain</option>
+            <option value="ip">ip</option>
+          </select>
+          <button class="row-btn primary" id="watch-add">watch</button>
+        </div>
+        <div class="stack" id="watch-list"><div class="mini">No saved watches yet.</div></div>
+        <div class="toast" id="watch-result"></div>
+      </div>
+
+      <!-- SESSIONS + PASSKEYS -->
+      <div class="card">
+        <div class="card-head">
+          <span class="card-label">sessions &amp; passkeys</span>
+          <span class="card-badge" id="session-count">0</span>
+        </div>
+        <div class="stack" id="session-list"><div class="mini">Loading sessions…</div></div>
+        <div class="card-head" style="margin-top:18px">
+          <span class="card-label">passkeys</span>
+          <button class="row-btn" id="passkey-add">+ add passkey</button>
+        </div>
+        <div class="stack" id="passkey-list"><div class="mini">No passkeys registered.</div></div>
+        <div class="toast" id="session-result"></div>
+      </div>
+
+      <!-- ADMIN CONSOLE -->
+      <div class="card hidden" id="admin-card" style="grid-column:1/-1">
+        <div class="card-head">
+          <span class="card-label">admin console</span>
+          <span class="card-badge" id="admin-badge">—</span>
+        </div>
+        <div class="inline-form" id="admin-unlock" style="display:none">
+          <input id="admin-key-input" placeholder="ADMIN KEY" maxlength="64">
+          <button class="row-btn" id="admin-key-btn">authorize</button>
+        </div>
+        <div class="grid" style="gap:12px;grid-template-columns:repeat(auto-fit,minmax(130px,1fr))" id="admin-stats"></div>
+
+        <div class="card-head" style="margin-top:20px">
+          <span class="card-label">users</span>
+          <span class="mini" id="admin-users-count"></span>
+        </div>
+        <div style="overflow:auto"><table class="data-table" id="admin-users"></table></div>
+
+        <div class="card-head" style="margin-top:20px">
+          <span class="card-label">module switches</span>
+          <span class="mini" id="admin-modules-count"></span>
+        </div>
+        <div style="overflow:auto;max-height:300px"><table class="data-table" id="admin-modules"></table></div>
+
+        <div class="card-head" style="margin-top:20px">
+          <span class="card-label">mint access keys</span>
+        </div>
+        <div class="inline-form">
+          <select id="mint-tier">
+            <option value="premium">premium</option>
+            <option value="detective">detective</option>
+            <option value="industrial">industrial</option>
+            <option value="lifetime">lifetime</option>
+          </select>
+          <input id="mint-credits" type="number" value="100" min="0" style="max-width:120px">
+          <input id="mint-label" placeholder="label (optional)">
+          <button class="row-btn primary" id="mint-btn">mint</button>
+        </div>
+        <div class="stack" id="mint-result"></div>
+
+        <div class="card-head" style="margin-top:20px">
+          <span class="card-label">audit log</span>
+        </div>
+        <div style="overflow:auto;max-height:260px"><table class="data-table" id="admin-audit"></table></div>
+        <div class="toast" id="admin-result"></div>
       </div>
     </div>
   </div>
@@ -446,121 +555,602 @@
 <script>
 (() => {
   const TOKEN = localStorage.getItem('volume_token');
-  const EMAIL = localStorage.getItem('volume_email') || '—';
-  if (!TOKEN) { window.location.href = '/login'; return; }
+  if (!TOKEN) { window.location.replace('/login'); return; }
 
-  const API = window.location.hostname === 'localhost'
-    ? 'http://localhost:8000'
-    : 'https://volume-tools-2.onrender.com';
+  const API = window.VOLUME_API_BASE ||
+    ((['localhost', '127.0.0.1'].includes(location.hostname) && location.port !== '8000')
+      ? 'http://localhost:8000'
+      : '');
 
-  const el = id => document.getElementById(id);
+  let EMAIL = localStorage.getItem('volume_email') || '—';
+  const el = (id) => document.getElementById(id);
+  const esc = (value) => String(value == null ? '' : value)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+
+  function toast(id, message, ok = true) {
+    const node = el(id);
+    if (!node) return;
+    node.textContent = message;
+    node.className = 'toast ' + (ok ? 'ok' : 'err');
+  }
+
+  function authHeaders(extra = {}) {
+    return { authorization: 'Bearer ' + TOKEN, 'content-type': 'application/json', ...extra };
+  }
+
+  async function api(path, options = {}) {
+    const res = await fetch(API + path, { ...options, headers: authHeaders(options.headers || {}) });
+    let data = {};
+    try { data = await res.json(); } catch (_) {}
+    if (res.status === 401) {
+      localStorage.removeItem('volume_token');
+      localStorage.removeItem('volume_email');
+      localStorage.removeItem('volume_tier');
+      window.location.replace('/login');
+      throw new Error('Session expired');
+    }
+    if (!res.ok) {
+      const err = new Error(data.error || data.detail || `Request failed (${res.status})`);
+      err.status = res.status;
+      err.code = data.code;
+      throw err;
+    }
+    return data;
+  }
+
+  async function adminApi(path, options = {}) {
+    const key = sessionStorage.getItem('volume_admin_key') || '';
+    const res = await fetch(API + path, {
+      ...options,
+      headers: {
+        'content-type': 'application/json',
+        authorization: 'Bearer ' + TOKEN,
+        ...(key ? { 'X-Admin-Key': key } : {}),
+        ...(options.headers || {})
+      }
+    });
+    let data = {};
+    try { data = await res.json(); } catch (_) {}
+    if (!res.ok) {
+      const err = new Error(data.error || data.detail || `Admin request failed (${res.status})`);
+      err.status = res.status;
+      throw err;
+    }
+    return data;
+  }
 
   el('nav-email').textContent = EMAIL;
   el('acc-email').textContent = EMAIL;
 
-  Promise.all([
-    fetch(`${API}/api/me`, { headers: { 'authorization': `Bearer ${TOKEN}` } }).then(r => r.json()),
-    fetch(`${API}/api/referrals/me`, { headers: { 'authorization': `Bearer ${TOKEN}` } }).then(r => r.json())
-  ]).then(([me, ref]) => {
-    document.getElementById('greeting-tier').textContent = me.tier || 'free';
+  // ---------------------------------------------------------------- profile
+  let me = null;
+
+  async function loadMe() {
+    try {
+      me = await api('/api/me');
+    } catch (_) {
+      return;
+    }
+    EMAIL = me.email || EMAIL;
+    document.getElementById('nav-email').textContent = EMAIL;
+    document.getElementById('acc-email').textContent = EMAIL;
+    document.getElementById('greeting-tier').textContent = (me.tier || 'free').toLowerCase();
     document.getElementById('acc-tier').textContent = me.tier || 'free';
     document.getElementById('tier-badge').textContent = me.tier || 'free';
+    document.getElementById('acc-credits').textContent = me.credits ?? '—';
     document.getElementById('acc-expires').textContent = me.paid_until || '—';
-    document.getElementById('acc-quota').textContent =
-      me.tier === 'admin' ? 'unlimited' :
-      me.tier === 'premium' ? '200 / 200' : '15 / 15';
+    document.getElementById('acc-quota').textContent = me.quota
+      ? (me.admin ? 'unlimited' : `${me.quota.used_today} / ${me.quota.daily_limit}`)
+      : '—';
 
-    if (me.tier === 'free') {
+    if (me.tier_key === 'free') {
       document.getElementById('upgrade-banner').style.display = 'flex';
     }
 
-    if (ref.code) {
+    const card = el('admin-card');
+    card.classList.remove('hidden');
+    if (me.admin) {
+      el('admin-unlock').style.display = 'none';
+      el('admin-badge').textContent = 'authorized';
+      sessionStorage.removeItem('volume_admin_key');
+      loadAdmin();
+    } else if (sessionStorage.getItem('volume_admin_key')) {
+      el('admin-unlock').style.display = 'none';
+      loadAdmin().catch(() => {
+        sessionStorage.removeItem('volume_admin_key');
+        el('admin-unlock').style.display = 'flex';
+        el('admin-badge').textContent = 'locked';
+      });
+    } else {
+      el('admin-unlock').style.display = 'flex';
+      el('admin-badge').textContent = 'locked';
+    }
+  }
+
+  async function loadReferrals() {
+    try {
+      const ref = await api('/api/referrals/me');
       const codeEl = document.getElementById('ref-code');
-      codeEl.textContent = ref.code;
+      codeEl.textContent = ref.code || '—';
       codeEl.onclick = () => {
         navigator.clipboard.writeText(ref.code);
-        const orig = codeEl.textContent;
+        const original = codeEl.textContent;
         codeEl.textContent = 'copied ✓';
-        setTimeout(() => codeEl.textContent = orig, 1200);
+        setTimeout(() => { codeEl.textContent = original; }, 1200);
       };
       document.getElementById('ref-stats').textContent =
-        `${ref.stats.used} used · ${ref.stats.earned_days} days earned`;
-      document.getElementById('ref-slots').textContent =
-        `${ref.stats.total}/3 slots`;
+        `${ref.invited} invited · ${ref.credits_earned} credits earned`;
+      document.getElementById('ref-slots').textContent = `${ref.invited} signups`;
       document.getElementById('ref-link').textContent =
         `${window.location.origin}/login?ref=${ref.code}`;
-    }
-  }).catch(() => {});
+    } catch (_) {}
+  }
 
-  // PREMIUM REDEEM
-  const doRedeem = async (inputId, resultId, isAdmin) => {
-    const key = el(inputId).value.trim().toUpperCase();
-    const result = el(resultId);
-    result.className = 'redeem-result';
+  // ----------------------------------------------------------------- redeem
+  async function doRedeem() {
+    const input = el('redeem-input');
+    const result = el('redeem-result');
+    const key = input.value.trim().toUpperCase();
     if (!key) return;
-    const btnId = isAdmin ? 'admin-btn' : 'redeem-btn';
-    el(btnId).disabled = true;
+    const button = el('redeem-btn');
+    button.disabled = true;
+    result.className = 'redeem-result';
     try {
-      const r = await fetch(`${API}/api/redeem`, {
+      const data = await api('/api/redeem', {
         method: 'POST',
-        headers: {
-          'content-type': 'application/json',
-          'authorization': `Bearer ${TOKEN}`
-        },
         body: JSON.stringify({ key })
       });
-      const d = await r.json();
-      if (!r.ok) {
-        result.textContent = '✕ ' + (d.detail || 'invalid key');
-        result.classList.add('show', 'err');
-        el(btnId).disabled = false;
+      const tier = (data.tier || '').toUpperCase();
+      result.textContent = data.already
+        ? '✓ key already active on this account'
+        : `✓ +${data.granted || 0} credits · ${tier}`;
+      result.classList.add('show', 'ok');
+      input.value = '';
+      setTimeout(loadMe, 700);
+    } catch (err) {
+      result.textContent = '✕ ' + err.message;
+      result.classList.add('show', 'err');
+    } finally {
+      button.disabled = false;
+    }
+  }
+
+  el('redeem-btn').onclick = doRedeem;
+  el('redeem-input').addEventListener('keydown', (e) => { if (e.key === 'Enter') doRedeem(); });
+  el('redeem-input').addEventListener('input', (e) => { e.target.value = e.target.value.toUpperCase(); });
+
+  // ------------------------------------------------------------------ cases
+  async function loadCases() {
+    const list = el('cases-list');
+    try {
+      const data = await api('/api/cases');
+      const cases = data.cases || [];
+      el('case-count').textContent = `${cases.length} case${cases.length === 1 ? '' : 's'}`;
+      if (!cases.length) {
+        list.innerHTML = '<div class="mini">No saved cases yet. Run a lookup in the console and press “Save case”.</div>';
         return;
       }
-      result.textContent = '✓ ' + d.message;
-      result.classList.add('show', 'ok');
-      el(inputId).value = '';
+      list.innerHTML = cases.map((item) => `
+        <div class="list-row">
+          <div class="grow">
+            <div>${esc(item.name)}</div>
+            <div class="sub">${esc(item.kind || 'lookup')} · ${esc(item.run_count || 0)} runs · updated ${esc((item.updated || '').slice(0, 16))}</div>
+          </div>
+          <button class="row-btn" data-export="json" data-case="${esc(item.id)}">JSON</button>
+          <button class="row-btn" data-export="csv" data-case="${esc(item.id)}">CSV</button>
+          <button class="row-btn danger" data-delete-case="${esc(item.id)}">delete</button>
+        </div>
+      `).join('');
+    } catch (err) {
+      list.innerHTML = `<div class="mini">Could not load cases: ${esc(err.message)}</div>`;
+    }
+  }
 
-      if (isAdmin) {
-        const popup = el('admin-popup');
-        popup.classList.add('show');
-        setTimeout(() => location.reload(), 2000);
-      } else {
-        setTimeout(() => location.reload(), 1500);
+  async function exportCase(id, format) {
+    try {
+      const res = await fetch(`${API}/api/cases/${encodeURIComponent(id)}/export?format=${format}`, {
+        headers: authHeaders()
+      });
+      if (!res.ok) throw new Error('export failed');
+      const blob = await res.blob();
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = `volume-case-${id}.${format}`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      setTimeout(() => URL.revokeObjectURL(link.href), 4000);
+    } catch (_) {}
+  }
+
+  el('cases-list').addEventListener('click', async (event) => {
+    const exportButton = event.target.closest('[data-export]');
+    if (exportButton) {
+      exportCase(exportButton.dataset.case, exportButton.dataset.export);
+      return;
+    }
+    const deleteButton = event.target.closest('[data-delete-case]');
+    if (deleteButton) {
+      if (!confirm('Delete this case and all of its runs?')) return;
+      try {
+        await api('/api/cases/' + encodeURIComponent(deleteButton.dataset.deleteCase), { method: 'DELETE' });
+        loadCases();
+      } catch (_) {}
+    }
+  });
+
+  // -------------------------------------------------------------- watchlists
+  async function loadWatchlists() {
+    const list = el('watch-list');
+    try {
+      const data = await api('/api/watchlists');
+      const watches = data.watchlists || [];
+      el('watch-count').textContent = String(watches.length);
+      if (!watches.length) {
+        list.innerHTML = '<div class="mini">No saved watches yet.</div>';
+        return;
       }
-    } catch (e) {
-      result.textContent = '✕ network error';
-      result.classList.add('show', 'err');
-      el(btnId).disabled = false;
+      list.innerHTML = watches.map((item) => `
+        <div class="list-row">
+          <div class="grow">
+            <div>${esc(item.label || item.seed)}</div>
+            <div class="sub">${esc(item.kind)} · ${esc(item.last_count || 0)} results · ${item.last_checked ? 'checked ' + esc(item.last_checked.slice(0, 16)) : 'never checked'}</div>
+          </div>
+          <button class="row-btn" data-check="${esc(item.id)}">check now</button>
+          <button class="row-btn danger" data-unwatch="${esc(item.id)}">remove</button>
+        </div>
+      `).join('');
+    } catch (err) {
+      list.innerHTML = `<div class="mini">Could not load watchlists: ${esc(err.message)}</div>`;
+    }
+  }
+
+  el('watch-add').onclick = async () => {
+    const seed = el('watch-seed').value.trim();
+    const kind = el('watch-kind').value;
+    if (!seed) { toast('watch-result', 'Enter a target first', false); return; }
+    const button = el('watch-add');
+    button.disabled = true;
+    try {
+      await api('/api/watchlists', { method: 'POST', body: JSON.stringify({ seed, kind, label: seed }) });
+      el('watch-seed').value = '';
+      toast('watch-result', 'Watching ' + seed);
+      loadWatchlists();
+    } catch (err) {
+      toast('watch-result', err.message, false);
+    } finally {
+      button.disabled = false;
     }
   };
 
-  el('redeem-btn').onclick = () => doRedeem('redeem-input', 'redeem-result', false);
-  el('admin-btn').onclick = () => doRedeem('admin-input', 'admin-result', true);
-
-  el('redeem-input').addEventListener('keydown', e => { if (e.key === 'Enter') el('redeem-btn').click(); });
-  el('admin-input').addEventListener('keydown', e => { if (e.key === 'Enter') el('admin-btn').click(); });
-
-  ['redeem-input', 'admin-input'].forEach(id => {
-    el(id).addEventListener('input', e => {
-      e.target.value = e.target.value.toUpperCase();
-    });
+  el('watch-list').addEventListener('click', async (event) => {
+    const check = event.target.closest('[data-check]');
+    if (check) {
+      check.disabled = true;
+      check.textContent = 'checking…';
+      try {
+        const data = await api('/api/watchlists/' + encodeURIComponent(check.dataset.check) + '/check', { method: 'POST' });
+        toast('watch-result', `${data.count} results · ${data.new} new since last check`);
+      } catch (err) {
+        toast('watch-result', err.message, false);
+      }
+      loadWatchlists();
+      return;
+    }
+    const remove = event.target.closest('[data-unwatch]');
+    if (remove) {
+      try {
+        await api('/api/watchlists/' + encodeURIComponent(remove.dataset.unwatch), { method: 'DELETE' });
+        loadWatchlists();
+      } catch (_) {}
+    }
   });
 
-  el('admin-popup-close').onclick = () => el('admin-popup').classList.remove('show');
-
-  document.getElementById('signout').onclick = async (e) => {
-    e.preventDefault();
+  // ---------------------------------------------------- sessions & passkeys
+  async function loadSessions() {
     try {
-      await fetch(`${API}/api/auth/logout`, {
+      const data = await api('/api/sessions');
+      const sessions = data.sessions || [];
+      el('session-count').textContent = String(sessions.length);
+      el('session-list').innerHTML = sessions.map((item) => `
+        <div class="list-row">
+          <div class="grow">
+            <div>${esc(item.label)} ${item.current ? '<span class="badge">this device</span>' : ''}</div>
+            <div class="sub">${esc(item.ip || 'unknown ip')} · seen ${esc((item.last_seen || '').slice(0, 16))} · expires ${esc((item.expires || '').slice(0, 10))}</div>
+          </div>
+          <button class="row-btn danger" data-revoke="${esc(item.id)}">revoke</button>
+        </div>
+      `).join('') || '<div class="mini">No active sessions.</div>';
+
+      const passkeys = data.passkeys || [];
+      el('passkey-list').innerHTML = passkeys.map((item) => `
+        <div class="list-row">
+          <div class="grow">
+            <div>${esc(item.label)}</div>
+            <div class="sub">added ${esc((item.created || '').slice(0, 10))} · used ${esc((item.last_used || 'never').slice(0, 10))}</div>
+          </div>
+          <button class="row-btn danger" data-passkey-delete="${esc(item.id)}">remove</button>
+        </div>
+      `).join('') || '<div class="mini">No passkeys registered.</div>';
+    } catch (err) {
+      el('session-list').innerHTML = `<div class="mini">${esc(err.message)}</div>`;
+    }
+  }
+
+  el('session-list').addEventListener('click', async (event) => {
+    const button = event.target.closest('[data-revoke]');
+    if (!button) return;
+    try {
+      await api('/api/sessions/' + encodeURIComponent(button.dataset.revoke), { method: 'DELETE' });
+      toast('session-result', 'Session revoked');
+      loadSessions();
+    } catch (err) {
+      toast('session-result', err.message, false);
+    }
+  });
+
+  el('passkey-list').addEventListener('click', async (event) => {
+    const button = event.target.closest('[data-passkey-delete]');
+    if (!button) return;
+    try {
+      await api('/api/passkeys/' + encodeURIComponent(button.dataset.passkeyDelete), { method: 'DELETE' });
+      toast('session-result', 'Passkey removed');
+      loadSessions();
+    } catch (err) {
+      toast('session-result', err.message, false);
+    }
+  });
+
+  function b64urlToBuf(value) {
+    let text = String(value).replace(/-/g, '+').replace(/_/g, '/');
+    while (text.length % 4) text += '=';
+    const binary = atob(text);
+    return Uint8Array.from(binary, (c) => c.charCodeAt(0)).buffer;
+  }
+  function bufToB64url(buffer) {
+    const bytes = new Uint8Array(buffer);
+    let binary = '';
+    bytes.forEach((b) => { binary += String.fromCharCode(b); });
+    return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+  }
+
+  el('passkey-add').onclick = async () => {
+    const button = el('passkey-add');
+    button.disabled = true;
+    button.textContent = 'waiting for device…';
+    try {
+      const begin = await api('/api/auth/passkey/register/begin', { method: 'POST' });
+      const options = begin.options;
+      const publicKey = {
+        ...options,
+        challenge: b64urlToBuf(options.challenge),
+        user: { ...options.user, id: b64urlToBuf(options.user.id) },
+        excludeCredentials: (options.excludeCredentials || []).map((item) => ({
+          ...item,
+          id: b64urlToBuf(item.id)
+        }))
+      };
+      const credential = await navigator.credentials.create({ publicKey });
+      const payload = {
+        id: credential.id,
+        rawId: bufToB64url(credential.rawId),
+        type: credential.type,
+        response: {
+          clientDataJSON: bufToB64url(credential.response.clientDataJSON),
+          attestationObject: bufToB64url(credential.response.attestationObject),
+          transports: credential.response.getTransports ? credential.response.getTransports() : []
+        },
+        clientExtensionResults: credential.getClientExtensionResults()
+      };
+      await api('/api/auth/passkey/register/complete', {
         method: 'POST',
-        headers: { 'authorization': `Bearer ${TOKEN}` }
+        body: JSON.stringify({ credential: payload, label: 'Passkey' })
       });
-    } catch (err) {}
+      toast('session-result', 'Passkey registered');
+      loadSessions();
+    } catch (err) {
+      toast('session-result', err.name === 'NotAllowedError' ? 'Passkey prompt dismissed' : err.message, false);
+    } finally {
+      button.disabled = false;
+      button.textContent = '+ add passkey';
+    }
+  };
+
+  // ------------------------------------------------------------------ admin
+  el('admin-key-btn').onclick = async () => {
+    const key = el('admin-key-input').value.trim();
+    if (!key) return;
+    sessionStorage.setItem('volume_admin_key', key);
+    try {
+      await adminApi('/api/admin/overview');
+      el('admin-unlock').style.display = 'none';
+      el('admin-badge').textContent = 'authorized';
+      el('admin-key-input').value = '';
+      loadAdmin();
+    } catch (err) {
+      sessionStorage.removeItem('volume_admin_key');
+      toast('admin-result', err.message, false);
+    }
+  };
+
+  async function loadAdmin() {
+    const [overview, users, modules, audit] = await Promise.all([
+      adminApi('/api/admin/overview'),
+      adminApi('/api/admin/users'),
+      adminApi('/api/admin/modules'),
+      adminApi('/api/admin/audit?limit=60')
+    ]);
+
+    el('admin-badge').textContent = 'authorized · ' + overview.database;
+    el('admin-stats').innerHTML = [
+      ['users', overview.users],
+      ['sessions', overview.sessions],
+      ['runs', overview.runs],
+      ['cases', overview.cases],
+      ['modules', overview.modules],
+      ['disabled', overview.modules_disabled],
+      ['email', overview.email.provider]
+    ].map(([label, value]) => `
+      <div class="card" style="padding:14px">
+        <div class="mini" style="text-transform:uppercase;letter-spacing:.08em">${esc(label)}</div>
+        <div style="font-family:var(--mono);font-size:18px;color:var(--accent);margin-top:4px">${esc(value)}</div>
+      </div>
+    `).join('');
+
+    el('admin-users-count').textContent = `${users.users.length} shown`;
+    el('admin-users').innerHTML = `
+      <tr><th>email</th><th>tier</th><th>credits</th><th>runs</th><th></th></tr>
+      ${users.users.map((user) => `
+        <tr>
+          <td>${esc(user.email)}</td>
+          <td>${esc(user.tier)}</td>
+          <td>${esc(user.credits)}</td>
+          <td>${esc(user.run_count || 0)}</td>
+          <td style="text-align:right">
+            <button class="row-btn" data-promote="${esc(user.id)}" data-tier="${esc(user.tier)}">tier ↑</button>
+            <button class="row-btn" data-grant="${esc(user.id)}">+100</button>
+          </td>
+        </tr>
+      `).join('')}
+    `;
+
+    el('admin-modules-count').textContent = `${modules.modules.length} modules`;
+    el('admin-modules').innerHTML = `
+      <tr><th>module</th><th>tier</th><th>state</th><th></th></tr>
+      ${modules.modules.map((module) => `
+        <tr>
+          <td>${esc(module.label)}<div class="sub">${esc(module.id)}</div></td>
+          <td>${esc(module.tier)}</td>
+          <td>${module.enabled ? '<span class="badge">on</span>' : '<span class="badge off">off</span>'}</td>
+          <td style="text-align:right">
+            <button class="row-btn" data-toggle-module="${esc(module.id)}" data-enabled="${module.enabled ? '1' : '0'}">
+              ${module.enabled ? 'disable' : 'enable'}
+            </button>
+          </td>
+        </tr>
+      `).join('')}
+    `;
+
+    el('admin-audit').innerHTML = `
+      <tr><th>time</th><th>actor</th><th>action</th><th>detail</th></tr>
+      ${audit.entries.map((entry) => `
+        <tr>
+          <td>${esc((entry.ts || '').slice(0, 19))}</td>
+          <td>${esc(entry.actor || '')}</td>
+          <td>${esc(entry.action || '')}</td>
+          <td>${esc((entry.detail || '').slice(0, 80))}</td>
+        </tr>
+      `).join('')}
+    `;
+  }
+
+  const TIERS = ['free', 'premium', 'detective', 'industrial', 'lifetime'];
+
+  el('admin-users').addEventListener('click', async (event) => {
+    const promote = event.target.closest('[data-promote]');
+    if (promote) {
+      const current = promote.dataset.tier || 'free';
+      const next = TIERS[Math.min(TIERS.indexOf(current) + 1, TIERS.length - 1)];
+      try {
+        await adminApi('/api/admin/users/' + encodeURIComponent(promote.dataset.promote), {
+          method: 'PATCH',
+          body: JSON.stringify({ tier: next })
+        });
+        toast('admin-result', `Tier set to ${next}`);
+        loadAdmin();
+      } catch (err) {
+        toast('admin-result', err.message, false);
+      }
+      return;
+    }
+    const grant = event.target.closest('[data-grant]');
+    if (grant) {
+      try {
+        await adminApi('/api/admin/users/' + encodeURIComponent(grant.dataset.grant), {
+          method: 'PATCH',
+          body: JSON.stringify({ credits: 100 })
+        });
+        toast('admin-result', 'Granted 100 credits');
+        loadAdmin();
+      } catch (err) {
+        toast('admin-result', err.message, false);
+      }
+    }
+  });
+
+  el('admin-modules').addEventListener('click', async (event) => {
+    const toggle = event.target.closest('[data-toggle-module]');
+    if (!toggle) return;
+    const enabled = toggle.dataset.enabled !== '1';
+    try {
+      await adminApi('/api/admin/modules/' + encodeURIComponent(toggle.dataset.toggleModule), {
+        method: 'PATCH',
+        body: JSON.stringify({ enabled })
+      });
+      toast('admin-result', `${toggle.dataset.toggleModule} ${enabled ? 'enabled' : 'disabled'}`);
+      loadAdmin();
+    } catch (err) {
+      toast('admin-result', err.message, false);
+    }
+  });
+
+  el('mint-btn').onclick = async () => {
+    const button = el('mint-btn');
+    button.disabled = true;
+    try {
+      const data = await adminApi('/api/admin/keys', {
+        method: 'POST',
+        body: JSON.stringify({
+          count: 1,
+          tier: el('mint-tier').value,
+          credits: Number(el('mint-credits').value) || 0,
+          label: el('mint-label').value.trim()
+        })
+      });
+      el('mint-result').innerHTML = data.keys.map((item) => `
+        <div class="list-row">
+          <div class="grow">
+            <div style="color:var(--accent);font-family:var(--mono)">${esc(item.key)}</div>
+            <div class="sub">${esc(item.tier)} · ${esc(item.credits)} credits · single use</div>
+          </div>
+          <button class="row-btn" data-copy-key="${esc(item.key)}">copy</button>
+        </div>
+      `).join('');
+      toast('admin-result', 'Key minted');
+    } catch (err) {
+      toast('admin-result', err.message, false);
+    } finally {
+      button.disabled = false;
+    }
+  };
+
+  el('mint-result').addEventListener('click', (event) => {
+    const button = event.target.closest('[data-copy-key]');
+    if (!button) return;
+    navigator.clipboard.writeText(button.dataset.copyKey);
+    button.textContent = 'copied ✓';
+  });
+
+  // ---------------------------------------------------------------- sign out
+  document.getElementById('signout').onclick = async (event) => {
+    event.preventDefault();
+    try {
+      await fetch(`${API}/api/auth/logout`, { method: 'POST', headers: authHeaders() });
+    } catch (_) {}
     localStorage.removeItem('volume_token');
     localStorage.removeItem('volume_email');
     localStorage.removeItem('volume_tier');
+    sessionStorage.removeItem('volume_admin_key');
     window.location.href = '/login';
   };
+
+  // ------------------------------------------------------------------- boot
+  loadMe();
+  loadReferrals();
+  loadCases();
+  loadWatchlists();
+  loadSessions();
 })();
 </script>
 </body>
