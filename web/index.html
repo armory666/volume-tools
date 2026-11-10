@@ -353,44 +353,44 @@
       <div class="sidebar-scroll">
         <div class="nav-group">
           <div class="nav-label">Search</div>
-          <a class="nav-item active" data-type="email"><span class="icon">📧</span> Live Email Intel</a>
-          <a class="nav-item" data-type="phone"><span class="icon">📱</span> Live Phone Intel</a>
-          <a class="nav-item" data-type="username"><span class="icon">👤</span> Live Username Intel</a>
-          <a class="nav-item" data-type="domain"><span class="icon">🌐</span> Domain Search</a>
-          <a class="nav-item" data-type="ip"><span class="icon">🛡</span> IP Lookup</a>
+          <a class="nav-item active" data-type="email"><span class="icon">📧</span> Inbox Trace</a>
+          <a class="nav-item" data-type="phone"><span class="icon">📱</span> Line Trace</a>
+          <a class="nav-item" data-type="username"><span class="icon">👤</span> Alias Trace</a>
+          <a class="nav-item" data-type="domain"><span class="icon">🌐</span> Domain Trace</a>
+          <a class="nav-item" data-type="ip"><span class="icon">🛡</span> Net Trace</a>
         </div>
 
         <div class="nav-group">
           <div class="nav-label">Records</div>
-          <a class="nav-item"><span class="icon">🖥</span> Machine Viewer</a>
-          <a class="nav-item"><span class="icon">📂</span> Breach Intel</a>
-          <a class="nav-item"><span class="icon">🦠</span> Stealerlog Investigation</a>
-          <a class="nav-item"><span class="icon">👁</span> Website Breach Monitor</a>
-          <a class="nav-item"><span class="icon">🔍</span> File Search</a>
+          <a class="nav-item"><span class="icon">🖥</span> Machine Index</a>
+          <a class="nav-item"><span class="icon">📂</span> Breach Vault</a>
+          <a class="nav-item"><span class="icon">🦠</span> Infostealer Index</a>
+          <a class="nav-item"><span class="icon">👁</span> Web Watch</a>
+          <a class="nav-item"><span class="icon">🔍</span> File Index</a>
         </div>
 
         <div class="nav-group">
           <div class="nav-label">Leaks</div>
           <a class="nav-item"><span class="icon">🎮</span> Discord ↔ Roblox</a>
-          <a class="nav-item"><span class="icon">🕰</span> Discord Prev Names</a>
+          <a class="nav-item"><span class="icon">🕰</span> Alias History</a>
           <a class="nav-item"><span class="icon">📜</span> Stealer Logs</a>
           <a class="nav-item"><span class="icon">🗂</span> Leak Index</a>
-          <a class="nav-item"><span class="icon">🔑</span> Credential Search</a>
+          <a class="nav-item"><span class="icon">🔑</span> Credentials</a>
           <a class="nav-item"><span class="icon">🗄</span> Kitty DB</a>
         </div>
 
         <div class="nav-group">
           <div class="nav-label">Lookups</div>
-          <a class="nav-item"><span class="icon">🔎</span> General Search</a>
+          <a class="nav-item"><span class="icon">🔎</span> Omni Search</a>
           <a class="nav-item"><span class="icon">📡</span> NazAPI</a>
-          <a class="nav-item"><span class="icon">✉️</span> Email Intelligence</a>
-          <a class="nav-item"><span class="icon">🚗</span> Cars &amp; Owners</a>
-          <a class="nav-item"><span class="icon">💬</span> Discord Search</a>
-          <a class="nav-item"><span class="icon">✈️</span> Telegram Search</a>
-          <a class="nav-item"><span class="icon">🇨🇦</span> Canada Records</a>
-          <a class="nav-item"><span class="icon">🇮🇱</span> Israel Records</a>
-          <a class="nav-item"><span class="icon">🏦</span> Bank Records</a>
-          <a class="nav-item"><span class="icon">📍</span> Address Lookup</a>
+          <a class="nav-item"><span class="icon">✉️</span> Inbox Intel</a>
+          <a class="nav-item"><span class="icon">🚗</span> Vehicle Registry</a>
+          <a class="nav-item"><span class="icon">💬</span> Discord Index</a>
+          <a class="nav-item"><span class="icon">✈️</span> Telegram Index</a>
+          <a class="nav-item"><span class="icon">🇨🇦</span> Canada Registry</a>
+          <a class="nav-item"><span class="icon">🇮🇱</span> Israel Registry</a>
+          <a class="nav-item"><span class="icon">🏦</span> Bank Registry</a>
+          <a class="nav-item"><span class="icon">📍</span> Address Index</a>
         </div>
 
         <div class="nav-group">
@@ -420,7 +420,7 @@
         <div class="breadcrumb">
           <span>Workspace</span>
           <span class="sep">/</span>
-          <span class="current" id="crumb">Live Email Intel</span>
+          <span class="current" id="crumb">Inbox Trace</span>
         </div>
         <div class="topbar-right">
           <div class="topbar-pill" id="topbar-tier">FREE · 15</div>
@@ -585,7 +585,7 @@
        UI state
        ------------------------------------------------------------ */
     const titles = { email: 'Email intelligence', phone: 'Phone intelligence', username: 'Username intelligence', domain: 'Domain intelligence', ip: 'IP intelligence' };
-    const crumbs = { email: 'Live Email Intel', phone: 'Live Phone Intel', username: 'Live Username Intel', domain: 'Domain Search', ip: 'IP Lookup' };
+    const crumbs = { email: 'Inbox Trace', phone: 'Line Trace', username: 'Alias Trace', domain: 'Domain Trace', ip: 'Net Trace' };
     const placeholders = { email: 'Enter an email address', phone: 'Enter a phone number', username: 'Enter a username', domain: 'Enter a domain name', ip: 'Enter an IP address' };
 
     function updateUIState(type) {
