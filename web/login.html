@@ -679,7 +679,11 @@
       });
       currentReferral = $('referral-input').value.trim();
       $('email-display').textContent = data.masked_email || email;
-      $('otp-status').textContent = `Code expires in ${Math.round((data.expires_in || 600) / 60)} minutes`;
+      if (data.provider === 'console' && !data.dev_code) {
+        $('otp-status').textContent = 'Console email mode — no email is sent. Read the code in the server log.';
+      } else {
+        $('otp-status').textContent = `Code expires in ${Math.round((data.expires_in || 600) / 60)} minutes`;
+      }
       if (data.dev_code) {
         $('dev-code').textContent = data.dev_code;
         $('dev-box').style.display = 'block';
@@ -811,6 +815,8 @@
       });
       if (data.dev_link) {
         showInfo(`Local console mode: <a href="${data.dev_link}">open your sign-in link</a>`);
+      } else if (data.provider === 'console') {
+        showInfo('Console email mode — no email is sent. The sign-in link is printed in the server log.');
       } else {
         showInfo('Sign-in link sent. It expires in 15 minutes.');
       }
