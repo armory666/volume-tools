@@ -368,12 +368,13 @@ def request_code(email: str, ip: str, referral: str = "") -> dict:
     delivery = emailer.send_otp(email, code, settings.OTP_TTL_MINUTES)
     audit(email, "auth.otp.request", f"delivery={delivery.get('provider')}", ip)
     if not delivery.get("ok"):
+        detail = str(delivery.get("error") or "unknown error").strip()[:180]
         print(
-            f"[email] delivery failed via {delivery.get('provider')}: {delivery.get('error')}",
+            f"[email] delivery failed via {delivery.get('provider')}: {detail}",
             flush=True,
         )
         raise AuthError(
-            "Email delivery is not configured. Set VOLUME_EMAIL_PROVIDER and credentials.",
+            f"Email delivery failed ({delivery.get('provider') or 'unset'}): {detail}",
             503,
             "email_unavailable",
         )
@@ -462,11 +463,16 @@ def request_magic_link(email: str, ip: str) -> dict:
     delivery = emailer.send_magic_link(email, url, settings.MAGIC_TTL_MINUTES)
     audit(email, "auth.magic.request", f"delivery={delivery.get('provider')}", ip)
     if not delivery.get("ok"):
+        detail = str(delivery.get("error") or "unknown error").strip()[:180]
         print(
-            f"[email] magic link failed via {delivery.get('provider')}: {delivery.get('error')}",
+            f"[email] magic link failed via {delivery.get('provider')}: {detail}",
             flush=True,
         )
-        raise AuthError("Email delivery is not configured.", 503, "email_unavailable")
+        raise AuthError(
+            f"Email delivery failed ({delivery.get('provider') or 'unset'}): {detail}",
+            503,
+            "email_unavailable",
+        )
     result = {"ok": True, "expires_in": settings.MAGIC_TTL_MINUTES * 60, "provider": delivery.get("provider")}
     if settings.EMAIL_IS_CONSOLE and settings.DEV_CODES:
         result["dev_link"] = url

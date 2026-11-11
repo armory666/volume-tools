@@ -224,6 +224,7 @@ def owned_case(user: dict, case_id: str) -> dict:
 @app.get("/health", include_in_schema=False)
 def health():
     reason = db.fallback_reason()
+    mail = emailer.config()
     payload = {
         "ok": True,
         "app": settings.APP_NAME,
@@ -231,7 +232,9 @@ def health():
         "database": db.backend(),
         "database_ok": db.healthy(),
         "modules": len(modules_api.REGISTRY),
-        "email": emailer.config()["provider"],
+        "email": mail["provider"],
+        "email_configured": mail["configured"],
+        "email_from": mail["from_address"],
     }
     if reason:
         payload["database_fallback"] = reason
